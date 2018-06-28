@@ -1,0 +1,48 @@
+---
+- name: Render backend security groups
+  include_role:
+    name: terraplate-components/aws/vpc/security-groups
+  vars:
+    component_meta: # This is passed through the component directly to tpl_component
+      namespace:
+        lib: backend
+        app: backend
+        stage_vars: backend
+      name:
+        lib: security
+        app: security
+        stage_vars: security
+      # NOTE: move any repeating stuff to stagevars under key 'meta'
+      dependencies: [vpc]
+      remote_state_keys:
+        vpc:
+          key: sales # TODO: It shoudl be possible to use var substiution for 'sales'
+    resources:
+      security_groups:
+        app-server:
+          id: app-server
+          description: app-server-security-group
+          tags:
+            Name: app-server
+          cidr_rules:
+            - name: allow_ssh_in
+              to_port: 22
+              type: ingress
+            - name: allow_all_out
+              protocol: -1
+              type: egress
+        alb:
+          id: alb
+          description: alb-security-group
+          tags:
+            Name: alb
+          cidr_rules:
+            - name: allow_http_in
+              to_port: 80
+              type: ingress
+            - name: allow_https_in
+              to_port: 443
+              type: ingress
+            - name: allow_https2_in
+              to_port: 1443
+              type: ingress

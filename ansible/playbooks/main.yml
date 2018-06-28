@@ -1,0 +1,16 @@
+#!/usr/bin/env ansible-playbook
+# ./terraplate.yml [-v]
+# [-e task=< setup | lib | app >]
+# [-e env=<environment>] # default: development
+# [-e service=<service name>] # default: default
+# [-e component=<service playbook>] # default: main
+# NOTE: terraplate_app is automatically set to {{ prepd_project }}
+---
+- name: Do some terraplate stuff
+  hosts: terraplate
+  tasks:
+    # TODO: decide if need to encapsulate defaults and stuff in prepd/terraplate, but this should run w/out that
+    # If not, then move prepd/terraplate/setup to just prepd/terraplate and leave it at that
+    - include_role:
+        # name: prepd/terraplate
+        name: terraplate

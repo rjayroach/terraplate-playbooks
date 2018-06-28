@@ -1,0 +1,104 @@
+# domain vars
+---
+# The value of default is the key that templates will use to get a dict reference when none is supplied
+providers:
+  aws:
+    default: main
+    main:
+      profile: hashapp-terraform
+      region: ap-southeast-1
+    govcloud:
+      profile: hashapp-terraform-govcloud
+      region: us-govcloud-1
+  github:
+    default: maxcole
+    maxcole:
+      path: maxcole
+    otterlog:
+      path: speartail
+
+# NOTE: terraform resources will be automatically generated for all providers
+# To override which providers resources are generated, set resource_providers to an array of providers
+# resource_providers: [github]
+
+remote_state_buckets:
+  default: main
+  main:
+    # bucket: 'com-c2p4-hash-terraform-state-{{ terraplate.env }}'
+    bucket: com-c2p4-hash-terraform-state
+    region: ap-southeast-1
+  #
+  # admin:
+  #   bucket: com-c2p4-hash-terraform-state
+  #   region: ap-southeast-1
+
+remote_state_keys:
+  dns:
+    default:
+      key: admin/dns/domain
+  vpc:
+    default:
+      key: vpc
+
+#############
+# terraform_resource_providers:
+#   - aws
+#   - github
+#
+# terraform_providers:
+#   aws:
+#     main:
+#       profile: hashapp-terraform
+#       region: ap-southeast-1
+#     govcloud:
+#       profile: hashapp-terraform-govcloud
+#       region: us-govcloud-1
+#   github:
+#     maxcole:
+#       token: secret-token-from-an-encyrpted-file
+
+# terraplate_default_providers:
+#   aws: '{{ terraform_providers.aws.main }}'
+#   github: '{{ terraform_providers.github.maxcole }}'
+
+# if the key is not provided then fallback to tpl.providers[provider_type][0] (which is effectively the default)
+# terraform_remote_state_buckets:
+#   main:
+#     bucket: com-c2p4-hash-terraform-state
+#     region: ap-southeast-1
+
+# TODO: global hash tpl_global will take these values and set the default so templates can access without
+# needing to process the logic of default, e.g. tpl.providers[provider_type][0]
+
+# terraform_remote_state: "{{ terraform_remote_state_buckets['main'] }}"
+
+# terraform_remote_state_keys:
+#   dns:
+#     c2p4: # not sure if this is the appropriate key
+#       key: admin/dns/domain
+#       # bucket: main
+#       bucket: com-c2p4-hash-terraform-state
+#       region: ap-southeast-1
+#   vpc:
+#     main:
+#       key: vpc
+#       # bucket: main
+#       bucket: com-c2p4-hash-terraform-state
+#       region: ap-southeast-1
+
+# terraplate_default_remote_state_keys:
+#   dns: '{{ terraform_remote_state_keys.dns.c2p4 }}'
+#   vpc: '{{ terraform_remote_state_keys.vpc.main }}'
+# 
+# # refer to this in templates as tpl.defaults.providers[provider] or tpl.defaults.remote_state_bucket
+# defaults:
+#   providers:
+#     aws: '{{ terraform_providers.aws.main }}'
+#   remote_state_bucket: '{{ terraform_remote_state_buckets.main }}'
+# 
+# # NOTE: provision is for iam/policy-document; see about that
+# # NOTE: move the task to the terraplate role and test; then delete the below code
+# provision:
+#   tfvars:
+#     cidr_blocks: '0.0.0.0/0'
+#     tp_terraform_dir: '{{ playbook_dir.split("/")[0:-1] | join("/") }}/terraform'

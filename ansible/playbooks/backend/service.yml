@@ -1,0 +1,12 @@
+# backend vars
+# NOTE: This is in a separate file so that providers can reference tpl_domain_meta.providers
+---
+# TODO: this makes the dependencies array on terragrunt
+build_order: [vpc, security, compute]
+
+  # providers:
+  #   aws: '{{ tpl_domain.providers.aws.default }}'
+
+  #   github: otterlog
+  # remote_state_bucket: env
+  # # remote_state_keys:
