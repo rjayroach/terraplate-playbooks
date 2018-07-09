@@ -1,0 +1,25 @@
+terragrunt = {
+{% if spec.providers.required | length > 0 %}
+  terraform {
+    # NOTE: This is used to source provider secrets, e.g. GitHub token
+    extra_arguments "credentials" {
+      commands  = ["${get_terraform_commands_that_need_locking()}"]
+      arguments = [
+        "-var-file=${get_tfvars_dir()}/{{ credentials_path }}",
+      ]
+    }
+  }
+{% endif %}
+  include = {
+    path = "${find_in_parent_folders()}"
+  }
+{% if spec.dependencies | length > 0 %}
+  dependencies {
+    paths = [
+{% for dependency in spec.dependencies %}
+      "{{ dependency }}",
+{% endfor %}
+    ]
+  }
+{% endif %}
+}

@@ -1,0 +1,25 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Template an AWS Network Security Groups
+  hosts: app-backend-security
+  tasks:
+    - include_vars:
+        file: ../application-vars.yml
+        name: application
+    - include_role:
+        name: terraplate/component
+      vars:
+        manifest:
+          kind: aws/vpc/security
+          metadata:
+          spec:
+            application: '{{ application }}'
+            component:
+              terraplate:
+                name: security
+              terragrunt:
+                dependencies: [../network]
+              terraform:
+                providers: [aws]
+                remote_states: [network]
+            resources: '{{ env_spec.resources }}'

@@ -1,0 +1,10 @@
+---
+- name: Get the current public IP address of the machine running ansible
+  uri:
+    url: http://checkip.amazonaws.com/
+    return_content: yes
+  register: current_ip
+
+- name: Strip the current IP of newline
+  set_fact:
+    current_ip: "{{ current_ip.content | replace('\n', '/32') }}"

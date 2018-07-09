@@ -1,0 +1,27 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Template an AWS Network
+  # The value of 'hosts' can map to an inventory host_vars/<host_name>.yml
+  # so that variables can be subsituted on a per environment basis
+  hosts: app-backend-network
+  tasks:
+    - include_vars:
+        file: ../application-vars.yml
+        name: application
+    - include_role:
+        name: terraplate/component
+      vars:
+        manifest:
+          kind: aws/vpc/public-only-subnet
+          metadata:
+          spec:
+            application: '{{ application }}'
+            component:
+              terraplate:
+                name: network
+              terragrunt:
+                dependencies: []
+              terraform:
+                providers: [aws]
+                remote_states: []
+            resources: '{{ env_spec.resources }}'

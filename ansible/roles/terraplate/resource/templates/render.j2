@@ -1,0 +1,19 @@
+{% macro value(var, resource_var) -%}
+  {# If no value has been provided in playbook, stage or component vars then use the var's default value #}
+  {%- set value = (resource_var | default(var.default) | default('FIXME: NO DEFAULT AVAILABLE!')) %}
+
+  {%- if var.type is not defined %}"{{ value }}"
+  {%- elif var.type == 'map' %}{ {% for name, mvalue in value.iteritems() %}{{ name }} = "{{ mvalue }}" {% endfor %}}
+  {%- elif var.type == 'list' %}[{% for lvalue in value %} "{{ lvalue }}",{% endfor %}]
+  {%- else %}{{ "WARN: invalid type."/0 }}
+  {%- endif %}
+{%- endmacro -%}
+
+{% macro key(key, pad_length) -%}
+  {{ key }}{{ ' ' * (pad_length - (key | length)) }}
+{%- endmacro %}
+
+{% macro render_var(var, var_string) -%}
+  {% set is_list = (var.type is defined and var.type == 'list') %}
+  {%- if is_list %}[{% endif %}"${var.{{ var_string }}}"{% if is_list %}]{% endif %}
+{%- endmacro %}

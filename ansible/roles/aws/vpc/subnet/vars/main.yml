@@ -1,0 +1,29 @@
+# Resource Vars for aws/vpc/subnet
+---
+resource:
+  meta:
+    type: aws_subnet
+    description: Create a subnet
+  
+  variables:
+    cidr_block:
+      description: The CIDR block for the Subnet
+      default: 172.16.1.0/24
+    availability_zone:
+      description: The availability zone for the subnet
+      default: us-east-1a
+    map_public_ip_on_launch:
+      description: description
+      default: 'true'
+    tags:
+      description: Hash of name-value pairs to tag the instance
+      type: map
+      default:
+        Name: change me!
+    vpc_id:
+      description: The id of the VPC
+  
+  output_vars:
+    subnet_id:
+      description: The id of the subnet
+      name: id

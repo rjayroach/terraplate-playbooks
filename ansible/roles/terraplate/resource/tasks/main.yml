@@ -1,0 +1,23 @@
+---
+# - name: Include debug
+#   include_role:
+#     name: terraplate
+#     tasks_from: debug
+#   vars:
+#     called_from: render
+#   when: false
+# 
+# - debug:
+#     var: '{{ debug_item }}'
+#     verbosity: 0
+#   with_items: [resource, user_key, user_resource, resource_name]
+#   loop_control:
+#     loop_var: debug_item
+#   when: false
+# - debug:
+#    var: user_resource_variables
+
+- name: Render the main template
+  template:
+    src: main.tf.j2
+    dest: '{{ spec.terraplate.component_dir }}/{{ resource_name }}.tf'

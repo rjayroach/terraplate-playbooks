@@ -1,0 +1,84 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Render sales vpc
+  hosts: backend-network
+  tasks:
+    # - include_role:
+        # name: terraplate-components/aws/vpc/vpc  # can also be a custom component role from this project, e.g.:  t1
+    
+        #---
+        #- name: Setup the component
+        #  include_role:
+        #    name: terraplate/component
+        #  vars:
+        #    # NOTE: vars provided by remote_states should be listed in the 'provides' hash with the provider set to the remote_state name
+        #    component:
+        #      needs:
+        #        providers: [aws]
+        #      provides:
+        #        vpc_id:
+        #          provider: vpc # match the resource_name of the resource
+        #        route_table_id:
+        #          provider: route-table
+        #        gateway_id:
+        #          provider: internet-gateway
+
+    - name: Create a VPC
+      include_role:
+        name: terraplate/providers/aws2/vpc/vpc
+      vars:
+        resource_name: '{{ item.key }}' # used to be 'vpc' # must match provider name above
+        resource: '{{ item }}'
+      with_dict: '{{ resources.vpcs }}'
+
+    - name: Create a custom Route Table
+      include_role:
+        name: terraplate/providers/aws/vpc/route-table
+      vars:
+        resource:
+          tags:
+            Name: route-to-igw
+      when: false
+    
+    - name: Create an Internet Gateway
+      include_role:
+        name: terraplate/providers/aws/vpc/internet-gateway
+      when: false
+    
+    - name: Set the default route of the Custom Route Table to the Internet Gateway
+      include_role:
+        name: terraplate/providers/aws/vpc/route
+      when: false
+    
+    - name: Define subnets
+      include_role:
+        name: terraplate/providers/aws/vpc/subnet
+      vars:
+        resource_name: '{{ subnet.key }}'
+        resource_ns: subnets
+        resource_static: true # NOTE: means write the values directly in the lib modules rather than tfvars
+        resource:
+          availability_zone: '{{ subnet.value.availability_zone }}'
+          cidr_block: '{{ subnet.value.cidr_block }}'
+          map_public_ip_on_launch: "{{ subnet.value.map_public_ip_on_launch | default('true') }}"
+          tags: '{{ subnet.value.tags }}'
+      with_dict: '{{ resources.subnets }}'
+      loop_control:
+        loop_var: subnet
+      when: false
+    
+    - name: Associate Subnet to Route Table
+      include_role:
+        name: terraplate/providers/aws/vpc/route-table-association
+      vars:
+        resource_name: 'rtb-assn-to-{{ subnet.key }}'
+        resource_static: true # NOTE: means write the values directly in the lib modules rather than tfvars
+        resource:
+          route_table_id:
+            provider: '{{ subnet.value.rtb }}'
+          subnet_id:
+            provider: '{{ subnet.key }}'
+      with_dict: '{{ resources.subnets }}'
+      loop_control:
+        loop_var: subnet
+      when: false

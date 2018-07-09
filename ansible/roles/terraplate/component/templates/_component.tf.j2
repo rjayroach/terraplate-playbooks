@@ -1,0 +1,44 @@
+# Backend Configuration - required by Terraform; supplied by Terragrunt
+terraform {
+  backend "s3" {}
+}
+
+{% set tf_dollar = '${' %}
+{% set pad_length = 20 %}
+{% macro render_key(key, pad_length) -%}
+  {{ key }}{{ ' ' * (pad_length - (key | length)) }}
+{%- endmacro %}
+{% if (spec.providers.required | length) > 0 %}
+### Providers
+{% endif %}
+{% for provider in spec.providers.required %}
+{% for key, value in spec.providers.available[provider].iteritems() %}
+{% if value.startswith('var.') %}
+variable "{{ value | replace('var.', '') }}" {}
+{% endif %}
+{% endfor %}
+
+provider "{{ provider }}" {
+{% for key, value in spec.providers.available[provider].iteritems() %}
+{% if value.startswith('var.') %}
+  {{ render_key(key, pad_length) }} = "{{ tf_dollar }}{{ value }}}"
+{% else %}
+  {{ render_key(key, pad_length) }} = "{{ value }}"
+{% endif %}
+{% endfor %}
+}
+
+{% endfor %}
+
+{% if (spec.remote_states.required | length) > 0 %}### Remote Data Sources{% endif %}
+{% for provider in spec.remote_states.required %}
+
+data "terraform_remote_state" "{{ provider }}" {
+  backend = "s3"
+  config {
+    {{ render_key('bucket', pad_length) }} = "{{ spec.remote_states.available[provider].bucket | default(spec.remote_states.default.bucket) }}"
+    {{ render_key('key', pad_length) }} = "{{ spec.remote_states.available[provider].key | default(spec.remote_states.default.key + '/' + provider) }}/terraform.tfstate"
+    {{ render_key('region', pad_length) }} = "{{ spec.remote_states.available[provider].region | default(spec.remote_states.default.region) }}"
+  }
+}
+{% endfor %}

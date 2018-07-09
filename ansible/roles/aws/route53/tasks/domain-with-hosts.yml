@@ -1,0 +1,27 @@
+# Component Tasks for domain-with-hosts
+---
+- name: Include terraplate/debug tasks
+  include_role:
+    name: terraplate/utils
+    tasks_from: debug
+  vars:
+    called_from: 'aws/route53/tasks/domain-with-hosts.yml'
+  when: false
+
+- name: Template the zone
+  include_role:
+    name: aws/route53/zone
+  vars:
+    user_key: "{{ item.name | replace('.', '-')}}"
+    user_resource: '{{ item }}'
+  with_items: '{{ manifest.spec.resources.zones }}'
+
+- name: Template the Resource Records
+  include_role:
+    name: aws/route53/record
+  vars:
+    user_key: "{{ (item.0.name + '-' + item.1.name + '-' + item.1.type) | replace('.', '-') }}"
+    user_resource: "{{ item.1 | combine({'zone_id': '${aws_route53_zone.' + item.0.name | replace('.', '-') + '.id}'}) }}"
+  with_subelements:
+    - '{{ manifest.spec.resources.zones }}'
+    - records

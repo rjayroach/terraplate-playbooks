@@ -1,0 +1,36 @@
+# Resource Vars for aws/vpc/security-group-rule-cidr
+---
+resource:
+  meta:
+    type: aws_security_group_rule
+    description: Create a security group rule
+
+  variables:
+    type:
+      description: Ingress or Egress rule
+      default: ingress
+    from_port:
+      description: description
+      default: 0
+    to_port:
+      description: description
+      default: 0
+    protocol:
+      description: description
+      default: tcp
+    cidr_blocks:
+      description: The CIDR block
+      type: list
+      required: false
+  
+    source_security_group_id:
+      description: The Security Group
+      required: false
+
+    security_group_id:
+      description: The id of the security group
+  
+  output_vars:
+    rule_id:
+      description: The id of the created resoruce
+      name: id

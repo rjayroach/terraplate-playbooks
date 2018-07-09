@@ -1,0 +1,17 @@
+---
+resource:
+  meta:
+    type: aws_key_pair
+    description: This resource creates an existing user-supplied key pair
+
+  variables:
+    key_name:
+      description: The name of the key pair to create
+    public_key_name:
+      description: The name of the key pair to create
+  
+  # Needs to be set using:
+  #   export TF_VAR_ec2_key_pair_public_key_path=
+  env_vars:
+    public_key_path:
+      description: The name of the key pair to create

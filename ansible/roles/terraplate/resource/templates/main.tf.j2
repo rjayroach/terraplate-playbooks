@@ -1,0 +1,49 @@
+{% import 'render.j2' as render %}
+{% set tf_dollar = '${' %}
+{% set pad_length = 40 %}
+# {{ resource.meta.description }}
+
+{% if resource.input_vars is defined %}
+  {%- for key, value in resource.input_vars.iteritems() %}
+# variable "{{ resource.meta.type }}_{{ resource_name }}_{{ key }}" {
+variable "{{ key }}" {
+  {{ render.key('description', pad_length) }} = "{{ value.description }}"
+  {{ render.key('default', pad_length) }} = {{ render.value(value, user_resource_variables[key]) }}
+}
+  {%- endfor %}
+{% endif %}
+
+resource "{{ resource.meta.type }}" "{{ resource_name }}" {
+{% for key, value in resource.variables.iteritems() %}
+{# }
+{% set subelements = value.keys() | difference(['default', 'required', 'description', 'type']) %}
+{% if subelements | length > 0 %}
+  {{ render.key(key, pad_length) }} {
+{% for skey, svalue in resource.variables[key].iteritems() %}
+{% if skey in subelements %}
+{% set urv = user_resource_variables[key][skey] if user_resource_variables[key] is defined else null %}
+  {{ render.key(skey, pad_length + 2) }} = {{ render.value(svalue, urv) }}
+{% endif %}
+{% endfor %}
+  }
+  {% endif %}
+{ #}
+  {% if value.required is defined and value.required == False and user_resource_variables[key] is not defined %}
+  {% elif user_resource_variables[key] is defined and user_resource_variables[key].remote_state is defined %}
+  {{ render.key(key, pad_length) }} = {{ render.value(value, '${data.terraform_remote_state.' + user_resource_variables[key].remote_state + '}') }}
+  {% else %}
+  {{ render.key(key, pad_length) }} = {{ render.value(value, user_resource_variables[key]) }}
+  {% endif %}
+{% endfor %}
+
+}
+
+{% if resource.output_vars is defined %}
+  {%- for key, value in resource.output_vars.iteritems() %}
+output "{{ resource.meta.type }}_{{ resource_name }}_{{ key }}" {
+  {{ render.key('description', pad_length) }} = "{{ value.description }}"
+  {{ render.key('value', pad_length) }} = "{{ tf_dollar }}{{ resource.meta.type }}.{{ resource_name }}.{{ value.name | default(key) }}}"
+}
+
+{% endfor %}
+{%- endif %}

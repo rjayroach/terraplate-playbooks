@@ -1,0 +1,35 @@
+---
+- name: Set internal spec variable
+  set_fact:
+    spec: '{{ spec_d }}'
+    credentials_path: "{{ '../' * ( (spec_d.terraplate.component_dir.split('/') | length) - (spec_d.terraplate.root_dir.split('/') | length) ) }}{{ manifest.spec.application.terragrunt.credentials_path }}"
+
+# - name: Debug
+#   include_role: terraplate/utils
+#     tasks_from: debug
+#- debug:
+#    var: credentials_path
+
+- name: Create the output directory for the component
+  file:
+    name: '{{ spec.terraplate.component_dir }}'
+    state: directory
+
+- name: Template the application files
+  include_role:
+    name: terraplate/application
+
+- name: Template the component terraform.tfvars file
+  template:
+    src: terraform.tfvars.j2
+    dest: '{{ spec.terraplate.component_dir }}/terraform.tfvars'
+
+- name: Template the component file including remote states
+  template:
+    src: _component.tf.j2
+    dest: '{{ spec.terraplate.component_dir }}/_component.tf'
+
+- name: Invoke the role as defined in manifest.kind
+  include_role:
+    name: "{{ manifest.kind.split('/')[0:-1] | join('/') }}"
+    tasks_from: "{{ manifest.kind.split('/')[-1] }}"

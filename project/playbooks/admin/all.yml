@@ -1,0 +1,5 @@
+#!/usr/bin/env ansible-playbook
+---
+- import_playbook: dns/zone.yml
+- import_playbook: vcs/repos.yml
+# - import_playbook: compute/keys.yml

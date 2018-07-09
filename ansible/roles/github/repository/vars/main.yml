@@ -1,0 +1,22 @@
+---
+resource:
+  meta:
+    type: github_repository
+    description: Creates a GitHub repository
+  
+  variables:
+    name:
+      description: '(Required) The name of the repository'
+    description:
+      description: '(Optional) A description of the repository'
+    private:
+      default: 'true'
+      description: '(Optional) Set to true to create a private repository. Repositories are created as public (e.g. open source) by default'
+  
+  output_vars:
+    full_name:
+      description: "A string of the form 'orgname/reponame'"
+    git_clone_url:
+      description: URL that can be provided to git clone to clone the repository anonymously via the git protocol
+    ssh_clone_url:
+      description: URL that can be provided to git clone to clone the repository via SSH

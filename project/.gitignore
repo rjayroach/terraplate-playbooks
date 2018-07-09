@@ -1,0 +1,3 @@
+terraform/*
+secrets/*
+inventory/all/secrets.yml

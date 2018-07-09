@@ -1,0 +1,22 @@
+# Hosts shared across environments that have a consistent infrastrucutre, i.e. not local
+# localhost ansible_host=localhost ansible_connection=local
+app-backend-network ansible_host=localhost ansible_connection=local
+app-backend-security ansible_host=localhost ansible_connection=local
+app-backend-compute ansible_host=localhost ansible_connection=local
+admin-dns ansible_host=localhost ansible_connection=local
+admin-vcs ansible_host=localhost ansible_connection=local
+
+# [terraplate]
+# localhost
+
+# [backend]
+# app-backend-network
+# backend-security
+# backend-compute
+# localhost
+# 
+# [backend-security]
+# localhost
+# 
+# [backend-compute]
+# localhost

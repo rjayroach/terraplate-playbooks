@@ -1,0 +1,39 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Template EC2 ssh key pairs
+  hosts: admin-security
+  vars:
+    key_path: '{{ ansible_env.HOME }}/.ssh'
+    key_name: '{{ settings.ec2_key_name }}'
+  tasks:
+    - include_role:
+        name: terraplate/utils
+        tasks_from: ssh-key-gen
+      vars:
+        private_key_path: '{{ key_path }}/{{ key_name }}'
+
+    - include_vars:
+        file: ../application-vars.yml
+        name: application
+
+    - include_role:
+        name: terraplate/component
+      when: false
+      vars:
+        manifest:
+          kind: aws/ec2/keys
+          metadata:
+          spec:
+            application: '{{ application }}'
+            component:
+              terraplate:
+                name: admin/compute
+              terragrunt:
+                dependencies: []
+              terraform:
+                providers: [aws]
+            resources:
+              key_pairs:
+                - name: '{{ key_name }}'
+                  public_key_path: '{{ key_path }}'
+                  public_key_name: '{{ key_name }}.pub'

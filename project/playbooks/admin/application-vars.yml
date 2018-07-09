@@ -1,0 +1,10 @@
+# application vars
+---
+terraplate:
+  root_dir: '{{ globals.terraplate.root_dir }}'
+  credentials_path: '{{ globals.terraplate.credentials_path }}'
+  app_name: admin
+
+terragrunt: '{{ globals.terragrunt }}'
+
+terraform: '{{ globals.terraform }}'

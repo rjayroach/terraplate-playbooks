@@ -1,0 +1,76 @@
+# Resource Vars for aws/ec2/instance
+---
+resource:
+  meta:
+    type: aws_instance
+    description: Create an EC2 Instance in a VPC subnet and AZ
+    # required: [ami, instance_type]
+
+  input_vars:
+    region:
+      description: description
+    amis:
+      type: map
+      description: Hash of amis per region
+  
+  variables:
+    ami:
+      description: description
+      default: "${lookup(var.amis, var.region)}"
+      required: true
+    associate_public_ip_address:
+      description: description
+      default: 'true'
+    availability_zone:
+      description: description
+    ebs_optimized:
+      description: description
+      default: 'false'
+    instance_type:
+      description: description
+      default: t2.micro
+      required: true
+    key_name:
+      description: The name of the ssh key pair
+    monitoring:
+      description: description
+      default: 'false'
+    # private_ip:
+    #   description: description
+    #   default: 172.16.1.184
+    root_block_device:
+      description: description
+      required: false
+      type: map
+      # TODO: modify render to look for values that are not in [description, required, etc]
+      # volume_type:
+      #   description: description
+      #   default: gp2
+      # volume_size:
+      #   description: description
+      #   default: 8
+      # delete_on_termination:
+      #   description: description
+      #   default: 'true'
+    source_dest_check:
+      description: description
+      default: 'true'
+    tags:
+      type: map
+      description: Hash of name-value pairs to tag the instance
+      default: { 'Name': 'Change Me!' }
+  
+  # external_vars:
+    vpc_security_group_ids:
+      type: list
+      description: The security group id for the instance
+    subnet_id:
+      description: description
+  
+  output_vars:
+    instance_id:
+      description: The ec2 instance id
+      name: id
+    private_ips:
+      description: description
+      name: '*.private_ip'

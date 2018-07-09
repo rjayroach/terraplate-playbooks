@@ -1,0 +1,52 @@
+# defaults
+# TODO: Go through and identify which specific vars can be missing
+# from the user's manifest and ensure they're blank
+# NOTE: The goal here is to provide basic defaults so the templates
+# don't need to be checking for if a variable is defined or not
+# All that is done here in one place rather than scattered throughout the 
+# downstream templates, including the actual resource templates
+---
+spec_a:
+  application: '{{ manifest.spec.application | default({}) }}'
+  component: '{{ manifest.spec.component | default({}) }}'
+
+spec_b:
+  application:
+    terraplate: '{{ spec_a.application.terraplate | default({}) }}'
+    terragrunt: '{{ spec_a.application.terragrunt | default({}) }}'
+    terraform: '{{ spec_a.application.terraform | default({}) }}'
+
+  component:
+    terraplate: '{{ spec_a.component.terraplate | default({}) }}'
+    terragrunt: '{{ spec_a.component.terragrunt | default({}) }}'
+    terraform: '{{ spec_a.component.terraform | default({}) }}'
+
+spec_c:
+  root_dir: '{{ spec_b.application.terraplate.root_dir }}'
+  app_name: '{{ spec_b.application.terraplate.app_name }}'
+  component_name: '{{ spec_b.component.terraplate.name }}'
+
+spec_d:
+  terraplate:
+    root_dir: '{{ spec_c.root_dir }}'
+    app_dir: '{{ spec_c.root_dir }}/{{ spec_c.app_name }}'
+    component_dir: '{{ spec_c.root_dir }}/{{ spec_c.app_name }}/{{ spec_c.component_name }}'
+    component_name: '{{ spec_c.component_name }}'
+  terragrunt:
+  terraform:
+
+  providers:
+    required: '{{ spec_b.component.terraform.providers | default({}) }}'
+    available: '{{ spec_b.application.terraform.providers | default({}) }}'
+
+  remote_states:
+    required: '{{ spec_b.component.terraform.remote_states | default([]) }}'
+    available: '{{ spec_b.application.terraform.remote_states | default({}) }}'
+    default:
+      bucket: '{{ spec_b.application.terragrunt.remote_state.bucket }}'
+      region: '{{ spec_b.application.terragrunt.remote_state.region }}'
+      key: '{{ spec_c.app_name }}'
+
+  dependencies: '{{ spec_b.component.terragrunt.dependencies }}'
+
+  resources: '{{ manifest.spec.resources | default({}) }}'

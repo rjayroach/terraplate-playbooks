@@ -1,0 +1,38 @@
+---
+kind: aws/route53/domain-with-hosts
+metadata:
+spec:
+  application: '{{ application }}'
+  component:
+    terraplate:
+      name: dns/domain
+    terragrunt:
+      dependencies: [../../vcs]
+    terraform:
+      providers: [aws]
+  resources:
+    zones:
+      - name: '{{ settings.zone_domain }}'
+        comment: HostedZone created by Route53 Registrar and Managed by Terraform
+        tags:
+          Name: Primary Domain!
+        records:
+          - name: '{{ settings.host_1.name }}'
+            type: A
+            records:
+              - '{{ settings.host_1.address }}'
+            ttl: 3600
+          - name: '{{ settings.host_2.name }}'
+            type: A
+            records:
+              - '{{ settings.host_2.address }}'
+            ttl: 3600
+          - name: ''
+            type: MX
+            ttl: 3600
+            records:
+              - 1 aspmx.l.google.com
+              - 5 alt1.aspmx.l.google.com
+              - 5 alt2.aspmx.l.google.com
+              - 10 alt3.aspmx.l.google.com
+              - 10 alt4.aspmx.l.google.com

@@ -1,0 +1,33 @@
+---
+env_spec:
+  resources:
+    aws_vpcs:
+      - _id: dink
+        cidr_block: 172.16.0.0/20
+        tags:
+          Name: This great VPC1
+          Doing: '{{ env.terraplate.tld }}'
+            # Doing: '{{ manifest.spec.component.terraplate.name }}-{{ env.terraplate.tld }}'
+        subnets:
+          - name: public_1
+            availability_zone: ap-southeast-1a
+            cidr_block: 172.16.0.0/24
+            tags: { Name: 'public-1' }
+            rtb: route-table
+          # - name: public_2
+          #   availability_zone: ap-southeast-1b
+          #   cidr_block: 172.16.2.0/24
+          #   tags: { Name: 'public-2' }
+          #   rtb: route-table
+          # - name: private_1
+          #   availability_zone: ap-southeast-1a
+          #   cidr_block: 172.16.1.0/24
+          #   tags: { Name: 'private-1' }
+          #   rtb: vpc
+          #   map_public_ip_on_launch: 'false'
+          # - name: private_2
+          #   availability_zone: ap-southeast-1b
+          #   cidr_block: 172.16.3.0/24
+          #   tags: { Name: 'private-2' }
+          #   rtb: vpc
+          #   map_public_ip_on_launch: 'false'

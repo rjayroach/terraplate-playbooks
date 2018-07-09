@@ -1,0 +1,9 @@
+---
+- name: Render GitHub Repository Resources
+  include_role:
+    name: github/repository
+  vars:
+    user_key: '{{ item.name }}'
+    user_resource: '{{ item }}'
+  with_items: '{{ manifest.spec.resources.repos }}' 
+  # with_items: '{{ manifest.resources.repos }}' 

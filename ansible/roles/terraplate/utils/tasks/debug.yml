@@ -1,0 +1,8 @@
+---
+- name: 'Terraplate debug as seen in {{ called_from }}'
+  debug:
+    var: '{{ debug_item }}'
+    verbosity: 0
+  with_items: [manifest, spec_a, spec_b, spec_c, spec_d, spec, resource, user_resource, user_key]
+  loop_control:
+    loop_var: debug_item

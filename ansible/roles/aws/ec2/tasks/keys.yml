@@ -1,0 +1,18 @@
+# Component Tasks for keys
+---
+- name: Include terraplate/debug tasks
+  include_role:
+    name: terraplate
+    tasks_from: debug
+  vars:
+    called_from: 'aws/ec2/tasks/keys.yml'
+  when: false
+
+- name: Template the key-pair
+  include_role:
+    name: aws/ec2/key-pair
+  vars:
+    user_key: "{{ item.name | replace('.', '-')}}"
+    user_resource: '{{ item }}'
+  with_items: '{{ manifest.spec.resources.zones }}'
+

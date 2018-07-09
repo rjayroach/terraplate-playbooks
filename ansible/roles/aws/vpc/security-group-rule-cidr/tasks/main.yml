@@ -1,0 +1,16 @@
+# Resource Tasks for aws/vpc/security-group-rule-cidr
+---
+- name: Include terraplate/debug tasks
+  include_role:
+    name: terraplate/utils
+    tasks_from: debug
+  vars:
+    called_from: 'aws/vpc/security-group-rule-cidr/tasks/main.yml'
+  when: false
+
+- import_role:
+    name: terraplate/resource
+  vars:
+    terraplate_namespace: '{{ spec.terraplate.component_name }}'
+    resource_name: '{{ user_key }}'
+    user_resource_variables: '{{ user_resource }}'

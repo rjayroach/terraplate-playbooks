@@ -1,0 +1,5 @@
+#!/usr/bin/env ansible-playbook
+---
+- import_playbook: backend/network.yml
+- import_playbook: backend/security.yml
+- import_playbook: backend/compute.yml
