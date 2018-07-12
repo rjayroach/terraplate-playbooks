@@ -1,0 +1,5 @@
+---
+- name: 'Template array of key-value pairs to {{ dest }}'
+  template:
+    src: key-value-pairs.j2
+    dest: '{{ dest }}'

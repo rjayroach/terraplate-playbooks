@@ -1,9 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
 - name: Template an EC2
-  # The value of hosts is mapped to a single instance of a 'component'
-  # if multiple components are needed then multiple hosts are defined
-  # so that host_vars can be defined indepednetly for each instance
   hosts: app-backend-compute
   tasks:
     - include_vars:
@@ -14,15 +11,13 @@
       vars:
         manifest:
           kind: aws/ec2/instances-with-eip
-          metadata:
-          spec:
-            application: '{{ application }}'
-            component:
-              terraplate:
-                name: compute
-              terragrunt:
-                dependencies: [../network, ../security]
-              terraform:
-                providers: [aws]
-                remote_states: [network, security]
-            resources: '{{ env_spec.resources }}'
+          application: '{{ application }}'
+          component:
+            terraplate:
+              name: backend/compute
+            terragrunt:
+              dependencies: [../network, ../security]
+            terraform:
+              providers: [aws]
+              remote_states: [network, security]
+          resources: '{{ env_spec.resources }}'

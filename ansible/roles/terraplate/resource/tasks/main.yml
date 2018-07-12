@@ -1,23 +1,14 @@
 ---
-# - name: Include debug
-#   include_role:
-#     name: terraplate
-#     tasks_from: debug
-#   vars:
-#     called_from: render
-#   when: false
-# 
 # - debug:
 #     var: '{{ debug_item }}'
-#     verbosity: 0
-#   with_items: [resource, user_key, user_resource, resource_name]
+#     verbosity: 1
+#   with_items: [resource_name, resource, user_resource_variables, template_name]
 #   loop_control:
 #     loop_var: debug_item
-#   when: false
-# - debug:
-#    var: user_resource_variables
 
-- name: Render the main template
+- name: "Render the resource template for {{ resource.meta.type + '_' + resource_name | replace('-', '_') }}"
   template:
-    src: main.tf.j2
-    dest: '{{ spec.terraplate.component_dir }}/{{ resource_name }}.tf'
+    src: main.tf.j2 # This could be changed to resource.tf.j2
+    # src: "{{ template_name | default('main.tf.j2') }}"
+    dest: "{{ spec.terraplate.component_dir }}/{{ resource.meta.type + '_' + resource_name | replace('-', '_') }}.tf"
+  # when: this is a resource; Next task would template when it is data

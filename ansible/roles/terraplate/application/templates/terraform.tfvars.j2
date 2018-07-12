@@ -2,11 +2,11 @@ terragrunt = {
   remote_state {
     backend = "s3"
     config {
-      bucket         = "{{ manifest.spec.application.terragrunt.remote_state.bucket | default('my-terraform-state') }}"
+      bucket         = "{{ spec.terragrunt.remote_state.bucket | default('my-terraform-state') }}"
       key            = "${path_relative_to_include()}/terraform.tfstate"
-      region         = "{{ manifest.spec.application.terragrunt.remote_state.region | default('us-east-1') }}"
-      encrypt        = {{ manifest.spec.application.terragrunt.remote_state.encrypt | default('true') }}
-      dynamodb_table = "{{ manifest.spec.application.terragrunt.remote_state.dynamodb_table | default('my-lock-table') }}"
+      region         = "{{ spec.terragrunt.remote_state.region | default('us-east-1') }}"
+      encrypt        = {{ spec.terragrunt.remote_state.encrypt | default('true') }}
+      dynamodb_table = "{{ spec.terragrunt.remote_state.dynamodb_table | default('my-lock-table') }}"
       
       s3_bucket_tags {
         owner = "terragrunt integration test"

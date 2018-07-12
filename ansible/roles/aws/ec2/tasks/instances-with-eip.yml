@@ -1,6 +1,7 @@
+# Component Tasks for instances-with-eip
 ---
 - debug:
-    var: manifest.spec.resources
+    var: spec.resources
 
 - name: Create an EC2 instance in a VPC
   include_role:
@@ -8,16 +9,16 @@
   vars:
     user_key: '{{ item._id }}'
     user_resource: '{{ item }}'
-  with_items: '{{ manifest.spec.resources.aws_instances }}'
+  with_items: '{{ spec.resources.instances }}'
 
 - name: Create Elastic IPs
   include_role:
     name: aws/ec2/eip
   vars:
-    # user_key: "{{ (item.0._id + '-' + item.1._id) | replace('.', '-') }}"
-    user_key: "{{ (item._id) | replace('.', '-') }}_eip"
+    user_key: '{{ item._id }}'
     user_resource: '{{ item }}'
-  with_items: '{{ manifest.spec.resources.aws_eips }}'
+  with_items: '{{ spec.resources.instances }}'
+  when: item.eip is defined
 
 #
 # - name: Template the Resource Records
@@ -28,8 +29,8 @@
 #     user_resource: '{{ item }}'
 #     # user_key: "{{ (item.0.name + '-' + item.1.name + '-' + item.1.type) | replace('.', '-') }}"
 #     # user_resource: "{{ item.1 | combine({'zone_id': '${aws_route53_zone.' + item.0.name | replace('.', '-') + '.id}'}) }}"
-#   with_items: '{{ manifest.spec.resources.records }}'
+#   with_items: '{{ spec.resources.records }}'
 #   # with_subelements:
-#   #   - '{{ manifest.spec.resources.aws_instances }}'
+#   #   - '{{ spec.resources.aws_instances }}'
 #   #   - records
-#   # when: false
+#   # when: item.0.records is defined

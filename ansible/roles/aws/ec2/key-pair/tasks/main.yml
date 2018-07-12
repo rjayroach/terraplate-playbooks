@@ -10,16 +10,5 @@
 - import_role:
     name: terraplate/resource
   vars:
-    # terraplate_namespace: '{{ manifest.spec.component.terraplate.name }}'
-    terraplate_namespace: '{{ spec.terraplate.component_name }}'
     resource_name: '{{ user_key }}'
     user_resource_variables: '{{ user_resource }}'
-
-- name: Write to .envrc
-  blockinfile:
-    create: yes
-    dest: '{{ envrc_file }}'
-    marker: '# {mark} {{ role_path }}'
-    block: |
-      export TF_VAR_ec2_key_pair_public_key_path={{ provision.tfvars.public_key_path }}
-  when: false

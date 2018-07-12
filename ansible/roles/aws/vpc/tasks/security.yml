@@ -14,7 +14,7 @@
   vars:
     user_key: '{{ item.name }}'
     user_resource: '{{ item }}'
-  with_items: '{{ manifest.spec.resources.aws_security_groups }}'
+  with_items: '{{ spec.resources.aws_security_groups }}'
 
 - name: Template the CIDR rules
   include_role:
@@ -23,5 +23,5 @@
     user_key: '{{ item.0.name }}-{{ item.1.name }}'
     user_resource: "{{ item.1 | combine({'security_group_id': '${aws_security_group.' + item.0.name + '.id}'}) }}"
   with_subelements:
-    - '{{ manifest.spec.resources.aws_security_groups }}'
+    - '{{ spec.resources.aws_security_groups }}'
     - rules

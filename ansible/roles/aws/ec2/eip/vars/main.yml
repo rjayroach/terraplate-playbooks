@@ -26,6 +26,5 @@ resource:
   output_vars:
     public_ip:
       description: Contains the public IP address
-    allocation_id:
+    id:
       description: Contains the EIP allocation ID
-      name: id

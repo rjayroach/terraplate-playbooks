@@ -6,11 +6,11 @@ env_spec:
         cidr_block: 172.16.0.0/20
         tags:
           Name: This great VPC1
-          Doing: '{{ env.terraplate.tld }}'
-            # Doing: '{{ manifest.spec.component.terraplate.name }}-{{ env.terraplate.tld }}'
+          Environment: '{{ env.terraplate.tld }}'
         subnets:
           - name: public_1
             availability_zone: ap-southeast-1a
+            map_public_ip_on_launch: yes
             cidr_block: 172.16.0.0/24
             tags: { Name: 'public-1' }
             rtb: route-table

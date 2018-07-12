@@ -19,6 +19,5 @@ resource:
       description: The id of the vpc
   
   output_vars:
-    security_group_id:
+    id:
       description: The id of the created resoruce
-      name: id

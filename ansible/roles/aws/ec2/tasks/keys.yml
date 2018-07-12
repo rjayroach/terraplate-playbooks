@@ -12,7 +12,6 @@
   include_role:
     name: aws/ec2/key-pair
   vars:
-    user_key: "{{ item.name | replace('.', '-')}}"
+    user_key: '{{ item.key_name }}'
     user_resource: '{{ item }}'
-  with_items: '{{ manifest.spec.resources.zones }}'
-
+  with_items: '{{ spec.resources.key_pairs }}'

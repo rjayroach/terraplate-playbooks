@@ -31,6 +31,5 @@ resource:
       description: The id of the security group
   
   output_vars:
-    rule_id:
-      description: The id of the created resoruce
-      name: id
+    id:
+      description: The id of the created rule

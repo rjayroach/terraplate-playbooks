@@ -3,17 +3,16 @@
 env_spec:
   resources:
     aws_security_groups:
-      - name: app-server
+      - name: app_server
         description: app-server-security-group
         tags:
           Name: app-server
-        vpc_id: ${data.terraform_remote_state.app-network.aws_vpc_dink_vpc_id}
+        vpc_id: ${data.terraform_remote_state.network.aws_vpc_dink_id}
         rules:
           - name: allow-ssh-in
             to_port: 22
             type: ingress
             cidr_blocks: ['0.0.0.0/0']
-            # source_security_group_id: ${aws_security_group.alb.id}
           - name: allow-all-out
             protocol: -1
             type: egress
@@ -23,7 +22,7 @@ env_spec:
         description: alb-security-group
         tags:
           Name: alb
-        vpc_id: ${data.terraform_remote_state.app-network.aws_vpc_dink_vpc_id}
+        vpc_id: ${data.terraform_remote_state.network.aws_vpc_dink_id}
         rules:
           - name: allow_http_in
             to_port: 80

@@ -11,15 +11,13 @@
       vars:
         manifest:
           kind: aws/vpc/security
-          metadata:
-          spec:
-            application: '{{ application }}'
-            component:
-              terraplate:
-                name: security
-              terragrunt:
-                dependencies: [../network]
-              terraform:
-                providers: [aws]
-                remote_states: [network]
-            resources: '{{ env_spec.resources }}'
+          application: '{{ application }}'
+          component:
+            terraplate:
+              name: backend/security
+            terragrunt:
+              dependencies: [../network]
+            terraform:
+              providers: [aws]
+              remote_states: [network]
+          resources: '{{ env_spec.resources }}'

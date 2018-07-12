@@ -6,24 +6,31 @@ resource:
     description: Create a subnet
   
   variables:
-    cidr_block:
-      description: The CIDR block for the Subnet
-      default: 172.16.1.0/24
+    assign_ipv6_address_on_creation:
+      description: 'Specify true to indicate that network interfaces created in the specified subnet should be assigned an IPv6 address. Default is false'
+      required: no
     availability_zone:
       description: The availability zone for the subnet
+      required: no
       default: us-east-1a
+    cidr_block:
+      description: The CIDR block for the Subnet
+      required: yes
+      default: 172.16.1.0/24
+    ipv6_cidr_block:
+      description: 'The IPv6 network range for the subnet, in CIDR notation. The subnet size must use a /64 prefix length.'
+      required: no
     map_public_ip_on_launch:
-      description: description
-      default: 'true'
+      description: 'Specify true to indicate that instances launched into the subnet should be assigned a public IP address. Default is false'
+      required: no
     tags:
       description: Hash of name-value pairs to tag the instance
       type: map
-      default:
-        Name: change me!
+      required: no
     vpc_id:
       description: The id of the VPC
+      required: yes
   
   output_vars:
-    subnet_id:
+    id:
       description: The id of the subnet
-      name: id

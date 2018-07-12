@@ -1,3 +1,4 @@
+# Component Tasks for github/vcs
 ---
 - name: Render GitHub Repository Resources
   include_role:
@@ -5,5 +6,4 @@
   vars:
     user_key: '{{ item.name }}'
     user_resource: '{{ item }}'
-  with_items: '{{ manifest.spec.resources.repos }}' 
-  # with_items: '{{ manifest.resources.repos }}' 
+  with_items: '{{ spec.resources.repos }}'

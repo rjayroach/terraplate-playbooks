@@ -2,18 +2,19 @@
 {% set tf_dollar = '${' %}
 {% set pad_length = 40 %}
 # {{ resource.meta.description }}
+# See: {{ resource.meta.url | default('https://www.terraform.io/docs/providers/' + resource.meta.type.split('_')[0] + '/r/' + (resource.meta.type.split('_')[1:] | join('_')) + '.html') }}
 
 {% if resource.input_vars is defined %}
   {%- for key, value in resource.input_vars.iteritems() %}
-# variable "{{ resource.meta.type }}_{{ resource_name }}_{{ key }}" {
-variable "{{ key }}" {
+variable "{{ (resource.meta.type + '_' + resource_name + '_' +  key) | replace('-', '_') }}" {
   {{ render.key('description', pad_length) }} = "{{ value.description }}"
   {{ render.key('default', pad_length) }} = {{ render.value(value, user_resource_variables[key]) }}
 }
   {%- endfor %}
 {% endif %}
 
-resource "{{ resource.meta.type }}" "{{ resource_name }}" {
+{% if template_content is defined %}{{ template_content }}{% else %}
+resource "{{ resource.meta.type }}" "{{ resource_name | replace('-', '_') }}" {
 {% for key, value in resource.variables.iteritems() %}
 {# }
 {% set subelements = value.keys() | difference(['default', 'required', 'description', 'type']) %}
@@ -37,12 +38,13 @@ resource "{{ resource.meta.type }}" "{{ resource_name }}" {
 {% endfor %}
 
 }
+{% endif %}
 
 {% if resource.output_vars is defined %}
   {%- for key, value in resource.output_vars.iteritems() %}
-output "{{ resource.meta.type }}_{{ resource_name }}_{{ key }}" {
+output "{{ (resource.meta.type + '_' + resource_name + '_' +  key) | replace('-', '_') }}" {
   {{ render.key('description', pad_length) }} = "{{ value.description }}"
-  {{ render.key('value', pad_length) }} = "{{ tf_dollar }}{{ resource.meta.type }}.{{ resource_name }}.{{ value.name | default(key) }}}"
+  {{ render.key('value', pad_length) }} = "{{ tf_dollar }}{{ value.prefix | default('') }}{{ resource.meta.type }}.{{ (resource_name + '.' + (value.name | default(key))) | replace('-', '_') }}}"
 }
 
 {% endfor %}

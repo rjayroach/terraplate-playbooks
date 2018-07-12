@@ -6,7 +6,7 @@
   vars:
     user_key: '{{ item._id }}'
     user_resource: '{{ item }}'
-  with_items: '{{ manifest.spec.resources.aws_vpcs }}'
+  with_items: '{{ spec.resources.aws_vpcs }}'
 
 - name: Template the subnets
   include_role:
@@ -15,5 +15,5 @@
     user_key: '{{ item.0._id }}-{{ item.1.name }}'
     user_resource: "{{ item.1 | combine({'vpc_id': '${aws_vpc.' + item.0._id + '.id}'}) }}"
   with_subelements:
-    - '{{ manifest.spec.resources.aws_vpcs }}'
+    - '{{ spec.resources.aws_vpcs }}'
     - subnets

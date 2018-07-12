@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: Render GitHub Repository Component
+- name: Render GitHub Repositories
   hosts: admin-vcs
   tasks:
     - include_vars:
@@ -9,30 +9,15 @@
     - include_role:
         name: terraplate/component
       vars:
-        # manifest:
-        #   kind: github/vcs
-        #   application: '{{ application }}'
-        #   component:
-        #     name: vcs
-        #     dependencies: []
-        #     providers: [github]
-        #   resources:
-        #     repos:
-        #       - name: terraplate-devops
-        #         description: Terraplate Devops Repository
-        #
         manifest:
           kind: github/vcs
-          spec:
-            application: '{{ application }}'
-            component:
-              terraplate:
-                name: vcs
-              terragrunt:
-                dependencies: []
-              terraform:
-                providers: [github]
-            resources:
-              repos:
-                - name: terraplate-devops
-                  description: Terraplate Devops Repository
+          application: '{{ application }}'
+          component:
+            terraplate:
+              name: vcs
+            terragrunt:
+              dependencies: []
+            terraform:
+              providers: [github]
+          resources:
+            repos: '{{ config.resources.admin.vcs.repos }}'

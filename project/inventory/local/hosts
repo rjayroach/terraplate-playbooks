@@ -2,6 +2,3 @@
 admin-dns ansible_host=localhost ansible_connection=local
 admin-vcs ansible_host=localhost ansible_connection=local
 admin-security ansible_host=localhost ansible_connection=local
-
-# [terraplate]
-# localhost

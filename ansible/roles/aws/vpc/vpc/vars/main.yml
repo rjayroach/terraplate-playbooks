@@ -15,12 +15,10 @@ resource:
     tags:
       description: Hash of name-value pairs to tag the instance
       type: map
-      default:
-        Name: change me!
+      required: no
   
   output_vars:
-    vpc_id:
+    id:
       description: The id of the VPC
-      name: id
     main_route_table_id:
       description: The ID of the main route table associated with this VPC

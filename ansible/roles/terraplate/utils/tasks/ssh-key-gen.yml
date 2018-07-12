@@ -3,4 +3,3 @@
   shell: 'ssh-keygen -b 2048 -t rsa -f {{ private_key_path }} -q -N ""'
   args:
     creates: '{{ private_key_path }}'
-

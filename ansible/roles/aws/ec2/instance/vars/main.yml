@@ -7,8 +7,8 @@ resource:
     # required: [ami, instance_type]
 
   input_vars:
-    region:
-      description: description
+    # region:
+    #  description: description
     amis:
       type: map
       description: Hash of amis per region
@@ -42,16 +42,10 @@ resource:
       description: description
       required: false
       type: map
-      # TODO: modify render to look for values that are not in [description, required, etc]
-      # volume_type:
-      #   description: description
-      #   default: gp2
-      # volume_size:
-      #   description: description
-      #   default: 8
-      # delete_on_termination:
-      #   description: description
-      #   default: 'true'
+      # default:
+      # volume_type: gp2
+      # volume_size: 8
+      # delete_on_termination: yes # 'true'
     source_dest_check:
       description: description
       default: 'true'
@@ -68,9 +62,11 @@ resource:
       description: description
   
   output_vars:
-    instance_id:
+    id:
       description: The ec2 instance id
-      name: id
     private_ips:
+      type: list
       description: description
       name: '*.private_ip'
+    public_ip:
+      description: The public IP address assigned to the instance, if applicable.

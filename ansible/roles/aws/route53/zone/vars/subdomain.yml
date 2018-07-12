@@ -1,0 +1,17 @@
+---
+resource:
+  meta:
+    type: aws_route53_zone
+    description: Create a Route53 Zone file for a subdomain
+
+  input_vars:
+    parent_zone_id:
+      description: The zone id of the parent domain
+
+  variables:
+    name:
+      description: "The subdomain's FQDN"
+
+  output_vars:
+    zone_id:
+      description: The zone id of the created domain

@@ -1,16 +1,36 @@
 ---
-- name: Set internal spec variable
+- name: Manifest Values
+  debug:
+    var: manifest
+    verbosity: 1
+
+- name: Set spec from manifest values
   set_fact:
-    spec: '{{ spec_d }}'
-    credentials_path: "{{ '../' * ( (spec_d.terraplate.component_dir.split('/') | length) - (spec_d.terraplate.root_dir.split('/') | length) ) }}{{ manifest.spec.application.terragrunt.credentials_path }}"
+    spec: '{{ spec_b }}'
+    # relative_root_path is a workaround due to terragrunt's get_parent_tfvars_dir() does not properly map from the child dir to the parent dir
+    relative_root_path: "{{ '../' * ( (spec_b.terraplate.component_dir.split('/') | length) - (spec_b.terraplate.root_dir.split('/') | length) ) }}"
+  when: spec_b is defined
+  ignore_errors: yes
 
-# - name: Debug
-#   include_role: terraplate/utils
-#     tasks_from: debug
-#- debug:
-#    var: credentials_path
+- name: Manifest Values (if spec is not defined)
+  debug:
+    var: manifest
+  when: spec is not defined
 
-- name: Create the output directory for the component
+- name: Halt processing if error in manifest processing
+  fail:
+    msg: Play failed due to error in manifest processing. See manifest values above
+  when: spec is not defined
+
+- name: Spec Values
+  debug:
+    var: spec
+    verbosity: 1
+
+- name: Remove any existing files in the component output directory
+  shell: '/bin/rm -rf {{ spec.terraplate.component_dir }}/*'
+
+- name: Create the output directories for the component
   file:
     name: '{{ spec.terraplate.component_dir }}'
     state: directory
@@ -28,6 +48,21 @@
   template:
     src: _component.tf.j2
     dest: '{{ spec.terraplate.component_dir }}/_component.tf'
+
+- name: Create the output directories for the component vars if needed
+  file:
+    name: '{{ spec.terraplate.component_vars_dir }}'
+    state: directory
+  when: spec.external_vars | length > 0
+
+- name: Template the component_vars tfvars file if needed
+  import_role:
+    name: terraplate/utils
+    tasks_from: template-key-value-pairs
+  vars:
+    dest: '{{ spec.terraplate.component_vars_dir }}/vars.tfvars'
+    template_vars: '{{ spec.external_vars }}'
+  when: spec.external_vars | length > 0
 
 - name: Invoke the role as defined in manifest.kind
   include_role:

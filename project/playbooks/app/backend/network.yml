@@ -13,15 +13,13 @@
       vars:
         manifest:
           kind: aws/vpc/public-only-subnet
-          metadata:
-          spec:
-            application: '{{ application }}'
-            component:
-              terraplate:
-                name: network
-              terragrunt:
-                dependencies: []
-              terraform:
-                providers: [aws]
-                remote_states: []
-            resources: '{{ env_spec.resources }}'
+          application: '{{ application }}'
+          component:
+            terraplate:
+              name: backend/network
+            terragrunt:
+              dependencies: []
+            terraform:
+              providers: [aws]
+              remote_states: []
+          resources: '{{ env_spec.resources }}'
