@@ -9,7 +9,6 @@
     provider_path: data_sources
     provider_doc_path: d
     render_type: data
-    attribute_prefix: data.
   with_items: '{{ provider.data_sources }}'
   loop_control:
     loop_var: spec_artifact
