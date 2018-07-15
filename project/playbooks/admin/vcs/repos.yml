@@ -19,5 +19,4 @@
               dependencies: []
             terraform:
               providers: [github]
-          resources:
-            repos: '{{ config.resources.admin.vcs.repos }}'
+          providers: '{{ config.playbooks.admin.vcs.repos }}'

@@ -1,0 +1,14 @@
+---
+  metadata:
+    type: aws_iam_user
+    description: Provides an IAM user
+
+  arguments:
+    name:
+      description: The IAM user name
+  
+  attributes:
+    name:
+      description: The IAM user name
+    arn:
+      description: The IAM user arn

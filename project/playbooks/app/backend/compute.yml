@@ -10,7 +10,6 @@
         name: terraplate/component
       vars:
         manifest:
-          kind: aws/ec2/instances-with-eip
           application: '{{ application }}'
           component:
             terraplate:
@@ -20,4 +19,4 @@
             terraform:
               providers: [aws]
               remote_states: [network, security]
-          resources: '{{ env_spec.resources }}'
+          providers: '{{ env_providers }}'

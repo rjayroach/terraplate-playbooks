@@ -1,0 +1,40 @@
+---
+metadata:
+  type: aws_ami
+  description: Use this data source to get the ID of a registered AMI for use in other resources.
+
+arguments:
+  most_recent: 'true'
+
+definition:
+  variables: {}
+
+  arguments:
+    most_recent:
+      description: "If more than one result is returned, use the most recent AMI."
+      required: false
+    executable_users:
+      description: "Limit search to users with explicit launch permission on the image. Valid items are the numeric account ID or self."
+      type: list
+      required: false
+    filter:
+      description: "One or more name/value pairs to filter off of. There are several valid keys, for a full reference, check out describe-images in the AWS CLI reference."
+      type: map
+      required: false
+    owners:
+      description: "Limit search to specific AMI owners. Valid items are the numeric account ID, amazon, or self."
+      type: list
+      required: false
+    name_regex:
+      description: "A regex string to apply to the AMI list returned by AWS. This allows more advanced filtering not supported from the AWS API. This filtering is done locally on what AWS returns, and could have a performance impact if the result is large. It is recommended to combine this with other options to narrow down the list AWS returns."
+      required: false
+  
+  attributes:
+    architecture:
+      description: "The OS architecture of the AMI (ie: i386 or x86_64)."
+    id:
+      description: Contains the EIP allocation ID
+    image_id:
+      description: The ID of the AMI. Should be the same as the resource id.
+    owner_id:
+      description: The AWS account ID of the image owner.

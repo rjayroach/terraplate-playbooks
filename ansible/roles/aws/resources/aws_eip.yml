@@ -1,0 +1,35 @@
+# Resource Vars for aws/ec2/eip
+---
+metadata:
+  type: aws_eip
+  description: Provides an Elastic IP resource.
+
+associated:
+  aws_instance: instance
+
+definition:
+  variables: {}
+
+  arguments:
+    vpc:
+      description: Boolean if the EIP is in a VPC or not
+      required: false
+    instance:
+      description: EC2 instance ID
+      required: false
+    network_interface:
+      description: (Optional) Network interface ID to associate with
+      required: false
+    associate_with_private_ip:
+      description: (Optional) A user specified primary or secondary private IP address to associate with the Elastic IP address. If no private IP address is specified, the Elastic IP address is associated with the primary private IP address
+      required: false
+    tags:
+      description: Hash of name-value pairs to tag the instance
+      required: false
+      type: map
+  
+  attributes:
+    public_ip:
+      description: Contains the public IP address
+    id:
+      description: Contains the EIP allocation ID

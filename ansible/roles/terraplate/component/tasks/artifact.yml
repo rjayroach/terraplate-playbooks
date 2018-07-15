@@ -1,0 +1,28 @@
+---
+- name: Render the primary artifact
+  include_role:
+    name: terraplate/artifact
+  vars:
+    user_primary_artifact:
+      metadata: {}
+    user_artifact:
+      metadata: '{{ spec_artifact.metadata }}'
+      variables: '{{ spec_artifact.variables | default({}) }}'
+      arguments: '{{ spec_artifact.arguments | default({}) }}'
+      attributes: '{{ spec_artifact.attributes | default({}) }}'
+
+- name: Render any associated artifacts
+  include_role:
+    name: terraplate/artifact
+  vars:
+    user_primary_artifact:
+      metadata: '{{ spec_artifact.metadata }}'
+    user_artifact:
+      metadata: '{{ spec_associated.metadata }}'
+      variables: '{{ spec_associated.variables | default({}) }}'
+      arguments: '{{ spec_associated.arguments | default({}) }}'
+      attributes: '{{ spec_associated.attributes | default({}) }}'
+  with_items: '{{ spec_artifact.resources }}'
+  loop_control:
+    loop_var: spec_associated
+  when: spec_artifact.resources is defined

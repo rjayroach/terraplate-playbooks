@@ -1,0 +1,8 @@
+---
+# - include_vars: '{{ user_key }}.yml'
+- include_role:
+    name: terraplate/resource
+  vars:
+     resource_name: '{{ user_key }}'
+     user_resource_variables: '{{ user_resource }}'
+     template_content: "{{ lookup('template', user_key + '.tf.j2') }}"

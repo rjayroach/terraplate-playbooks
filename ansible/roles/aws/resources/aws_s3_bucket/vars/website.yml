@@ -1,0 +1,36 @@
+---
+resource:
+  meta:
+    type: aws_s3_bucket
+    description: Creates an S3 Bucket for a website
+
+  variables:
+    acl:
+      description: description
+      default: public-read
+    bucket:
+      description: The name of the S3 bucket to create
+    force_destroy:
+      description: description
+      default: 'true'
+    region:
+      description: description
+      required: no
+  
+  # external_vars:
+    policy:
+      description: description
+      default: ${file("policy.json")}
+    website:
+      type: map
+      default:
+        index_document: index.html
+        error_document: index.html
+  
+  output_vars:
+    website_domain:
+      description: description
+      # value: aws_s3_bucket.resource.website_domain
+    hosted_zone_id:
+      description: description
+      # value: aws_s3_bucket.resource.hosted_zone_id

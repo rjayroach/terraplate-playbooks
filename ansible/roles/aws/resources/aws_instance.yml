@@ -1,0 +1,85 @@
+# Resource Vars for aws/ec2/instance
+---
+metadata:
+  type: aws_instance
+  description: Provides an EC2 instance resource. This allows instances to be created, updated, and deleted. Instances also support provisioning.
+
+arguments:
+  ami: ${lookup(var.amis, var.region)}
+  associate_public_ip_address: 'true'
+  ebs_optimized: 'false'
+  instance_type: t2.micro
+  monitoring: 'false'
+  root_block_device:
+    volume_type: gp2
+    volume_size: 8
+    delete_on_termination: 'true'
+
+attributes:
+  id:
+  private_ips:
+  public_ip:
+
+definition:
+  variables:
+    amis:
+      description: Hash of amis per region
+      required: no
+      type: map
+
+  arguments:
+    ami:
+      description: description
+      required: yes
+    associate_public_ip_address:
+      description: description
+      required: no
+    availability_zone:
+      description: description
+      required: no
+    ebs_optimized:
+      description: description
+      required: no
+    instance_type:
+      description: description
+      required: yes
+    key_name:
+      description: The name of the ssh key pair
+      required: no
+    monitoring:
+      description: description
+      required: no
+    private_ip:
+      description: Private IP address to associate with the instance in a VPC.
+      required: no
+    root_block_device:
+      description: description
+      required: no
+      type: map
+      volume_type:
+        description: 'The type of volume. Can be "standard", "gp2", or "io1". (Default: "standard").'
+        required: no
+    source_dest_check:
+      description: Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs. Defaults true.
+      required: no
+    subnet_id:
+      description: description
+      required: no
+    tags:
+      description: Hash of name-value pairs to tag the instance
+      required: no
+      type: map
+    vpc_security_group_ids:
+      description: The security group id for the instance
+      type: list
+      required: no
+
+  attributes:
+    id:
+      description: The ec2 instance id
+    private_ips:
+      type: list
+      description: description
+      name: '*.private_ip'
+    public_ip:
+      description: The public IP address assigned to the instance, if applicable.

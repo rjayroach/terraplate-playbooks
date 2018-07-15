@@ -1,0 +1,57 @@
+{% import 'render.j2' as render %}
+{% set tf_dollar = '${' %}
+{% set pad_length = 40 %}
+# {{ artifact.metadata.description }}
+# See: {{ artifact.metadata.url | default(reference_artifact_default_url) }}
+
+{% for name, definition in artifact_definition.variables.iteritems() %}
+{% set value = artifact.variables[name] %}
+variable "{{ artifact_full_name }}_{{ name }}" {
+  {{ render.key('description', pad_length) }} = "{{ definition.description }}"
+  {{ render.key('default', pad_length) }} = {{ render.value(definition, value) }}
+}
+
+{% endfor %}
+
+{% if template_content is defined %}{{ template_content }}{% else %}
+{{ render_type }} "{{ artifact.metadata.type }}" "{{ artifact.metadata.name }}" {
+{# if this is an associated resource then render the reference to the parent's id #}
+{% if user_primary_artifact.metadata['type'] is defined %}
+  {{ render.key(artifact_associated[user_primary_artifact.metadata.type], pad_length) }} = "{{ tf_dollar }}{{ user_primary_artifact.metadata.type }}.{{ user_primary_artifact.metadata.name }}.id}"
+{% endif %}
+
+{%- for name, definition in artifact_definition.arguments.iteritems() %}
+{% set value = artifact.arguments[name] %}
+{# }
+{% set subelements = value.keys() | difference(['default', 'required', 'description', 'type']) %}
+{% if subelements | length > 0 %}
+  {{ render.key(key, pad_length) }} {
+{% for skey, svalue in resource.variables[key].iteritems() %}
+{% if skey in subelements %}
+{% set urv = user_resource_variables[key][skey] if user_resource_variables[key] is defined else null %}
+  {{ render.key(skey, pad_length + 2) }} = {{ render.value(svalue, urv) }}
+{% endif %}
+{% endfor %}
+  }
+  {% endif %}
+{ #}
+{% if definition.required == False and value is not defined %}{# do not output anything #}
+{# }
+  {% elif artifact.arguments[key] is defined and artifact.arguments[key].remote_state is defined %}
+  {{ render.key(key, pad_length) }} = {{ render.value(value, '${data.terraform_remote_state.' + user_artifact.arguments[key].remote_state + '}') }}
+{ #}
+{% else %}
+  {{ render.key(name, pad_length) }} = {{ render.value(definition, value) }}
+{% endif %}
+{% endfor %}
+}
+{% endif %}
+
+{% for name, definition in artifact_definition.attributes.iteritems() %}
+{% set value = artifact.attributes[name] %}
+output "{{ artifact_full_name }}_{{ name }}" {
+  {{ render.key('description', pad_length) }} = "{{ definition.description }}"
+  {{ render.key('value', pad_length) }} = "{{ tf_dollar }}{{ attribute_prefix | default('') }}{{ artifact.metadata.type }}.{{ (artifact.metadata.name + '.' + (definition.name | default(name))) | replace('-', '_') }}}"
+}
+
+{% endfor %}

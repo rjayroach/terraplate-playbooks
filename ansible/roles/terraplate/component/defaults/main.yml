@@ -15,6 +15,7 @@ spec_b:
     component_dir: '{{ spec_a.root_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
     component_vars_dir: '{{ manifest.application.terraplate.external_vars_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
     component_name: '{{ spec_a.component_name }}'
+    monolithic_file_name: "{{ manifest.application.terraplate.monolithic_file_name | default('component') }}"
   terragrunt:
     credentials_path: '{{ manifest.application.terragrunt.credentials_path }}'
     component_vars_path: '{{ manifest.application.terragrunt.external_vars_path }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}/vars.tfvars'
@@ -35,5 +36,3 @@ spec_b:
 
   dependencies: '{{ manifest.component.terragrunt.dependencies | default([]) }}'
   external_vars: '{{ manifest.component.terragrunt.external_vars | default([]) }}'
-
-  resources: '{{ manifest.resources }}'

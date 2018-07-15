@@ -2,3 +2,4 @@ terraform/*
 terraform-vars/*
 secrets/*
 inventory/all/secrets.yml
+inventory/all/resources.yml

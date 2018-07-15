@@ -1,0 +1,7 @@
+---
+# TODO: if alias is defined in the user_resource hash then apply a differnt vars.yml file
+- include_vars:
+    file: test.yml
+    name: loaded_resource_xyz
+- set_fact:
+    loaded_resource: '{{ loaded_resource_xyz }}'

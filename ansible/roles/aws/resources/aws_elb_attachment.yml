@@ -1,0 +1,19 @@
+# Resource Vars for aws/ec2/elb-attachment
+---
+metadata:
+  type: aws_elb_attachment
+  description: Provides an Elastic Load Balancer Attachment resource.
+
+related_resource_keys:
+  aws_instance:
+    var_name: instance
+  aws_elb:
+    var_name: elb
+
+arguments:
+  elb:
+    description: The name of the ELB.
+    required: yes
+  instance:
+    description: Instance ID to place in the ELB pool.
+    required: yes

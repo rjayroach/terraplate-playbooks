@@ -1,38 +1,83 @@
 ---
-env_spec:
-  resources:
-    instances:
-      - _id: rails_server_1
-        # TODO: implement filter for getting most recent AMI IDs for a specific distro
-        amis: '{{ global_vars.amis.debian_stretch }}'
-        ami: ${lookup(var.aws_instance_rails_server_1_amis, "ap-southeast-1")}
-        # region: ap-southeast-1
-        subnet_id: ${data.terraform_remote_state.network.aws_subnet_dink_public_1_id}
-        vpc_security_group_ids: # ['${data.terraform_remote_state.security.aws_security_group_app-server_security_group_id}']
-          - ${data.terraform_remote_state.security.aws_security_group_app_server_id}
-        availability_zone: ap-southeast-1a
-        # Note: Tags can be associated to ansible roles for configuration after provisioning
-        tags:
-          Name: This great Instance
-          Environment: '{{ env.terraplate.tld }}'
-          Role-rails-server: 'yes'
-        key_name: '{{ config.resources.admin.compute.key_pairs[0].key_name }}'
-        root_block_device:
-          volume_size: '12'
-        xeip:
+env_providers:
+  - metadata:
+      type: aws
+      credential: profile-name
+    xdata_sources:
+      - metadata:
+          type: aws_ami
+          name: stretch_latest # always written out to terraform template as the id
+          # A template ID which is in the role and pre-populates the values but which can also be overridden
+          # example: debian-stretch-latest. I should be able to specifiy that as a 'selector'
+          # NOTE: all  terraplate variables start with an underscore
+          # _from_vars: debian-stretch-latest # The base variables will be derived from aws_ami/vars/debian-stretch-latest.yml
+        arguments:
+          # most_recent: true
+          filters:
+            - name: name
+              values:
+                - ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*
+            - name: virtualization-type
+              values:
+                - hvm
+          owners:
+            - 099720109477
+    xresources:
+      - metadata:
+          type: aws_instance
+          name: rails_server_0
+        variables:
+          amis: '{{ global_vars.amis.debian_stretch }}'
+        arguments:
+          ami: ${lookup(var.aws_instance_rails_server_0_amis, "ap-southeast-1")}
+  
+    resources:
+      - metadata:
+          type: aws_instance
+          name: rails_server_1
+        variables:
+          amis: '{{ global_vars.amis.debian_stretch }}'
+        arguments:
+          ami: ${lookup(var.aws_instance_rails_server_1_amis, "ap-southeast-1")}
+          # ami: ${data.aws_ami.stretch_latest.id}
+          subnet_id: ${data.terraform_remote_state.network.aws_subnet_dink_public_1_id}
+          vpc_security_group_ids:
+            - ${data.terraform_remote_state.security.aws_security_group_app_server_id}
+          availability_zone: ap-southeast-1a
+          tags: # Note: Tags can be associated to ansible roles for configuration after provisioning
+            Name: This great Instance
+            Environment: '{{ env.terraplate.tld }}'
+            Role-rails-server: 'yes'
+          key_name: '{{ config.playbooks.admin.compute.key_pairs[0].key_name }}'
+          root_block_device:
+            volume_size: '12'
+        resources:
+          - metadata:
+              type: aws_eip
+              name: main
+            arguments:
+              vpc: true
+  
+    xresources:
+      - metadata:
+          type: aws_elb
+          name: main
+        arguments:
+          var: value
+  
+      - metadata:
+          type: aws_elb_attachment
+          name: main
+        arguments:
           instance: rails_server_1
-        # - _id: rails_server_1_eip
-        # - instance: ${aws_instance.rails_server_1.id}
-        records:
-          - name: 'server1-{{ env.terraplate.tld }}.{{ config.resources.admin.dns.zones[0].name }}'
-            zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.resources.admin.dns.zones[0].name | replace('.', '-') }}_zone_id}"
-            type: 'A'
-            records: ['${aws_eip.rails_server_1_eip.public_ip}']
-        elb: blah
-    elbs:
-      - _id: blah
-        records:
-          - name: 'server1-{{ env.terraplate.tld }}.{{ config.resources.admin.dns.zones[0].name }}'
-            zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.resources.admin.dns.zones[0].name | replace('.', '-') }}_zone_id}"
-            type: 'A'
-            records: ['${aws_eip.rails_server_1_eip.public_ip}']
+          # This needs to expand to ${aws_elb.main.id}
+          elb: main
+  
+      - metadata:
+          type: aws_route53_record
+          name: server_1
+        arguments:
+          name: 'server1-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns.zones[0].name }}'
+          zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns.zones[0].name | replace('.', '-') }}_zone_id}"
+          type: 'A'
+          records: ['${aws_eip.rails_server_1_eip.public_ip}']

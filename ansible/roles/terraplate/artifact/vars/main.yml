@@ -1,0 +1,20 @@
+---
+# Variables used in task and/or template
+reference_artifact_path: '{{ provider.metadata.type }}/{{ provider_path }}/{{ user_artifact.metadata.type }}'
+reference_artifact_vars_file_path: '{{ role_path }}/../../{{ reference_artifact_path }}.yml'
+
+artifact_definition: '{{ loaded_artifact.definition }}'
+artifact_associated: '{{ loaded_artifact.associated | default({}) }}'
+
+reference_artifact:
+  metadata: '{{ loaded_artifact.metadata }}'
+  variables: '{{ loaded_artifact.variables | default({}) }}'
+  arguments: '{{ loaded_artifact.arguments | default({}) }}'
+  attributes: '{{ loaded_artifact.attributes | default({}) }}'
+
+artifact: '{{ reference_artifact | combine(user_artifact, recursive=True) }}'
+
+artifact_full_name: "{{ (artifact.metadata.type + '_' + artifact.metadata.name) | replace('-', '_') }}"
+
+# Variables used in template only
+reference_artifact_default_url: "https://www.terraform.io/docs/providers/{{ artifact.metadata.type.split('_')[0] }}/{{ provider_doc_path }}/{{ artifact.metadata.type.split('_')[1:] | join('_') }}.html"

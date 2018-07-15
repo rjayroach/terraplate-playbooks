@@ -1,0 +1,39 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Template a Web Application on an S3 bucket
+  hosts: app-frontend-webapp
+  tasks:
+    - include_vars:
+        file: ../application-vars.yml
+        name: application
+    - include_role:
+        name: terraplate/component
+      vars:
+        manifest:
+          kind: aws/s3/web-app
+          application: '{{ application }}'
+          component:
+            terraplate:
+              name: frontend/web-app
+            terragrunt:
+              dependencies: []
+            terraform:
+              providers: [aws]
+              remote_states: []
+          resources:
+            iam_users:
+              - name: ember-deploy
+            iam_access_keys:
+              - _id: ember-deploy
+                user: ember-deploy
+            iam_policy_documents:
+              - name: web-app
+                cidr_blocks: '0.0.0.0/0'
+                bucket_name: ember-web-app
+                iam_id: ${aws_iam_user.ember-deploy.arn}
+                # iam_user_arn: ${iam_user.ember-deploy.arn}
+            s3_buckets:
+              - name: web-app
+                cidr_blocks: '0.0.0.0/0'
+                bucket: c2p4-ember-web-app
+                policy: ${data.aws_iam_policy_document.web-app.json}
