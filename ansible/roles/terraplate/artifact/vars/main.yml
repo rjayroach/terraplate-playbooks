@@ -15,6 +15,7 @@ reference_artifact:
 artifact: '{{ reference_artifact | combine(user_artifact, recursive=True) }}'
 
 artifact_full_name: "{{ (artifact.metadata.type + '_' + artifact.metadata.name) | replace('-', '_') }}"
+artifact_full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ (artifact.metadata.type + '.' + artifact.metadata.name) | replace('-', '_') }}"
 
 # Variables used in template only
 reference_artifact_default_url: "https://www.terraform.io/docs/providers/{{ artifact.metadata.type.split('_')[0] }}/{{ provider_doc_path }}/{{ artifact.metadata.type.split('_')[1:] | join('_') }}.html"

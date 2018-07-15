@@ -1,5 +1,4 @@
 {% import 'render.j2' as render %}
-{% set tf_dollar = '${' %}
 {% set pad_length = 40 %}
 # {{ artifact.metadata.description }}
 # See: {{ artifact.metadata.url | default(reference_artifact_default_url) }}
@@ -41,10 +40,11 @@ variable "{{ artifact_full_name }}_{{ name }}" {
 {% endif %}
 
 {% for name, definition in artifact_definition.attributes.iteritems() %}
-{% set value = artifact.attributes[name] %}
+{% set value = '"${' + artifact_full_name_dot + '.' + (definition.name | default(name)) | replace('-', '_') + '}"' %}
+{% if definition.type is defined and definition.type == 'list' %}{% set value = '[' + value + ']' %}{% endif %}
 output "{{ artifact_full_name }}_{{ name }}" {
   {{ render.key('description', pad_length) }} = "{{ definition.description }}"
-  {{ render.key('value', pad_length) }} = "{{ tf_dollar }}{{ artifact.metadata.attribute_prefix | default('') }}{{ artifact.metadata.type }}.{{ (artifact.metadata.name + '.' + (definition.name | default(name))) | replace('-', '_') }}}"
+  {{ render.key('value', pad_length) }} = {{ value }}
 }
 
 {% endfor %}
