@@ -4,7 +4,12 @@ resource:
   meta:
     type: aws_instance
     description: Create an EC2 Instance in a VPC subnet and AZ
-    # required: [ami, instance_type]
+
+  related_resources:
+    aws_eip:
+      var_name: instance
+    aws_elb_attachment:
+      var_name: instance
 
   input_vars:
     # region:
@@ -12,6 +17,7 @@ resource:
     amis:
       type: map
       description: Hash of amis per region
+      required: false
   
   variables:
     ami:

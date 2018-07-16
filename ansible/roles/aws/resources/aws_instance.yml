@@ -4,21 +4,24 @@ metadata:
   type: aws_instance
   description: Provides an EC2 instance resource. This allows instances to be created, updated, and deleted. Instances also support provisioning.
 
-arguments:
-  ami: ${lookup(var.amis, var.region)}
-  associate_public_ip_address: 'true'
-  ebs_optimized: 'false'
-  instance_type: t2.micro
-  monitoring: 'false'
-  root_block_device:
-    volume_type: gp2
-    volume_size: 8
-    delete_on_termination: 'true'
+parents: {}
 
-attributes:
-  id:
-  private_ips:
-  public_ip:
+defaults:
+  arguments:
+    ami: ${lookup(var.amis, var.region)}
+    associate_public_ip_address: 'true'
+    ebs_optimized: 'false'
+    instance_type: t2.micro
+    monitoring: 'false'
+    root_block_device:
+      volume_type: gp2
+      volume_size: 8
+      delete_on_termination: 'true'
+
+  attributes:
+    id:
+    private_ips:
+    public_ip:
 
 definition:
   variables:

@@ -4,12 +4,13 @@ metadata:
   description: Use this data source to get the ID of a registered AMI for use in other resources.
   attribute_prefix: data.
 
-arguments:
-  most_recent: 'true'
+parents: {}
+
+defaults:
+  arguments:
+    most_recent: 'true'
 
 definition:
-  variables: {}
-
   arguments:
     most_recent:
       description: "If more than one result is returned, use the most recent AMI."
@@ -39,7 +40,7 @@ definition:
       description: "A regex string to apply to the AMI list returned by AWS. This allows more advanced filtering not supported from the AWS API. This filtering is done locally on what AWS returns, and could have a performance impact if the result is large. It is recommended to combine this with other options to narrow down the list AWS returns."
       required: no
   
-  attributes:
+  x_attributes:
     architecture:
       description: "The OS architecture of the AMI (ie: i386 or x86_64)."
     id:

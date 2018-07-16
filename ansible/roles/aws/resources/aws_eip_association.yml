@@ -1,12 +1,23 @@
 ---
-resource_meta:
-  path: aws
-  ns: ec2
-  name: eip-association
+metadata:
+  type: aws_eip_association
+  description: Provides an AWS EIP Association as a top level resource, to associate and disassociate Elastic IPs from AWS Instances and Network Interfaces.
 
-external_vars:
-  allocation_id:
-    description: The id of the EIP
-  instance_id:
-    description: The optional id of the instance to which to map the EIP
-    default: ''
+parents:
+  aws_instance:
+    arguments:
+      instance_id: ${aws_instance._name_.id}
+  aws_eip:
+    arguments:
+      allocation_id: ${aws_instance._name_.id}
+
+defaults: {}
+
+definition:
+  arguments:
+    private_ip_address:
+      description: "The primary or secondary private IP address to associate with the Elastic IP address. If no private IP address is specified, the Elastic IP address is associated with the primary private IP address."
+      required: no
+  attributes:
+    association_id:
+      description: The ID that represents the association of the Elastic IP address with an instance.

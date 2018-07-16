@@ -2,44 +2,35 @@
 env_providers:
   - metadata:
       type: aws
-      credential: profile-name
+      # credential: profile-name
     xdata_sources:
       - metadata:
           type: aws_ami
-          name: stretch_latest # always written out to terraform template as the id
-          # A template ID which is in the role and pre-populates the values but which can also be overridden
-          # example: debian-stretch-latest. I should be able to specifiy that as a 'selector'
-          # NOTE: all  terraplate variables start with an underscore
-          # _from_vars: debian-stretch-latest # The base variables will be derived from aws_ami/vars/debian-stretch-latest.yml
+          profile: debian_stretch_latest
+      - metadata:
+          type: aws_ami
+          name: ubuntu_trusty_latest
         arguments:
-          # most_recent: true
-          filters:
+          filter:
             - name: name
-              values:
-                - ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*
+              values: ['ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*']
             - name: virtualization-type
-              values:
-                - hvm
-          owners:
-            - 099720109477
+              values: ['hvm']
+          owners: ['099720109477']
     xresources:
       - metadata:
           type: aws_instance
           name: rails_server_0
-        variables:
-          amis: '{{ global_vars.amis.debian_stretch }}'
+          variables:
+            amis: '{{ global_vars.amis.debian_stretch_latest }}'
         arguments:
           ami: ${lookup(var.aws_instance_rails_server_0_amis, "ap-southeast-1")}
   
-    resources:
       - metadata:
           type: aws_instance
           name: rails_server_1
-        variables:
-          amis: '{{ global_vars.amis.debian_stretch }}'
         arguments:
-          ami: ${lookup(var.aws_instance_rails_server_1_amis, "ap-southeast-1")}
-          # ami: ${data.aws_ami.stretch_latest.id}
+          ami: ${data.aws_ami.debian_stretch_latest.id}
           subnet_id: ${data.terraform_remote_state.network.aws_subnet_dink_public_1_id}
           vpc_security_group_ids:
             - ${data.terraform_remote_state.security.aws_security_group_app_server_id}
@@ -56,15 +47,24 @@ env_providers:
               type: aws_eip
               name: main
             arguments:
-              vpc: true
+              vpc: 'true'
   
-    xresources:
+    resources:
       - metadata:
           type: aws_elb
           name: main
         arguments:
           var: value
+        resources:
+          - metadata:
+              type: aws_route53_record
+              name: www
+            arguments:
+              name: 'www-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns.zones[0].name }}'
+              zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns.zones[0].name | replace('.', '-') }}_zone_id}"
+              type: 'A'
   
+    xresources:
       - metadata:
           type: aws_elb_attachment
           name: main

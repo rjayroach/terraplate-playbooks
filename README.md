@@ -30,8 +30,21 @@ Services invoke Library Components in order to render the necessary Terraform ar
 #### Artifacts
 
 user playbook: project/playbooks/app/backend/network.yml
-user playbook vars (manifest): project/playbooks/app/backend/network-vars.yml
+
 user playbook env vars (manifest env): project/inventory/development/host_vars/app-backend-network.yml
+
+##### user playbook vars
+
+user playbook vars (manifest): project/playbooks/app/backend/network-vars.yml
+
+```yaml
+- metatdata:
+    profile:
+          # A template ID which is in the role and pre-populates the values but which can also be overridden
+          # example: debian-stretch-latest. I should be able to specifiy that as a 'selector'
+          # NOTE: all  terraplate variables start with an underscore
+          # _from_vars: debian-stretch-latest # The base variables will be derived from aws_ami/vars/debian-stretch-latest.yml
+```
 
 ##### Mapping hosts to environment variables
 

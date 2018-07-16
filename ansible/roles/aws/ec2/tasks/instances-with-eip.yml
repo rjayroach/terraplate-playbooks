@@ -1,7 +1,24 @@
 # Component Tasks for instances-with-eip
 ---
-- debug:
-    var: spec.resources
+# - debug:
+#    var: spec.resources
+
+- name: Include data_sources
+  include_role:
+    name: 'aws/d/{{ item.key }}'
+  with_dict: '{{ spec.data_sources }}'
+  when: spec.data_sources is defined
+
+- name: Include resources
+  include_role:
+    name: 'aws/r/{{ item.key }}'
+  with_dict: '{{ spec.resources }}'
+  when: spec.resources is defined
+    
+
+  # with_items: '{{ spec.resources | merge(spec.data_sources | default({})) }}'
+# Hash of names to roles or a standard way of resolving them
+# env_spec.data_sources.aws_ami resolves to roles/aws/d/aws_ami
 
 - name: Create an EC2 instance in a VPC
   include_role:
@@ -9,28 +26,34 @@
   vars:
     user_key: '{{ item._id }}'
     user_resource: '{{ item }}'
-  with_items: '{{ spec.resources.instances }}'
+  with_items: '{{ spec.resources.aws_instance }}'
 
+# NOTE: These are for resources declared at the top level
+# Child resources are handled in terraplate role
 - name: Create Elastic IPs
   include_role:
     name: aws/ec2/eip
   vars:
-    user_key: '{{ item._id }}'
-    user_resource: '{{ item }}'
-  with_items: '{{ spec.resources.instances }}'
-  when: item.eip is defined
+    user_key: '{{ item.0._id }}_{{ item.1._id }}'
+    user_resource: "{{ item.1 | combine({'instance': '${aws_instance.' + item.0._id + '.id}'}) }}"
+  with_subelemnts:
+     - '{{ spec.resources.instances }}'
+     - eips
+  # vars:
+  #   user_key: '{{ item._id }}'
+  #   user_resource: "{{ item | combine({'instance': '${aws_instance.' + item.0._id + '.id}'}) }}"
+  # with_items: '{{ spec.resources.instances }}'
+  # when: item.eip is defined
 
 #
-# - name: Template the Resource Records
-#   include_role:
-#     name: aws/route53/record
-#   vars:
-#     user_key: '{{ item.name }}'
-#     user_resource: '{{ item }}'
-#     # user_key: "{{ (item.0.name + '-' + item.1.name + '-' + item.1.type) | replace('.', '-') }}"
-#     # user_resource: "{{ item.1 | combine({'zone_id': '${aws_route53_zone.' + item.0.name | replace('.', '-') + '.id}'}) }}"
-#   with_items: '{{ spec.resources.records }}'
-#   # with_subelements:
-#   #   - '{{ spec.resources.aws_instances }}'
-#   #   - records
+- name: Template the Resource Records
+  include_role:
+    name: aws/route53/record
+  vars:
+    user_key: '{{ item.0._id }}_{{ item.1._id }}'
+    user_resource: "{{ item.1 }}" # "| combine({'zone_id': '${aws_route53_zone.' + item.0.name | replace('.', '-') + '.id}'}) }}"
+  with_subelements:
+    - '{{ spec.resources.aws_instances }}'
+    - records
 #   # when: item.0.records is defined
+#   with_items: '{{ spec.resources.records }}'

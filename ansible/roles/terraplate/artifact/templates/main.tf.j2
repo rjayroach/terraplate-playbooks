@@ -8,7 +8,7 @@
 {% if value is defined %}
 variable "{{ artifact_full_name }}_{{ name }}" {
   {{ render.key('description', pad_length) }} = "{{ definition.description }}"
-  {{ render.key('default', pad_length) }} = {{ render.value(definition, value) }}
+  {{ render.key('default', pad_length) }} = {{ render.value(definition, value, parent_artifact_name) }}
 }
 
 {% endif %}
@@ -17,10 +17,7 @@ variable "{{ artifact_full_name }}_{{ name }}" {
 {% if template_content is defined %}{{ template_content }}{% else %}
 {{ render_type }} "{{ artifact.metadata.type }}" "{{ artifact.metadata.name }}" {
 {% for name, definition in artifact_definition.arguments.iteritems() %}
-  {#- if this is an associated resource then the value is a reference to the primary_artifact's id #}
-  {%- if user_primary_artifact.metadata['type'] is defined and name == artifact_associated[user_primary_artifact.metadata.type] %}
-    {%- set value = '${' + user_primary_artifact.metadata.type + '.' + user_primary_artifact.metadata.name + '.id}' %}
-  {%- elif definition.required == True %}
+  {%- if definition.required == True %}
     {%- set value = (artifact.arguments[name] | default(definition.default) | default({'FIXME': 'NO DEFAULT AVAILABLE!'})) %}
   {%- else %}
     {%- set value = artifact.arguments[name] | default(definition.default) %}
@@ -28,11 +25,11 @@ variable "{{ artifact_full_name }}_{{ name }}" {
   {%- if value is defined %}
     {%- if definition.multi is defined and definition.multi == True %}
       {%- for item in value %}  {{ render.key(name, pad_length) }} = {
-  {% for multi_name, multi_value in item.iteritems() %}  {{ render.key(multi_name, pad_length) }} = {{ render.value(definition.arguments[multi_name], multi_value) }}
+  {% for multi_name, multi_value in item.iteritems() %}  {{ render.key(multi_name, pad_length) }} = {{ render.value(definition.arguments[multi_name], multi_value, parent_artifact_name) }}
   {% endfor %}}
 {% endfor %}
     {%- else %}
-  {{ render.key(name, pad_length) }} = {{ render.value(definition, value) }}
+  {{ render.key(name, pad_length) }} = {{ render.value(definition, value, parent_artifact_name) }}
 {% endif %}
   {%- endif %}
 {% endfor %}

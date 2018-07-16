@@ -1,33 +1,13 @@
-# Resource Vars for aws/ec2/elb
 ---
 metadata:
   type: aws_elb
   description: 'Provides an Elastic Load Balancer resource, also known as a "Classic Load Balancer"'
 
-arguments:
-  # access_logs:
-  #   type: map
-  #   description: description
-  #   default:
-  #     bucket: foo
-  #     bucket_prefix: bar
-  #     interval: 60
-  # availability_zones:
-  #   type: list
-  #   description: description
-  #   default: []
-  connection_draining:
-    description: description
-    default: 'true'
-  connection_draining_timeout:
-    description: description
-    default: 4
-  cross_zone_load_balancing:
-    description: description
-    default: 'false'
-  health_check:
-    type: map
-    default:
+parents: {}
+
+defaults:
+  arguments:
+    health_check:
       target: 'TCP:3000'
       # description: The protocol:port instances respond to keep alive traffic from the ELB
       healthy_threshold: 10
@@ -38,12 +18,7 @@ arguments:
       # description: The number of seconds the instance has to respond to keep-alives to be considered healthy
       interval: 30
       # description: The duration in seconds the instance is sent keep-alives
-  idle_timeout:
-    description: description
-    default: 400
-  listener:
-    type: map
-    default:
+    listener:
       instance_port: 3000
       # description: The port instances listen for traffic from the ELB
       instance_protocol: http
@@ -54,30 +29,66 @@ arguments:
       # description: The protocol the ELB listens for traffic from the originator
       ssl_certificate_id: ${var.listener_ssl_certificate_id}
       # description: The IAM certificate arn
-  name:
-    description: description
-    default: elb
-  tags:
-    type: map
-    description: Hash of name-value pairs to tag the instance
-    default:
-      Name: Change Me!
-    required: false
 
-      # external_vars:
-  listener_ssl_certificate_id:
-    description: The IAM certificate arn
-  security_groups:
-    description: List of Security Group IDs to attach to the ELB
-    type: list
-  subnets:
-    description: List of subnet IDs to attach to the ELB
-    type: list
-
-attributes:
-  dns_name:
-    description: description
-  id:
-    description: description
-  zone_id:
-    description: description
+definition:
+  arguments:
+    # access_logs:
+    #   type: map
+    #   description: description
+    #   default:
+    #     bucket: foo
+    #     bucket_prefix: bar
+    #     interval: 60
+    # availability_zones:
+    #   type: list
+    #   description: description
+    #   default: []
+    connection_draining:
+      # default: 'true'
+      description: description
+      required: no
+    connection_draining_timeout:
+      # default: 4
+      description: description
+      required: no
+    cross_zone_load_balancing:
+      # default: 'false'
+      description: description
+      required: no
+    health_check:
+      required: no
+      type: map
+    idle_timeout:
+      # default: 400
+      description: description
+      required: no
+    listener:
+      required: no
+      type: map
+    name:
+      # default: elb
+      description: description
+      required: no
+    tags:
+      type: map
+      description: Hash of name-value pairs to tag the instance
+      required: no
+    listener_ssl_certificate_id:
+      description: The IAM certificate arn
+      required: no
+    security_groups:
+      description: List of Security Group IDs to attach to the ELB
+      required: no
+      type: list
+    subnets:
+      description: List of subnet IDs to attach to the ELB
+      required: no
+      type: list
+  
+  attributes:
+    dns_name:
+      description: description
+    id:
+      description: description
+    zone_id:
+      description: description

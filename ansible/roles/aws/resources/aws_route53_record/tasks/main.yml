@@ -1,7 +1,15 @@
 ---
-# TODO: if alias is defined in the user_resource hash then apply a differnt vars.yml file
-- include_vars:
-    file: test.yml
-    name: loaded_resource_xyz
+- name: Load records vars
+  include_vars:
+    file: records.yml
+    name: role_loaded_artifact
+  when: user_artifact.arguments.records is defined
+
+- name: Load alias vars
+  include_vars:
+    file: alias.yml
+    name: role_loaded_artifact
+  when: user_artifact.arguments.alias is defined or user_artifact.arguments.records is not defined
+
 - set_fact:
-    loaded_resource: '{{ loaded_resource_xyz }}'
+    loaded_artifact: '{{ role_loaded_artifact }}'

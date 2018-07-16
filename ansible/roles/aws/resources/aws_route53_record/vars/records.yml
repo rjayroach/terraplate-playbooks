@@ -1,21 +1,28 @@
-# Resource Vars for aws/route53/record
 ---
-resource:
-  meta:
-    type: aws_route53_record
-    description: Create a Route53 record
-  
-  variables:
+metadata:
+  type: aws_route53_record
+  description: Provides a Route53 record resource.
+
+defaults:
+  arguments:
+    ttl: 300
+    type: 'A' 
+
+definition:
+  arguments:
     name:
       description: The FQDN of the host
+      required: yes
     records:
       description: The resource records
+      required: yes
       type: list
     ttl:
       description: The TTL of the DNS record cache
-      default: 300
+      required: yes
     type:
       description: 'The type of DNS record: A, CNAME, etc'
-      default: A
+      required: yes
     zone_id:
       description: The zone_id of the domain in which this record is created
+      required: yes

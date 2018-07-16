@@ -3,16 +3,25 @@
 reference_artifact_path: '{{ provider.metadata.type }}/{{ provider_path }}/{{ user_artifact.metadata.type }}'
 reference_artifact_vars_file_path: '{{ role_path }}/../../{{ reference_artifact_path }}.yml'
 
-artifact_definition: '{{ loaded_artifact.definition }}'
-artifact_associated: '{{ loaded_artifact.associated | default({}) }}'
+artifact_definition:
+  variables: '{{ loaded_artifact.definition.variables | default({}) }}'
+  arguments: '{{ loaded_artifact.definition.arguments | default({}) }}'
+  attributes: '{{ loaded_artifact.definition.attributes | default({}) }}'
+
+parent_artifact_type: "{{ user_primary_artifact.metadata.type | default('') }}"
+parent_artifact_name: "{{ user_primary_artifact.metadata.name | default('') }}"
+# NOTE: parent_artifact and user_primary_artifact are two different things
+# The user_primary_artifact is the acutal hash of values to which this artifact belongs (if defined)
+# parent_artifact is a hash of replacement values that reference the parent but are merged into this artifact
+parent_artifact: '{{ loaded_artifact.parents[parent_artifact_type] | default({}) }}'
 
 reference_artifact:
   metadata: '{{ loaded_artifact.metadata }}'
-  variables: '{{ loaded_artifact.variables | default({}) }}'
-  arguments: '{{ loaded_artifact.arguments | default({}) }}'
-  attributes: '{{ loaded_artifact.attributes | default({}) }}'
+  variables: '{{ loaded_artifact.defaults.variables | default({}) }}'
+  arguments: '{{ loaded_artifact.defaults.arguments | default({}) }}'
+  attributes: '{{ loaded_artifact.defaults.attributes | default({}) }}'
 
-artifact: '{{ reference_artifact | combine(user_artifact, recursive=True) }}'
+artifact: '{{ reference_artifact | combine(user_artifact, recursive=True) | combine(parent_artifact, recursive=True) }}'
 
 artifact_full_name: "{{ (artifact.metadata.type + '_' + artifact.metadata.name) | replace('-', '_') }}"
 artifact_full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ (artifact.metadata.type + '.' + artifact.metadata.name) | replace('-', '_') }}"

@@ -1,0 +1,11 @@
+---
+metadata:
+  name: debian_stretch_latest
+
+defaults:
+  arguments:
+    # most_recent: true
+    filter:
+      - name: name
+        values: ['debian-stretch-hvm-x86_64-gp2-2018-06-13-59294']
+    owners: ['379101102735']
