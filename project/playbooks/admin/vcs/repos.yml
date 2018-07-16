@@ -10,7 +10,6 @@
         name: terraplate/component
       vars:
         manifest:
-          kind: github/vcs
           application: '{{ application }}'
           component:
             terraplate:

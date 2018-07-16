@@ -1,7 +1,0 @@
----
-- name: Render GitHub Repository Resource
-  import_role:
-    name: terraplate/resource
-  vars:
-    resource_name: '{{ user_key }}'
-    user_resource_variables: '{{ user_resource }}'
