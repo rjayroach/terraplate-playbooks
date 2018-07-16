@@ -1,0 +1,31 @@
+---
+metadata:
+  type: aws_route53_zone
+  description: Create a Route53 Zone file
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments:
+    comment:
+      description: A comment describing the zone
+      required: no
+    name:
+      description: The name of the hosted zone, e.g. example.com.
+      required: yes
+    tags:
+      description: Tags
+      required: no
+      type: map
+    vpc_id:
+      description: "The VPC to associate with a private hosted zone. Specifying vpc_id will create a private hosted zone. Conflicts w/ delegation_set_id as delegation sets can only be used for public zones."
+      required: no
+  
+  attributes:
+    name_servers:
+      description: A list of name servers in associated (or default) delegation set
+      type: list
+    zone_id:
+      description: The Hosted Zone ID. This can be referenced by zone records.

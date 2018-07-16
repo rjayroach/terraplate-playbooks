@@ -1,5 +1,4 @@
 ---
-kind: aws/route53/domain-with-hosts
 application: '{{ application }}'
 component:
   terraplate:
@@ -8,5 +7,4 @@ component:
     dependencies: [../../vcs]
   terraform:
     providers: [aws]
-resources:
-  zones: '{{ config.resources.admin.dns.zones }}'
+providers: '{{ config.playbooks.admin.dns }}'

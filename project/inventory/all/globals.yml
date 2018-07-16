@@ -32,7 +32,7 @@ globals:
         # If the remote state is in a different bucket:
         # bucket: some-other-bucket-name-containing-terrform-state
       #
-      network:
-        key: 'app/{{ env.terraplate.tld }}/backend/network'
-      security:
-        key: 'app/{{ env.terraplate.tld }}/backend/security'
+      # network:
+      #   key: 'app/{{ env.terraplate.tld }}/backend/network'
+      # security:
+      #   key: 'app/{{ env.terraplate.tld }}/backend/security'

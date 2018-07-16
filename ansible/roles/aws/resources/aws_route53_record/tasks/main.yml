@@ -3,13 +3,23 @@
   include_vars:
     file: records.yml
     name: role_loaded_artifact
-  when: user_artifact.arguments.records is defined
+  when: user_artifact.arguments.records is defined or user_artifact.metadata.profile
 
 - name: Load alias vars
   include_vars:
     file: alias.yml
     name: role_loaded_artifact
-  when: user_artifact.arguments.alias is defined or user_artifact.arguments.records is not defined
+  when: user_artifact.arguments.alias is defined or (user_artifact.arguments.records is not defined and user_artifact.metadata.profile is not defined)
 
 - set_fact:
     loaded_artifact: '{{ role_loaded_artifact }}'
+
+- name: Load profile_artifact vars
+  include_vars:
+    file: '{{ user_artifact.metadata.profile }}.yml'
+    name: profile_artifact
+  when: user_artifact.metadata.profile is defined
+
+- set_fact:
+    loaded_artifact: '{{ role_loaded_artifact | combine(profile_artifact, recursive=True) }}'
+  when: user_artifact.metadata.profile is defined
