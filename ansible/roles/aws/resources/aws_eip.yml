@@ -18,6 +18,8 @@ definition:
     instance:
       description: EC2 instance ID
       required: no
+      reference_from:
+        aws_instance: id
     network_interface:
       description: Network interface ID to associate with
       required: no

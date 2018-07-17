@@ -1,0 +1,35 @@
+---
+# TODO: Route Table can have multi = true for route hash
+metadata:
+  type: aws_route_table
+  description: Provides a resource to create a VPC routing table.
+
+parents: {}
+defaults: {}
+
+xdefaults:
+  arguments:
+    propagating_vgws: []  # ["${aws_vpn_gateway.main.id}"]
+
+definition:
+  arguments:
+    propagating_vgws:
+      description: A list of virtual gateways for propagation
+      required: no
+      type: list
+    route:
+      description: A list of route objects. Their keys are documented below.
+      required: no
+    tags:
+      description: Hash of name-value pairs to tag the instance
+      required: no
+      type: map
+    vpc_id:
+      description: The id of the vpc
+      required: yes
+      reference_from:
+        aws_vpc: id
+
+  attributes:
+    id:
+      description: The id of the created route table

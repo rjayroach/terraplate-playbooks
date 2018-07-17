@@ -1,23 +1,30 @@
-# Resource Vars for aws/vpc/vpc
 ---
 metadata:
   type: aws_vpc
   description: Create a VPC into which resources are provisioned
-  
-arguments:
-  cidr_block:
-    description: The CIDR block for the VPC
-    default: 172.16.0.0/20
-  instance_tenancy:
-    description: A tenancy option for instances launched into the VPC
-    default: default
-  tags:
-    description: Hash of name-value pairs to tag the instance
-    type: map
-    required: no
 
-attributes:
-  id:
-    description: The id of the VPC
-  main_route_table_id:
-    description: The ID of the main route table associated with this VPC
+parents: {}
+
+defaults:
+  arguments:
+    cidr_block: 172.16.0.0/20
+    instance_tenancy: default
+
+definition:
+  arguments:
+    cidr_block:
+      description: The CIDR block for the VPC
+      required: yes
+    instance_tenancy:
+      description: A tenancy option for instances launched into the VPC
+      required: no
+    tags:
+      description: Hash of name-value pairs to tag the instance
+      required: no
+      type: map
+  
+  attributes:
+    id:
+      description: The id of the VPC
+    main_route_table_id:
+      description: The ID of the main route table associated with this VPC

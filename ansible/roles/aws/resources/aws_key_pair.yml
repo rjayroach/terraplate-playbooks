@@ -3,16 +3,26 @@ metadata:
   type: aws_key_pair
   description: This resource creates an existing user-supplied key pair
 
-variables:
-  public_key_name:
-    description: The name of the key pair to create
-  key_path:
-    description: The path to the public key contents
+parents: {}
 
-arguments:
-  key_name:
-    description: The name of the key pair to create
-  public_key:
-    description: The public key material
-    default: ${file("${var.key_path}/${var.public_key_name}")}
-    required: yes
+defaults:
+  arguments:
+    public_key: ${file("${var.key_path}/${var.public_key_name}")}
+  variables:
+    public_key_name:
+    key_path:
+
+definition:
+  arguments:
+    key_name:
+      description: The name of the key pair to create
+      required: no
+    public_key:
+      description: The public key material
+      required: yes
+
+  variables:
+    public_key_name:
+      description: The name of the key pair to create
+    key_path:
+      description: The path to the public key contents

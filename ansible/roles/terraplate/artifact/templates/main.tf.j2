@@ -17,8 +17,22 @@ variable "{{ artifact_full_name }}_{{ name }}" {
 {% if template_content is defined %}{{ template_content }}{% else %}
 {{ render_type }} "{{ artifact.metadata.type }}" "{{ artifact.metadata.name }}" {
 {% for name, definition in artifact_definition.arguments.iteritems() %}
-  {%- if definition.required == True %}
-    {%- set value = (artifact.arguments[name] | default(definition.default) | default({'FIXME': 'NO DEFAULT AVAILABLE!'})) %}
+  {%- set arg_value = artifact.arguments[name] %}
+  {%- if definition.reference_from is defined and arg_value is defined %}
+    {%- if arg_value.startswith('${') %}
+      {%- set value = arg_value %}
+    {%- elif '.' in arg_value %}
+      {%- set value = '${' + arg_value + '.' + definition.reference_from[arg_value.split('.')[0]] + '}' %}
+    {%- elif ':' in arg_value %}
+      {%- set arg_value = arg_value.split(':') %}
+      {%- if arg_value | length == 3 %}
+        {%- set value = '${data.terraform_remote_state.' + arg_value[0] + '.' + arg_value[1] + '_' + arg_value[2] + '_' + definition.reference_from[arg_value[1]] + '}' %}
+      {%- elif arg_value | length == 2 %}
+        {%- set value = '${data.' + arg_value[0] + '.' + arg_value[1] + '.' + definition.reference_from[arg_value[0]] + '}' %}
+      {%- endif %}
+    {%- endif %}
+  {%- elif definition.required == True %}
+    {%- set value = (artifact.arguments[name] | default(definition.default) | default({'FIXME': 'REQUIRED VALUE NOT AVAILABLE!'})) %}
   {%- else %}
     {%- set value = artifact.arguments[name] | default(definition.default) %}
   {%- endif %}

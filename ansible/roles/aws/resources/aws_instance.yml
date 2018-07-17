@@ -34,6 +34,8 @@ definition:
     ami:
       description: description
       required: yes
+      reference_from:
+        aws_ami: id
     associate_public_ip_address:
       description: description
       required: no
@@ -68,6 +70,8 @@ definition:
     subnet_id:
       description: description
       required: no
+      reference_from:
+        aws_subnet: id
     tags:
       description: Hash of name-value pairs to tag the instance
       required: no
@@ -76,6 +80,8 @@ definition:
       description: The security group id for the instance
       type: list
       required: no
+      reference_from:
+        aws_security_group: id
 
   attributes:
     id:

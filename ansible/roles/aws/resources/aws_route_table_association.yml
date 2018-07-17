@@ -1,0 +1,27 @@
+---
+metadata:
+  type: aws_route_table_association
+  description: Provides a resource to create an association between a subnet and routing table.
+
+parents:
+  aws_route_table:
+    arguments:
+      route_table_id: ${aws_route_table._name_.id}
+  aws_subnet:
+    arguments:
+      subnet_id: ${aws_subnet._name_.id}
+
+defaults: {}
+
+definition:
+  arguments:
+    route_table_id:
+      description: The ID of the routing table to associate with.
+      required: yes
+      reference_from:
+        aws_route_table: id
+    subnet_id:
+      description: The subnet ID to create an association.
+      required: yes
+      reference_from:
+        aws_subnet: id

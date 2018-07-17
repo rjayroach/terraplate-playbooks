@@ -1,7 +1,9 @@
 ---
 # Variables used in task and/or template
 reference_artifact_path: '{{ provider.metadata.type }}/{{ provider_path }}/{{ user_artifact.metadata.type }}'
+# Example: aws/resource/route53_record
 reference_artifact_vars_file_path: '{{ role_path }}/../../{{ reference_artifact_path }}.yml'
+# Example: ansible/roles/terraplate/resource/../../aws/resource/route53_record.yml
 
 artifact_definition:
   variables: '{{ loaded_artifact.definition.variables | default({}) }}'

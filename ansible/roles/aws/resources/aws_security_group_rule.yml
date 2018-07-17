@@ -1,34 +1,47 @@
-# Resource Vars for aws/vpc/security-group-rule
 ---
 metadata:
   type: aws_security_group_rule
   description: Create a security group rule
 
-attributes:
-  type:
-    description: Ingress or Egress rule
-    default: ingress
-  from_port:
-    description: description
-    default: 0
-  to_port:
-    description: description
-    default: 0
-  protocol:
-    description: description
-    default: tcp
-  cidr_blocks:
-    description: The CIDR block
-    type: list
-    required: false
+parents:
+  aws_security_group:
+    arguments:
+      security_group_id: ${aws_security_group._name_.id}
 
-  source_security_group_id:
-    description: The Security Group
-    required: false
+defaults:
+  arguments:
+    type: ingress
+    from_port: 0
+    to_port: 0
+    protocol: tcp
 
-  security_group_id:
-    description: The id of the security group
+definition:
+  arguments:
+    type:
+      description: Ingress or Egress rule
+      required: yes
+    from_port:
+      description: description
+      required: yes
+    to_port:
+      description: description
+      required: yes
+    protocol:
+      description: description
+      required: yes
+    cidr_blocks:
+      description: The CIDR block
+      required: no
+      type: list
+    source_security_group_id:
+      description: The Security Group
+      required: no
+    security_group_id:
+      description: The id of the security group
+      required: yes
+      reference_from:
+        aws_security_group: id
 
-arguments:
-  id:
-    description: The id of the created rule
+  attributes:
+    id:
+      description: The id of the created rule
