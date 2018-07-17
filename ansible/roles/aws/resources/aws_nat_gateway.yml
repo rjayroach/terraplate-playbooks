@@ -5,12 +5,6 @@ metadata:
 
 parents: {}
 
-associations:
-  belongs_to:
-    aws_vpc:
-      arguments:
-        vpc_id: id
-
 defaults: {}
 
 definition:
@@ -18,9 +12,13 @@ definition:
     allocation_id:
       description: The id of the eip to be assigned to this GW
       required: yes
+      reference_from:
+        aws_eip: id
     subnet_id:
       description: The id of the public subnet in which to place the GW
       required: yes
+      reference_from:
+        aws_subnet: id
     tags:
       description: A mapping of tags to assign to the resource.
       required: no
