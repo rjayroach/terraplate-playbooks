@@ -3,10 +3,11 @@ env_providers:
   - metadata:
       type: aws
       # credential: profile-name
-    xdata_sources:
+    data_sources:
       - metadata:
           type: aws_ami
           profile: debian_stretch_latest
+    zdata_sources:
       - metadata:
           type: aws_ami
           name: ubuntu_trusty_latest
@@ -17,29 +18,31 @@ env_providers:
             - name: virtualization-type
               values: ['hvm']
           owners: ['099720109477']
-    xresources:
+    aresources:
       - metadata:
           type: aws_instance
           name: rails_server_0
-          variables:
-            amis: '{{ global_vars.amis.debian_stretch_latest }}'
+        variables:
+          amis: '{{ global_vars.amis.debian_stretch }}'
         arguments:
           ami: ${lookup(var.aws_instance_rails_server_0_amis, "ap-southeast-1")}
-  
+
+    resources:
       - metadata:
           type: aws_instance
           name: rails_server_1
         arguments:
-          ami: ${data.aws_ami.debian_stretch_latest.id}
-          subnet_id: ${data.terraform_remote_state.network.aws_subnet_dink_public_1_id}
+          ami: aws_ami:debian_stretch_latest
+          subnet_id: network:aws_subnet:dink_public_1
           vpc_security_group_ids:
             - ${data.terraform_remote_state.security.aws_security_group_app_server_id}
+            # - security:aws_security_group:app_server_id
           availability_zone: ap-southeast-1a
           tags: # Note: Tags can be associated to ansible roles for configuration after provisioning
             Name: This great Instance
             Environment: '{{ env.terraplate.tld }}'
             Role-rails-server: 'yes'
-          key_name: '{{ config.playbooks.admin.compute.key_pairs[0].key_name }}'
+          key_name: '{{ config.playbooks.admin.compute.key_pairs[0].resources[0].arguments.key_name }}'
           root_block_device:
             volume_size: '12'
         resources:
@@ -49,7 +52,15 @@ env_providers:
             arguments:
               vpc: 'true'
   
-    resources:
+      - metadata:
+          type: aws_route53_record
+          name: server_1
+        arguments:
+          name: 'server1-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns[0].resources[1].arguments.name }}'
+          zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns[0].resources[1].metadata.name }}_zone_id}"
+          type: 'A'
+          records: ['${aws_eip.rails_server_1_eip.public_ip}']
+
       - metadata:
           type: aws_elb
           name: main
@@ -60,24 +71,11 @@ env_providers:
               type: aws_route53_record
               name: www
             arguments:
-              name: 'www-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns.zones[0].name }}'
-              zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns.zones[0].name | replace('.', '-') }}_zone_id}"
+              name: 'www-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns[0].resources[0].arguments.name }}'
+              zone_id: "${data.terraplate_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns[0].resources[0].metadata.name }}_zone_id}"
               type: 'A'
-  
-    xresources:
-      - metadata:
-          type: aws_elb_attachment
-          name: main
-        arguments:
-          instance: rails_server_1
-          # This needs to expand to ${aws_elb.main.id}
-          elb: main
-  
-      - metadata:
-          type: aws_route53_record
-          name: server_1
-        arguments:
-          name: 'server1-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns.zones[0].name }}'
-          zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns.zones[0].name | replace('.', '-') }}_zone_id}"
-          type: 'A'
-          records: ['${aws_eip.rails_server_1_eip.public_ip}']
+          - metadata:
+              type: aws_elb_attachment
+              name: main
+            arguments:
+              instance: aws_instance.rails_server_1

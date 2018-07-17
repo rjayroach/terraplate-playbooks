@@ -10,7 +10,10 @@
         name: terraplate/component
       vars:
         manifest:
-          kind: aws/vpc/security
+          # terraplate: '{{ application | combine({name: backend/security})}}'
+          # terragrunt: same as now
+          # terraform: '{{ env_spec }}'
+          # NOTE: providers and remote_states are part of the hash so it's all in one
           application: '{{ application }}'
           component:
             terraplate:
@@ -20,4 +23,8 @@
             terraform:
               providers: [aws]
               remote_states: [network]
-          resources: '{{ env_spec.resources }}'
+          providers: '{{ env_spec }}'
+            #
+            # - metadata:
+            #     type: aws
+            #   resources: '{{ env_spec }}'

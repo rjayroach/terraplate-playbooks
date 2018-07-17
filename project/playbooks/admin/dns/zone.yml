@@ -1,9 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
 - name: Template an AWS Route53 zone with records
-  # The value of hosts is mapped to a single instance of a 'component'
-  # if multiple components are needed then multiple hosts are defined
-  # so that host_vars can be defined indepednetly for each instance
   hosts: admin-dns
   tasks:
     - include_vars:

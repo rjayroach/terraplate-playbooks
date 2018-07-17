@@ -7,8 +7,8 @@
         name: terraplate/utils
         tasks_from: ssh-key-gen
       vars:
-        private_key_path: '{{ terraform_vars.key_path }}/{{ item.key_name }}'
-      with_items: '{{ config.resources.admin.compute.key_pairs }}'
+        private_key_path: '{{ terraform_vars.key_path }}/{{ item.arguments.key_name }}'
+      with_items: '{{ config.playbooks.admin.compute.key_pairs[0].resources }}'
 
     - include_vars:
         file: ../application-vars.yml
@@ -18,7 +18,6 @@
         name: terraplate/component
       vars:
         manifest:
-          kind: aws/ec2/keys
           application: '{{ application }}'
           component:
             terraplate:
@@ -29,5 +28,4 @@
                 key_path: '{{ terraform_vars.key_path }}'
             terraform:
               providers: [aws]
-          resources:
-            key_pairs: '{{ config.resources.admin.compute.key_pairs }}'
+          providers: '{{ config.playbooks.admin.compute.key_pairs }}'

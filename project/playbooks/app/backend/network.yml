@@ -12,7 +12,6 @@
         name: terraplate/component
       vars:
         manifest:
-          kind: aws/vpc/public-only-subnet
           application: '{{ application }}'
           component:
             terraplate:
@@ -22,4 +21,4 @@
             terraform:
               providers: [aws]
               remote_states: []
-          resources: '{{ env_spec.resources }}'
+          providers: '{{ env_spec }}'

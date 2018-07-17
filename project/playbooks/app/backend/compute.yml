@@ -18,5 +18,5 @@
               dependencies: [../network, ../security]
             terraform:
               providers: [aws]
-              remote_states: [network, security]
+              remote_states: [dns, network, security]
           providers: '{{ env_providers }}'
