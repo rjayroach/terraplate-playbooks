@@ -1,0 +1,13 @@
+---
+defaults:
+  arguments:
+    allocated_storage: 10
+    backup_window: '16:35-17:05'
+    engine: postgres
+    engine_version: 9.5.4
+    instance_class: db.t2.micro
+    maintenance_window: 'mon:21:27-mon:21:57'
+    parameter_group_name: default.postgres9.5
+    # port: 5432
+    storage_type: gp2
+    multi_az: 'false'

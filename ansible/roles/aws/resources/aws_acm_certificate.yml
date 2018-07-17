@@ -1,0 +1,34 @@
+---
+metadata:
+  type: aws_acm_certificate
+  description: The ACM certificate resource allows requesting and management of certificates from the Amazon Certificate Manager.
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments:
+    domain_name:
+      description: A domain name for which the certificate should be issued
+      required: yes
+    subject_alternative_names:
+      description: A list of domains that should be SANs in the issued certificate
+      required: no
+      type: list
+    validation_method:
+      description: Which method to use for validation. DNS or EMAIL are valid, NONE can be used for certificates that were imported into ACM and then into Terraform.
+      required: yes
+    tags:
+      description: A mapping of tags to assign to the resource.
+      required: no
+ 
+  attributes:
+    arn:
+      description: The ARN of the certificate
+    id:
+      description: The ARN of the certificate
+    domain_validation_options:
+      description: A list of attributes to feed into other resources to complete certificate validation. Can have more than one element, e.g. if SANs are defined. Only set if DNS-validation was used.
+    validation_emails:
+      description: A list of addresses that received a validation E-Mail. Only set if EMAIL-validation was used.

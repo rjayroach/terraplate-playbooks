@@ -1,4 +1,3 @@
-# Resource Vars for aws/ec2/instance
 ---
 metadata:
   type: aws_instance
@@ -73,7 +72,7 @@ definition:
       reference_from:
         aws_subnet: id
     tags:
-      description: Hash of name-value pairs to tag the instance
+      description: A mapping of tags to assign to the resource.
       required: no
       type: map
     vpc_security_group_ids:

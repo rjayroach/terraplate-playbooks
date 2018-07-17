@@ -1,0 +1,17 @@
+---
+metadata:
+  type: aws_acm_certificate_validation
+  description: This resource represents a successful validation of an ACM certificate in concert with other resources.
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments:
+    certificate_arn:
+      description: The ARN of the certificate that is being validated.
+      required: yes
+    validation_record_fqdns:
+      description: "List of FQDNs that implement the validation. Only valid for DNS validation method ACM certificates. If this is set, the resource can implement additional sanity checks and has an explicit dependency on the resource that is implementing the validation"
+      required: no

@@ -18,6 +18,10 @@ definition:
     elb:
       description: The name of the ELB.
       required: yes
+      reference_from:
+        aws_elb: id
     instance:
       description: Instance ID to place in the ELB pool.
       required: yes
+      reference_from:
+        aws_instance: id

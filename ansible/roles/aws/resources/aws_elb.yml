@@ -29,6 +29,8 @@ defaults:
       # description: The protocol the ELB listens for traffic from the originator
       ssl_certificate_id: ${var.listener_ssl_certificate_id}
       # description: The IAM certificate arn
+  variables:
+    listener_ssl_certificate_id:
 
 definition:
   arguments:

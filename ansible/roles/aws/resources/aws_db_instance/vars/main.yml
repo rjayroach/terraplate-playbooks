@@ -1,0 +1,85 @@
+---
+metadata:
+  type: aws_db_instance
+  description: Provides an RDS instance resource. A DB instance is an isolated database environment in the cloud. A DB instance can contain multiple user-created databases.
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments:
+    allocated_storage:
+      description: '(Required unless a snapshot_identifier or replicate_source_db is provided) The allocated storage in gibibytes.'
+      required: yes
+    availability_zone:
+      description: The AZ for the RDS instance.
+      required: no
+    backup_retention_period:
+      description: The days to retain backups for. Must be 1 or greater to be a source for a Read Replica.
+      required: no
+    backup_window:
+      description: 'The daily time range (in UTC) during which automated backups are created if they are enabled. Example: "09:46-10:16". Must not overlap with maintenance_window.The daily time range (in UTC) during which automated backups are created if they are enabled. Example: "09:46-10:16". Must not overlap with maintenance_window.'
+      required: no
+    db_subnet_group_name:
+      description: 'Name of DB subnet group. DB instance will be created in the VPC associated with the DB subnet group. If unspecified, will be created in the default VPC, or in EC2 Classic, if available. When working with read replicas, it needs to be specified only if the source database specifies an instance in another AWS Region. See DBSubnetGroupName in API action CreateDBInstanceReadReplica for additonal read replica contraints.'
+      required: no
+    engine:
+      description: '(Required unless a snapshot_identifier or replicate_source_db is provided) The database engine to use. For supported values, see the Engine parameter in API action CreateDBInstance.'
+      required: yes
+    engine_version:
+      description: 'Required unless a snapshot_identifier or replicate_source_db is provided) The database engine to use. For supported values, see the Engine parameter in API action CreateDBInstance.'
+      required: no
+    final_snapshot_identifier:
+      description: The name of your final DB snapshot when this DB instance is deleted. If omitted, no final snapshot will be made.
+      required: no
+    identifier:
+      description: (Forces new resource) The name of the RDS instance, if omitted, Terraform will assign a random, unique identifier.
+      required: no
+    instance_class:
+      description: The instance type of the RDS instance.
+      required: yes
+    maintenance_window:
+      description: 'The window to perform maintenance in. Syntax: "ddd:hh24:mi-ddd:hh24:mi". Eg: "Mon:00:00-Mon:03:00". See RDS Maintenance Window docs for more information.'
+      required: no
+    multi_az:
+      description: Specifies if the RDS instance is multi-AZ
+      required: no
+    name:
+      description: 'The name of the database to create when the DB instance is created. If this parameter is not specified, no database is created in the DB instance. Note that this does not apply for Oracle or SQL Server engines. See the AWS documentation for more details on what applies for those engines.'
+      required: no
+    parameter_group_name:
+      description: Name of the DB parameter group to associate.
+      required: no
+    password:
+      description: '(Required unless a snapshot_identifier or replicate_source_db is provided) Password for the master DB user. Note that this may show up in logs, and it will be stored in the state file.'
+      required: yes
+    port:
+      description: The port on which the DB accepts connections.
+      required: no
+    publicly_accessible:
+      description: Bool to control if instance is publicly accessible. Default is false.
+      required: no
+    storage_encrypted:
+      description: Specifies whether the DB instance is encrypted. Note that if you are creating a cross-region read replica this field is ignored and you should instead declare kms_key_id with a valid ARN. The default is false if not specified.
+      required: no
+    storage_type:
+      description: 'One of "standard" (magnetic), "gp2" (general purpose SSD), or "io1" (provisioned IOPS SSD). The default is "io1" if iops is specified, "standard" if not. Note that this behaviour is different from the AWS web console, where the default is "gp2".'
+      required: no
+    username:
+      description: '(Required unless a snapshot_identifier or replicate_source_db is provided) Username for the master DB user.'
+      required: yes
+    vpc_security_group_ids:
+      description: List of VPC security groups to associate.
+      required: no
+      type: list
+  
+  attributes:
+    address:
+      description: The address of the RDS instance.
+    arn:
+      description: The ARN of the RDS instance.
+    hosted_zone_id:
+      description: The canonical hosted zone ID of the DB instance (to be used in a Route 53 Alias record).
+    id:
+      description: The RDS instance ID.
