@@ -1,0 +1,38 @@
+---
+metadata:
+  type: aws_alb_listener
+
+parents:
+  aws_alb:
+    arguments:
+      load_balancer_arn: arn?
+
+defaults:
+  arguments:
+    default_action:
+      type: forward
+
+definition:
+  arguments:
+    certificate_arn:
+      description: The IAM certificate arn
+    default_action:
+      description: description
+      type: map
+      target_group_arn:
+        description: The ALB arn
+    load_balancer_arn:
+      description: The ALB arn
+    port:
+      description: The port on which the load balancer is listening
+      default: 443
+    protocol:
+      description: The protocol on which the load balancer is listening
+      default: HTTPS
+    ssl_policy:
+      description: The name of the SSL Policy for the listener. Required if protocol is HTTPS
+      default: 'ELBSecurityPolicy-2015-05'
+
+  attributes:
+    arn:
+      description: description

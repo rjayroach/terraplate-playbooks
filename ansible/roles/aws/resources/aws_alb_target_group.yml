@@ -1,0 +1,33 @@
+---
+metadata:
+  type: aws_alb_target_group
+
+parents:
+  aws_vpc:
+    arguments:
+      vpc_id: id
+
+defaults:
+  arguments:
+    port: 80
+    protocol: HTTP
+
+definition:
+  arguments:
+    name:
+      description: description
+    port:
+      description: description
+    protocol:
+      description: description
+    tags:
+      description: description
+      type: map
+    vpc_id:
+      description: description
+      reference_from:
+        aws_vpc: id
+
+  attributes:
+    arn:
+      description: description

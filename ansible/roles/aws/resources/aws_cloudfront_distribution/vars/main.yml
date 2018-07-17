@@ -1,0 +1,36 @@
+---
+metadata:
+  type: aws_cloudfront_distribution
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments::
+    origin:
+      description: description
+      type: map
+      domain_name: value
+      origin_id: value
+      s3_origin_config:
+        origin_access_identity: value
+    enabled:
+      description: description
+      default: 'true'
+    is_ipv6_enabled:
+      description: description
+      default: 'false'
+    comment:
+      description: description
+    aliases:
+      description: description
+      type: list
+    logging_config:
+      type: map
+      include_cookies:
+        description: description
+      bucket:
+        description: description
+      prefix:
+        description: description

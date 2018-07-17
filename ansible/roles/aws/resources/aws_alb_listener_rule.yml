@@ -1,0 +1,39 @@
+---
+metadata:
+  type: aws_alb_listener_rule
+
+parents:
+  aws_alb_listener:
+    arguments:
+      listener_arn: arn
+
+defaults:
+  arguments:
+    priority: 100
+    action:
+      type: forward
+    condition:
+      field: path-pattern
+      values: ['/static/*']
+
+definition:
+  arguments:
+    priority:
+      description: description
+    action:
+      description: description
+      type: map
+      target_group_arn:
+        description: The target group ARN
+    condition:
+      description: description
+      type: map
+      field:
+        description: description
+      values:
+        description: description
+        type: list
+    listener_arn:
+      description: description
+      reference_from:
+        aws_alb_listener: arn
