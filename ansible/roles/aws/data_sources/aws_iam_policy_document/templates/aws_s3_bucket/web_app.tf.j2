@@ -1,6 +1,6 @@
-# {{ resource.meta.description }}
+# {{ loaded_artifact.metadata.description }}
 
-data "aws_iam_policy_document" "{{ user_key }}" {
+data "aws_iam_policy_document" "{{ user_artifact.metadata.name }}" {
   statement {
     effect    = "Allow"
     sid       = "Stmt1EmberCLIS3DeployPolicy"
@@ -10,15 +10,15 @@ data "aws_iam_policy_document" "{{ user_key }}" {
       "s3:PutObjectACL",
     ]
     resources = [
-      "arn:aws:s3:::{{ user_resource.bucket_name }}/*",
+      "arn:aws:s3:::{{ user_artifact.arguments.aws_s3_bucket_bucket }}/*",
     ]
     principals {
       type        = "AWS"
-      identifiers = ["{{ user_resource.iam_id }}"]
+      identifiers = ["${aws_iam_user.{{ user_artifact.arguments.aws_iam_user_name }}.arn}"]
     }
   }
 
-{% if user_resource.cidr_blocks != '0.0.0.0/0' %}
+{% if user_artifact.arguments.cidr_blocks != "0.0.0.0/0" %}
   statement {
     effect    = "Deny"
     sid       = "IPDeny"
@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "{{ user_key }}" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::{{ user_resource.bucket_name }}/*",
+      "arn:aws:s3:::{{ user_artifact.arguments.aws_s3_bucket_bucket }}/*",
     ]
     principals {
       type        = "AWS"
@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "{{ user_key }}" {
       test     = "NotIpAddress"
       variable = "aws:SourceIp"
       values   = [
-        "{{ user_resource.cidr_blocks }}"
+        "{{ user_artifact.arguments.cidr_blocks }}"
       ]
     }
   }

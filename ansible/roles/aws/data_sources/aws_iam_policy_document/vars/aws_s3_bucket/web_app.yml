@@ -1,0 +1,22 @@
+# NOTE: These values have no impact on the rendered template because a custom template is generated
+# They are here as a reference for when building a playbook so the user knows what the required arguments are
+---
+defaults:
+  arguments:
+    cidr_blocks: 0.0.0.0/0
+
+definition:
+  arguments:
+    cidr_blocks:
+      description: 'The IP address that may access the bucket'
+      required: yes
+    aws_s3_bucket_name:
+      description: 'The metadata name of the S3 bucket to which the application will be deployed'
+      required: yes
+    aws_iam_user_name:
+      description: 'The metadata name of the IAM user which can read/write to the application bucket'
+      required: yes
+
+  attributes:
+    json:
+      description: The json representation of the policy document

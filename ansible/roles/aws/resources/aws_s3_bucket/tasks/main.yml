@@ -9,6 +9,3 @@
 
 - set_fact:
     loaded_artifact: '{{ main_artifact | combine(profile_artifact, recursive=True) }}'
-
-- set_fact:
-    template_content: "{{ lookup('template', profile + '.tf.j2') }}"
