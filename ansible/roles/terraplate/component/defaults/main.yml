@@ -14,8 +14,10 @@ spec_b:
     credentials_dir: '{{ manifest.application.terraplate.credentials_dir }}'
     component_dir: '{{ spec_a.root_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
     component_vars_dir: '{{ manifest.application.terraplate.external_vars_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
+    component_exports_dir: '{{ manifest.application.terraplate.exports_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
     component_name: '{{ spec_a.component_name }}'
     monolithic_file_name: "{{ manifest.application.terraplate.monolithic_file_name | default('component') }}"
+    debug_macros: []
   terragrunt:
     credentials_path: '{{ manifest.application.terragrunt.credentials_path }}'
     component_vars_path: '{{ manifest.application.terragrunt.external_vars_path }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}/vars.tfvars'

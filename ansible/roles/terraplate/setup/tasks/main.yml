@@ -1,0 +1,53 @@
+---
+- name: Install graphiz to make graphs of infrastructure
+  apt: 
+    name: '{{ item }}'
+  with_items:
+    - graphviz
+    - unzip
+    - direnv
+  become: yes
+
+- name: Check if Terraform binary exists
+  stat:
+    path: /usr/local/bin/terraform
+  register: terraform_binary
+
+- name: Get terraform binary
+  get_url:
+    url: 'https://releases.hashicorp.com/terraform/{{ terraform_version }}/{{ terraform_file }}.zip'
+    dest: '{{ ansible_env.HOME }}/{{ terraform_file }}.zip'
+  when: not terraform_binary.stat.exists
+  register: new_archive
+
+- name: Install Terraform
+  unarchive:
+    src: '{{ ansible_env.HOME }}/{{ terraform_file }}.zip'
+    dest: /usr/local/bin
+    copy: no
+  when: new_archive is changed
+  become: yes
+
+- name: Remove Terraform zip
+  file:
+    path: '{{ ansible_env.HOME }}/{{ terraform_file }}.zip'
+    state: absent
+
+- name: Check if Terragrunt binary exists
+  stat:
+    path: /usr/local/bin/terragrunt
+  register: terragrunt_binary
+
+- name: Get terragrunt binary
+  get_url:
+    url: 'https://github.com/gruntwork-io/terragrunt/releases/download/v{{ terragrunt_version }}/terragrunt_linux_amd64'
+    dest: /usr/local/bin/terragrunt
+  when: not terragrunt_binary.stat.exists
+  register: terragrunt_archive
+  become: yes
+
+- name: Set terragrunt permissions
+  file:
+    path: /usr/local/bin/terragrunt
+    mode: 0755
+  become: yes

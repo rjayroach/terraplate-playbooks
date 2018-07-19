@@ -1,61 +1,38 @@
+#jinja2: lstrip_blocks: True
 {% import 'render.j2' as render %}
-{% set pad_length = 40 %}
+{% import 'arguments.j2' as argument %}
+
 # {{ artifact.metadata.description }}
 # See: {{ artifact.metadata.url | default(reference_artifact_default_url) }}
-
-{% for name, definition in artifact_definition.variables.iteritems() %}
-{% set value = artifact.variables[name] | default(definition.default) %}
-{% if value is defined %}
+#
+{%- for name, definition in artifact_definition.variables.iteritems() %}
+  {% if artifact.variables[name] is defined %}
 variable "{{ artifact_full_name }}_{{ name }}" {
-  {{ render.key('description', pad_length) }} = "{{ definition.description }}"
-  {{ render.key('default', pad_length) }} = {{ render.value(definition, value, parent_artifact_name) }}
+  {{ render.key('description', template_data.key_pad) }} = "{{ definition.description }}"
+  {{ render.key('default', template_data.key_pad) }} = {{ render.variable_value(definition, artifact.variables[name], template_data.parent.name) }}
 }
 
-{% endif %}
+  {% endif %}
 {% endfor %}
 
-{% if template_content is defined %}{{ template_content }}{% else %}
-{{ render_type }} "{{ artifact.metadata.type }}" "{{ artifact.metadata.name }}" {
-{% for name, definition in artifact_definition.arguments.iteritems() %}
-  {%- set arg_value = artifact.arguments[name] %}
-  {%- if definition.reference_from is defined and arg_value is defined %}
-    {%- if arg_value.startswith('${') %}
-      {%- set value = arg_value %}
-    {%- elif '.' in arg_value %}
-      {%- set value = '${' + arg_value + '.' + definition.reference_from[arg_value.split('.')[0]] + '}' %}
-    {%- elif ':' in arg_value %}
-      {%- set arg_value = arg_value.split(':') %}
-      {%- if arg_value | length == 3 %}
-        {%- set value = '${data.terraform_remote_state.' + arg_value[0] + '.' + arg_value[1] + '_' + arg_value[2] + '_' + definition.reference_from[arg_value[1]] + '}' %}
-      {%- elif arg_value | length == 2 %}
-        {%- set value = '${data.' + arg_value[0] + '.' + arg_value[1] + '.' + definition.reference_from[arg_value[0]] + '}' %}
-      {%- endif %}
-    {%- endif %}
-  {%- elif definition.required == True %}
-    {%- set value = (artifact.arguments[name] | default(definition.default) | default({'FIXME': 'REQUIRED VALUE NOT AVAILABLE!'})) %}
-  {%- else %}
-    {%- set value = artifact.arguments[name] | default(definition.default) %}
-  {%- endif %}
-  {%- if value is defined %}
-    {%- if definition.multi is defined and definition.multi == True %}
-      {%- for item in value %}  {{ render.key(name, pad_length) }} = {
-  {% for multi_name, multi_value in item.iteritems() %}  {{ render.key(multi_name, pad_length) }} = {{ render.value(definition.arguments[multi_name], multi_value, parent_artifact_name) }}
-  {% endfor %}}
-{% endfor %}
-    {%- else %}
-  {{ render.key(name, pad_length) }} = {{ render.value(definition, value, parent_artifact_name) }}
-{% endif %}
-  {%- endif %}
-{% endfor %}
+{% if template_content %}
+{{ template_content }}
+{% else %}
+{{ render_type }} "{{ artifact.metadata.type }}" "{{ artifact_name }}" {
+  {% for name, definition in artifact_definition.arguments.iteritems() %}
+{{ argument.entry(name, definition, artifact.arguments[name] | default(''), template_data) }}
+  {%- endfor %}
 }
 {% endif %}
 
-{% for name, definition in artifact_definition.attributes.iteritems() %}
-{% set value = '"${' + artifact_full_name_dot + '.' + (definition.name | default(name)) | replace('-', '_') + '}"' %}
-{% if definition.type is defined and definition.type == 'list' %}{% set value = '[' + value + ']' %}{% endif %}
+{%- for name, definition in artifact_definition.attributes.iteritems() %}
+  {% set value = '"${' + artifact_full_name_dot + '.' + (definition.name | default(name)) | replace('-', '_') + '}"' %}
+  {% if definition.type is defined and definition.type == 'list' %}
+    {% set value = '[' + value + ']' %}
+  {% endif %}
+
 output "{{ artifact_full_name }}_{{ name }}" {
-  {{ render.key('description', pad_length) }} = "{{ definition.description }}"
-  {{ render.key('value', pad_length) }} = {{ value }}
+  {{ render.key('description', template_data.key_pad) }} = "{{ definition.description }}"
+  {{ render.key('value', template_data.key_pad) }} = {{ value }}
 }
-
 {% endfor %}
