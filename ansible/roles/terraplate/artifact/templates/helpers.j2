@@ -1,0 +1,29 @@
+{# helpers.j2 #}
+
+{% macro key_value(name, rstring, template_data) %}
+  {% call key(name, template_data) %}{% endcall %} = {% call value(rstring, template_data) %}{% endcall %}{{ caller() }}
+{%- endmacro %}
+
+{% macro key(key, template_data) -%}
+{{ ' ' * template_data.indent }}{{ key }}{{ ' ' * (template_data.key_pad - (key | length)) }}{{ caller() }}
+{%- endmacro %}
+
+{% macro value(rstring, template_data) %}
+"{{ rstring | replace('_name_', template_data.parent.name) }}"{{ caller() }}
+{% endmacro %}{# NOTE: absence of '-' before endmacro is intended #}
+
+{% macro debug(macro_name, vars) %}
+# {{ '-' * 20 }} {{ macro_name }}
+  {% for label, value in vars.iteritems() %}
+    {% if value is mapping %}
+# {{ label }}:
+      {% for label, value in value.iteritems() %}
+#   {{ label }}: {{ value }}
+      {% endfor %}
+    {% else %}
+# {{ label }}: {{ value }}
+    {% endif %}
+  {% endfor %}
+# {{ '-' * 20 }}
+{{ caller() }}
+{%- endmacro %}

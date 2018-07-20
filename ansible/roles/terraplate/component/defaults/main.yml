@@ -13,6 +13,7 @@ spec_b:
     app_dir: '{{ spec_a.root_dir }}/{{ spec_a.app_name }}'
     credentials_dir: '{{ manifest.application.terraplate.credentials_dir }}'
     component_dir: '{{ spec_a.root_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
+    # rename all variable names to tfvars_*
     component_vars_dir: '{{ manifest.application.terraplate.external_vars_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
     component_exports_dir: '{{ manifest.application.terraplate.exports_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
     component_name: '{{ spec_a.component_name }}'

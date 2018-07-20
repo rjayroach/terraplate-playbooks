@@ -27,10 +27,9 @@ artifact: '{{ reference_artifact | combine(user_artifact, recursive=True) | comb
 parent_name_prefix: "{{ user_primary_artifact.metadata.name + '_' if artifact.metadata.name_prefix is defined and user_primary_artifact.metadata.name is defined else '' }}"
 # parent_name_prefix: ''
 artifact_name: "{{ parent_name_prefix + artifact.metadata.name }}"
-artifact_full_name: "{{ artifact.metadata.type + '_' + parent_name_prefix + artifact.metadata.name }}"
-artifact_full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ artifact.metadata.type + '.' + parent_name_prefix + artifact.metadata.name }}"
 
 # Variables used in template only
+# This becomes just aws/index.html
 reference_artifact_default_url: "https://www.terraform.io/docs/providers/{{ artifact.metadata.type.split('_')[0] }}/{{ provider_doc_path }}/{{ artifact.metadata.type.split('_')[1:] | join('_') }}.html"
 
 # TODO: have this as default to me combined with any user supplied values
@@ -44,3 +43,6 @@ template_data:
   parent:
     type: "{{ user_primary_artifact.metadata.type | default('') }}"
     name: "{{ user_primary_artifact.metadata.name | default('') }}"
+  artifact:
+    full_name: "{{ artifact.metadata.type + '_' + parent_name_prefix + artifact.metadata.name }}"
+    full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ artifact.metadata.type + '.' + parent_name_prefix + artifact.metadata.name }}"

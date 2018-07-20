@@ -1,4 +1,4 @@
-{# arguments.j2 }
+{# argument.j2 }
 {% for name, definition in artifact_definition.arguments.iteritems() %}
   {{ entry(name, definition, artifact.arguments[name], template_data) }}
 {% endfor %}
@@ -12,16 +12,17 @@ definition: { desc, req, type, argruments: {region: {desc, req}, ...} }
 artifact: { aws_access_key, bucket, ... }
 { #}
 
+{% import 'helpers.j2' as h %}
 
 {% macro entry(name, definition, artifact, template_data) %}
-  {% if 'entry' in template_data.debug_macros %}{% call debug('entry', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}{% endif %}
+  {% if 'entry' in template_data.debug_macros %}{% call h.debug('entry', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}{% endif %}
   {% call doit(name, definition, artifact, template_data) %}{% endcall %}
 {% endmacro %}{# NOTE: absence of '-' before endmacro is intended #}
 
 
 {% macro doit(name, definition, artifact, template_data) -%}
   {% if definition.type is defined and definition.type == 'map' %}
-    {% call key(name, template_data) %}{% endcall %} = {
+    {% call h.key(name, template_data) %}{% endcall %} = {
     {% for name, definition in definition.arguments.iteritems() %}
       {% call doit(name, definition, (artifact[name] | default('')), template_data | combine({'indent': template_data.indent + 2})) %}{% endcall %}
     {% endfor %}
@@ -34,15 +35,15 @@ artifact: { aws_access_key, bucket, ... }
 
 {% macro doit_r(name, definition, artifact, template_data) %}
   {% if 'doit_r' in template_data.debug_macros or 'all' in template_data.debug_macros %}
-    {% call debug('doit_r', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}
+    {% call h.debug('doit_r', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}
   {% endif %}
 
   {%- if definition.reference_from is defined and artifact | length > 0 %}
     {% call reference_from(name, definition, artifact, template_data) %}{% endcall %}
   {% elif definition.required is not defined %}
-    {% call key_value(name, "ATTENTION (definition error): key 'required' not defined", template_data) %}{% endcall %}
+    {% call h.key_value(name, "ATTENTION (definition error): key 'required' not defined", template_data) %}{% endcall %}
   {% elif definition.required == True and artifact | length == 0 %}
-    {% call key_value(name, "ATTENTION (artifact error): argument '{{ name }}' required but not given", template_data) %}{% endcall %}
+    {% call h.key_value(name, 'ATTENTION (artifact error): argument required but not given', template_data) %}{% endcall %}
   {% elif artifact | length > 0 %}
     {% if definition.multi is defined and definition.multi == True %}
     {# NOTE: Maybe multi needs to be a check in macro entry just like type = 'map' }
@@ -53,7 +54,7 @@ artifact: { aws_access_key, bucket, ... }
 {{ ' ' * pad }}{{ name }} = "{{ value }}"
     { #}
     {% else %}
-      {% call key(name, template_data) %}{% endcall %} = {% call value(artifact, template_data) %}{% endcall %}
+      {% call h.key(name, template_data) %}{% endcall %} = {% call h.value(artifact, template_data) %}{% endcall %}
     {% endif %}
   {% endif %}{{ caller() }}
 {%- endmacro %}
@@ -61,18 +62,18 @@ artifact: { aws_access_key, bucket, ... }
 
 {% macro reference_from(name, definition, artifact, template_data) %}
   {% if 'reference_from' in template_data.debug_macros or 'all' in template_data.debug_macros %}
-    {% call debug('reference_from', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}
+    {% call h.debug('reference_from', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}
   {% endif %}
 
   {%- if artifact.startswith('${') %}
-    {% call key_value(name, artifact, template_data) %}{% endcall %}
+    {% call h.key_value(name, artifact, template_data) %}{% endcall %}
   {% elif '.' in artifact %}
     {% call resource_reference(name, definition, artifact, template_data) %}{% endcall %}
   {% elif ':' in artifact %}
     {% call data_reference(name, definition, artifact, template_data) %}{% endcall %}
   {# TODO elif lookup if there is a default reference_from #}
   {% else %}
-    {% call key_value(name, artifact, template_data) %}{% endcall %}
+    {% call h.key_value(name, artifact, template_data) %}{% endcall %}
   {% endif %}{{ caller() }}
 {%- endmacro %}
 
@@ -82,13 +83,13 @@ artifact: { aws_access_key, bucket, ... }
   {% set resource_id = definition.reference_from[resource_type] if definition.reference_from[resource_type] is defined else '' %}
 
   {%- if 'resource_reference' in template_data.debug_macros or 'all' in template_data.debug_macros %}
-    {% call debug('data_reference', {'name': name, 'definition': definition, 'artifact': artifact, 'resource_type': resource_type, 'resource_id': resource_id}) %}{% endcall %}
+    {% call h.debug('data_reference', {'name': name, 'definition': definition, 'artifact': artifact, 'resource_type': resource_type, 'resource_id': resource_id}) %}{% endcall %}
   {% endif %}
 
   {%- if resource_id | length > 0 %}
-    {% call key(name, template_data) %}{% endcall %} = {% call value('${' + artifact + '.' + resource_id + '}', template_data) %}{% endcall %}
+    {% call h.key(name, template_data) %}{% endcall %} = {% call h.value('${' + artifact + '.' + resource_id + '}', template_data) %}{% endcall %}
   {% else %}
-    {% call key(name, template_data) %}{% endcall %} = "ATTENTION (reference lookup error): invalid key '{{ resource_type }}'. Valid keys are '{{ definition.reference_from.keys() | join(',') }}'"
+    {% call h.key(name, template_data) %}{% endcall %} = "ATTENTION (reference lookup error): invalid key '{{ resource_type }}'. Valid keys are '{{ definition.reference_from.keys() | join(',') }}'"
   {% endif %}{{ caller() }}
 {%- endmacro %}
 
@@ -100,47 +101,17 @@ artifact: { aws_access_key, bucket, ... }
   {% set resource_id = definition.reference_from[resource_type] if definition.reference_from[resource_type] is defined else '' %}
 
   {%- if 'data_reference' in template_data.debug_macros or 'all' in template_data.debug_macros %}
-    {% call debug('data_reference', {'name': name, 'definition': definition, 'artifact': artifact, 'resource_type': resource_type, 'resource_id': resource_id}) %}{% endcall %}
+    {% call h.debug('data_reference', {'name': name, 'definition': definition, 'artifact': artifact, 'resource_type': resource_type, 'resource_id': resource_id}) %}{% endcall %}
   {% endif %}
 
   {%- if resource_id | length == 0 %}
-    {% call key(name, template_data) %}{% endcall %} = "ATTENTION (data reference lookup error): invalid key '{{ resource_type }}'. Valid keys are '{{ definition.reference_from.keys() | join(',') }}'"
+    {% call h.key(name, template_data) %}{% endcall %} = "ATTENTION (data reference lookup error): invalid key '{{ resource_type }}'. Valid keys are '{{ definition.reference_from.keys() | join(',') }}'"
   {% elif resource_ref | length == 3 %}
-    {% call key(name, template_data) %}{% endcall %} = "${data.terraform_remote_state.{{ resource_ref[0] }}.{{ resource_ref[1] }}_{{ resource_ref[2] }}_{{ resource_id }}}"
+    {% call h.key(name, template_data) %}{% endcall %} = "${data.terraform_remote_state.{{ resource_ref[0] }}.{{ resource_ref[1] }}_{{ resource_ref[2] }}_{{ resource_id }}}"
   {% elif resource_ref | length == 2 %}
-    {% call key(name, template_data) %}{% endcall %} = "${data.{{ resource_ref[0] }}.{{ resource_ref[1] | replace('_name_', template_data.parent.name) }}.{{ resource_id }}}"
+    {% call h.key(name, template_data) %}{% endcall %} = "${data.{{ resource_ref[0] }}.{{ resource_ref[1] | replace('_name_', template_data.parent.name) }}.{{ resource_id }}}"
   {% else %}
     {# TODO: this will nver be reached b/c the resource_id lenght with be 0 #}
-    {% call key(name, template_data) %}{% endcall %} = "ATTENTION (incorrect number of arguments): passed {{ resource_ref | length }} arguments. Must be 2 or 3."
+    {% call h.key(name, template_data) %}{% endcall %} = "ATTENTION (incorrect number of arguments): passed {{ resource_ref | length }} arguments. Must be 2 or 3."
   {% endif %}{{ caller() }}
-{%- endmacro %}
-
-
-{% macro key_value(name, rstring, template_data) %}
-  {% call key(name, template_data) %}{% endcall %} = {% call value(rstring, template_data) %}{% endcall %}{{ caller() }}
-{%- endmacro %}
-
-{% macro key(key, template_data) -%}
-{{ ' ' * template_data.indent }}{{ key }}{{ ' ' * (template_data.key_pad - (key | length)) }}{{ caller() }}
-{%- endmacro %}
-
-{% macro value(rstring, template_data) %}
-"{{ rstring | replace('_name_', template_data.parent.name) }}"{{ caller() }}
-{% endmacro %}{# NOTE: absence of '-' before endmacro is intended #}
-
-
-{% macro debug(macro_name, vars) %}
-# {{ '-' * 20 }} {{ macro_name }}
-  {% for label, value in vars.iteritems() %}
-    {% if value is mapping %}
-# {{ label }}:
-      {% for label, value in value.iteritems() %}
-#   {{ label }}: {{ value }}
-      {% endfor %}
-    {% else %}
-# {{ label }}: {{ value }}
-    {% endif %}
-  {% endfor %}
-# {{ '-' * 20 }}
-{{ caller() }}
 {%- endmacro %}

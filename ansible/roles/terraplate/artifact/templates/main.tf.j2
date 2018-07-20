@@ -1,21 +1,16 @@
 #jinja2: lstrip_blocks: True
-{% import 'render.j2' as render %}
-{% import 'arguments.j2' as argument %}
+{% import 'variable.j2' as variable %}
+{% import 'argument.j2' as argument %}
+{% import 'attribute.j2' as attribute %}
 
 # {{ artifact.metadata.description }}
 # See: {{ artifact.metadata.url | default(reference_artifact_default_url) }}
-#
-{%- for name, definition in artifact_definition.variables.iteritems() %}
-  {% if artifact.variables[name] is defined %}
-variable "{{ artifact_full_name }}_{{ name }}" {
-  {{ render.key('description', template_data.key_pad) }} = "{{ definition.description }}"
-  {{ render.key('default', template_data.key_pad) }} = {{ render.variable_value(definition, artifact.variables[name], template_data.parent.name) }}
-}
 
-  {% endif %}
+{% for name, definition in artifact_definition.variables.iteritems() %}
+{{ variable.entry(name, definition, artifact.variables[name] | default(''), template_data) }}
 {% endfor %}
 
-{% if template_content %}
+{%- if template_content %}
 {{ template_content }}
 {% else %}
 {{ render_type }} "{{ artifact.metadata.type }}" "{{ artifact_name }}" {
@@ -25,14 +20,6 @@ variable "{{ artifact_full_name }}_{{ name }}" {
 }
 {% endif %}
 
-{%- for name, definition in artifact_definition.attributes.iteritems() %}
-  {% set value = '"${' + artifact_full_name_dot + '.' + (definition.name | default(name)) | replace('-', '_') + '}"' %}
-  {% if definition.type is defined and definition.type == 'list' %}
-    {% set value = '[' + value + ']' %}
-  {% endif %}
-
-output "{{ artifact_full_name }}_{{ name }}" {
-  {{ render.key('description', template_data.key_pad) }} = "{{ definition.description }}"
-  {{ render.key('value', template_data.key_pad) }} = {{ value }}
-}
+{% for name, definition in artifact_definition.attributes.iteritems() %}
+{{ attribute.entry(name, definition, artifact.attributes[name] | default(''), template_data) }}
 {% endfor %}

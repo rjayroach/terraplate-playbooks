@@ -52,38 +52,16 @@
     dest: '{{ spec.terraplate.component_dir }}/terraform.tfvars'
 
 - name: Template the component file including remote states
-  template:
-    src: _component.tf.j2
-    dest: '{{ spec.terraplate.component_dir }}/_component.tf'
-  when: spec.terraplate.monolithic_file_name is not defined
-
-- name: Template the component file including remote states
   blockinfile:
     create: yes
     dest: "{{ spec.terraplate.component_dir }}/{{ spec.terraplate.monolithic_file_name }}.tf"
     marker: '# {mark} component metadata'
     block: "{{ lookup('template', '_component.tf.j2') }}"
-  when: spec.terraplate.monolithic_file_name is defined
 
 - name: Create the output directories for the component vars if needed
   file:
     name: '{{ spec.terraplate.component_vars_dir }}'
     state: directory
-  when: spec.external_vars | length > 0
-
-- name: Create the export directories for the component exports
-  file:
-    name: '{{ spec.terraplate.component_exports_dir }}'
-    state: directory
-
-- name: Template the component_vars tfvars file if needed
-  import_role:
-    name: terraplate/utils
-    tasks_from: template-key-value-pairs
-  vars:
-    dest: '{{ spec.terraplate.component_vars_dir }}/vars.tfvars'
-    template_vars: '{{ spec.external_vars }}'
-  when: spec.external_vars | length > 0
 
 - name: Include artifact render tasks for each provider
   include_tasks: provider.yml
