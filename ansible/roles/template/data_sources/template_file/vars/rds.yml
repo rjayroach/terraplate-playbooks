@@ -1,0 +1,19 @@
+---
+metadata:
+  description: Create an ENV file with RDS credentials
+  template:
+    file_name: rds_env
+    description: Create an ENV file with RDS credentials
+
+definition:
+  arguments:
+    vars:
+      arguments:
+        key:
+          description: The key under which the endpoint is written
+          required: yes
+        instance_address:
+          description: The instance address
+          required: yes
+          reference_from:
+            aws_db_instance: address

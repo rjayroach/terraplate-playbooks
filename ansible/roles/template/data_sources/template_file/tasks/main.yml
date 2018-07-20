@@ -1,0 +1,31 @@
+---
+- name: Load artifact vars
+  include_vars:
+    file: '{{ profile }}.yml'
+    name: profile_artifact
+
+- name: Load artifact vars
+  include_vars:
+    file: base_artifact.yml
+    name: base_artifact
+
+- set_fact:
+    loaded_artifact: '{{ base_artifact | combine(profile_artifact | default({}), recursive=True) }}'
+
+- name: Copy the template file to the component directory
+  copy:
+    src: '{{ loaded_artifact.metadata.template.file_name }}'
+    dest: '{{ spec.terraplate.component_dir }}/{{ loaded_artifact.metadata.template.file_name }}'
+
+- name: Template the null resource file to the component directory
+  blockinfile:
+    create: yes
+    dest: "{{ spec.terraplate.component_dir }}/{{ spec.terraplate.monolithic_file_name }}.tf"
+    marker: "# {mark} {{ template_data.artifact.full_name | replace('template_file', 'null_resource') }}"
+    block: "{{ lookup('template', 'null_resource.tf.j2') }}" 
+
+- name: Ensure the target file exists
+  copy:
+    dest: '{{ user_artifact.variables.path }}/{{ user_artifact.variables.name }}'
+    force: no
+    content: ''

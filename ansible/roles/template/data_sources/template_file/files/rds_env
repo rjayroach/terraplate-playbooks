@@ -1,0 +1,3 @@
+---
+${key}:
+  DATABASE_HOST: ${instance_address}
