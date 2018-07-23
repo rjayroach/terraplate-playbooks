@@ -1,9 +1,9 @@
 #jinja2: lstrip_blocks: True
-{% for component in component_names.files %}
+{% for component in component_list.files %}
 {{ spec.application.name }}-{{ component.path.split('/') | last | replace('.yml', '') }} ansible_host=localhost ansible_connection=local
 {% endfor %}
 
 [{{ spec.application.name }}]
-{% for component in component_names.files %}
+{% for component in component_list.files %}
 {{ spec.application.name }}-{{ component.path.split('/') | last | replace('.yml', '') }}
 {% endfor %}

@@ -12,7 +12,7 @@
     state: directory
   with_items:
     - '{{ spec.inventory_dir }}/group_vars/all'
-    - '{{ spec.inventory_dir }}/host_vars'
+    - '{{ spec.inventory_dir }}/host_vars/{{ spec.component.inventory_name }}'
     - '{{ spec.component.playbook_dir }}'
 
 - name: Template the application's group_vars
@@ -37,7 +37,7 @@
 - debug:
     msg: "{{ item.path | replace(spec.playbook_dir, '') }}"
   with_items:
-    - '{{ component_names.files }}'
+    - '{{ component_list.files }}'
   when: false
 
 - name: Template the application's hosts file

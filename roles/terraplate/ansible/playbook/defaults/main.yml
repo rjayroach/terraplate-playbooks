@@ -32,7 +32,9 @@ d2:
     inventory_name: '{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}'
     playbook_dir: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/{{ d1.namespace.user_name }}'
     playbook_file: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/{{ d1.namespace.user_name }}/{{ d1.component.user_name }}.yml'
-    vars_file: '{{ d1.inventory_dir }}/host_vars/{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}.yml'
+    vars_file: '{{ d1.inventory_dir }}/host_vars/{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}/arguments.yml'
+    tfvars_file: '{{ d1.inventory_dir }}/host_vars/{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}/variables.yml'
+    # {{ spec.component.inventory_name }}/tfvars.yml'
   template:
     name: '{{ template_name }}'
     file: "{{ role_path.split('/')[0:-3] | join('/') }}/providers/{{ template_name.split('_')[0] }}/components/{{ template_name.split('_')[1:] | join('_') }}.yml"

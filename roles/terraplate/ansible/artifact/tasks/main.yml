@@ -3,50 +3,73 @@
 # [ ] create a playbooks/hello-world/repos.yml playbook
 ---
 - debug:
-    var: resource
-- name: Include the resource
+    var: artifact
+
+- name: Include the artifact
   set_fact:
-    provider_type: "{{ resource.metadata.type.split('_')[0] }}"
-    artifact_type: "{{ resource.metadata.type }}"
+    provider_type: "{{ artifact.metadata.type.split('_')[0] }}"
+    artifact_type: "{{ artifact.metadata.type }}"
+
 - debug:
     var: provider_type
 - debug:
     var: artifact_type
-# Variables used in task and/or template
+
 - set_fact:
     reference_artifact_path: "providers/{{ provider_type }}/{{ artifact_path }}/{{ artifact_type }}"
+
 - debug:
     var: reference_artifact_path
+
 # Example: aws/resource/route53_record
 - set_fact:
     reference_artifact_vars_file_path: "{{ role_path.split('/')[0:-3] | join('/') }}/{{ reference_artifact_path }}.yml"
+    qa: {}
+
 - debug:
     var: reference_artifact_vars_file_path
 
 - include_vars:
     file: '{{ reference_artifact_vars_file_path}}'
-    name: resource_manifest
+    name: artifact_manifest
 
 - debug:
-    msg: '{{ resource_manifest.definition.arguments  }}'
+    msg: '{{ artifact_manifest.definition.arguments  }}'
 
-- name: Simple Question
-  prompt:
-    msg:
-      say: "{{ item.value.description }}\n{{ item.key }}"
-      ask: '{{ item.key }}'
-  with_dict: '{{ resource_manifest.definition.arguments }}'
-
-- debug:
-    var: name
+- include_tasks: qa.yml
+  vars:
+    question_type: variables
+  with_dict: '{{ artifact_manifest.definition.variables }}'
+  loop_control:
+    loop_var: question
+  when: artifact_manifest.definition.variables | length > 0
 
 - debug:
-    var: private
+    var: qa
 
-# TODO: Collect these vars and write them to the TFVARS file (variables)
+- name: Template the component's tfvars
+  template:
+    src: host_tfvars.yml.j2
+    dest: '{{ spec.component.tfvars_file }}'
+  vars:
+    values: '{{ qa.variables }}'
+  when: qa.variables | length > 0
+
+- name: Encrypt the component's tfvars file using the project's vault password
+  command: 'ansible-vault encrypt {{ spec.component.tfvars_file }}'
+
+- include_tasks: qa.yml
+  vars:
+    question_type: arguments
+  with_dict: '{{ artifact_manifest.definition.arguments }}'
+  loop_control:
+    loop_var: question
+  when: artifact_manifest.definition.arguments | length > 0
+
 # or to the generated host_vars file itself (arguments)
 - name: Template the component's host_vars
   template:
     src: host_vars.yml.j2
     dest: '{{ spec.component.vars_file }}'
   when: false
+- fail:

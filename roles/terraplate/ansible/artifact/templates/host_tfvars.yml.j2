@@ -1,0 +1,6 @@
+#jinja2: lstrip_blocks: True
+---
+{% for key, value in values.iteritems() %}
+{{ (spec.component.inventory_name + '-' + key) | replace('-', '_') }} = "{{ value }}"
+{% endfor %}
+{# spec #}
