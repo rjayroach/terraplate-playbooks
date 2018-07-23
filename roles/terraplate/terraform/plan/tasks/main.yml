@@ -1,0 +1,15 @@
+---
+# BEGIN: {{ reference_artifact_path }} - Check if artifact vars_file exists'
+- name: Debug the componet specification
+  debug:
+    var: spec 
+    verbosity: 0
+  when: false
+
+- name: Template the application files
+  include_role:
+    name: terraplate/terraform/application
+
+- name: Template the component files
+  include_role:
+    name: terraplate/terraform/component

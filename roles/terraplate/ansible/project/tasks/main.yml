@@ -1,0 +1,78 @@
+---
+- include_tasks: setup.yml
+  when: false
+
+- name: Ensure a valid project name
+  fail:
+    msg: Project name must be set
+  when: project_name | length == 0
+
+- name: Check if a project alredy exists
+  stat:
+    path: '{{ project_dir }}'
+  register: project_status
+
+- name: Quit if a project already exists
+  fail:
+    msg: Project already exists
+  when: project_status.stat.exists
+
+- name: Create project directory structure
+  file:
+    path: '{{ project_dir }}/inventory/group_vars/all'
+    state: directory
+
+- name: Softlink to the roles directory
+  file:
+    src: ../../roles
+    path: '{{ project_dir }}/roles'
+    state: link
+
+- name: Copy the project base files
+  copy:
+    src: files/
+    dest: '{{ project_dir }}'
+
+- name: Copy the prompt action plugin
+  copy:
+    src: files/action_plugins/
+    dest: '{{ project_dir }}/action_plugins'
+
+- name: Template the project's global vars
+  template:
+    src: terraplate.yml.j2
+    dest: '{{ project_dir }}/inventory/group_vars/all/terraplate.yml'
+
+- name: Set the project's terraplate playbook to executable
+  file:
+    path: '{{ project_dir }}/terraplate'
+    mode: 0755
+
+- name: Generate an inventory hosts file
+  copy:
+    content: "localhost ansible_connection=local\n"
+    dest: '{{ project_dir }}/inventory/hosts.localhost'
+
+- name: Generate the project's vault password
+  copy:
+    content: "{{ 999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N')) | to_uuid }}"
+    dest: '{{ project_dir }}/.vault-password.txt'
+
+- name: Generate base contents for the secrets file
+  copy:
+    content: "---\nsecrets_manifest:"
+    dest: '{{ project_dir }}/inventory/group_vars/all/secrets.yml'
+
+- name: Encrypt the secrets file using the project's vault password
+  command: ansible-vault encrypt inventory/group_vars/all/secrets.yml
+  args:
+    chdir: '{{ project_dir }}'
+
+- name: Initialize the project's git repository
+  command: '{{ item }}'
+  args:
+    chdir: '{{ project_dir }}'
+  with_items:
+    - git init
+    - git add .
+    - git commit -m 'first commit'

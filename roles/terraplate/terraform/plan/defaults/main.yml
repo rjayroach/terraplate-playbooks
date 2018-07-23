@@ -1,0 +1,88 @@
+# Combine manifest values in one place rather than scattered throughout the downstream templates
+# This also serves to segment the user manifest from the spec used internally by components and resources
+---
+template_type: "{{ 'ansible' if inventory_hostname == 'localhost' else 'terraform' }}"
+
+user_spec_terraplate:
+  '{{ global_manifest.terraplate | default({}) | combine(application_manifest.terraplate | default({}), recursive=True) | combine(component_manifest.terraplate | default({}), recursive=True) }}'
+
+user_spec:
+  providers:
+    '{{ global_manifest.providers | default([]) | union(application_manifest.providers | default([])) | union(component_manifest.providers | default([])) }}'
+  data_sources:
+    '{{ global_manifest.data_sources | default([]) | union(application_manifest.data_sources | default([])) | union(component_manifest.data_sources | default([])) }}'
+  resources:
+    '{{ global_manifest.resources | default([]) | union(application_manifest.resources | default([])) | union(component_manifest.resources | default([])) }}'
+
+dspec:
+  terraplate:
+    application:
+      root_dir: '{{ user_spec_terraplate.root_dir }}'
+      name: '{{ user_spec_terraplate.application_name }}'
+      remote_state:
+        # TODO: make a bucket based on application name and some other value
+        bucket: "{{ user_spec_terraplate.remote_state.bucket | default('my-terraform-state') }}"
+        region: "{{ user_spec_terraplate.remote_state.region | default('us-east-1') }}"
+        encrypt: "{{ user_spec_terraplate.remote_state.encrypt | default('true') }}"
+        # TODO: use the bucket name also as the dynamo table name
+        dynamodb_table: "{{ user_spec_terraplate.remote_state.dynamodb_table | default('my-terraform-state') }}"
+
+    component:
+      dir: '{{ user_spec_terraplate.root_dir }}/{{ user_spec_terraplate.application_name }}/{{ user_spec_terraplate.component_name }}'
+      debug_macros: '{{ user_spec_terraplate.debug_macros | default([]) }}'
+      dependencies: '{{ user_spec_terraplate.dependencies }}'
+      file_name: "{{ user_spec_terraplate.component_file_name | default('component') }}.tf"
+      name: '{{ user_spec_terraplate.component_name }}'
+      variables:
+        dir: '{{ user_spec_terraplate.vars_dir }}/{{ user_spec_terraplate.application_name }}/{{ user_spec_terraplate.component_name }}'
+        # TODO: allow user to override the file name
+        file_name: 'vars.tfvars'
+
+dspec2:
+  terraplate:
+    application:
+      dir: '{{ dspec.terraplate.application.root_dir }}/{{ dspec.terraplate.application.name }}'
+    component:
+      relative_root_path: "{{ '../' * ( (dspec.terraplate.component.dir.split('/') | length) - (dspec.terraplate.application.root_dir.split('/') | length) ) }}"
+      full_file_name: '{{ dspec.terraplate.component.dir }}/{{ dspec.terraplate.component.file_name }}'
+      variables:
+        # path is supposed to be relative to the root_dir
+        path: '{{ user_spec_terraplate.vars_path }}/{{ dspec.terraplate.application.name }}/{{ dspec.terraplate.component.name }}/{{ dspec.terraplate.component.variables.file_name }}'
+        full_file_name: '{{ dspec.terraplate.component.variables.dir }}/{{ dspec.terraplate.component.variables.file_name }}'
+
+spec: '{{ user_spec | combine(dspec, recursive=True) | combine(dspec2, recursive=True) }}'
+
+#
+# spec_a:
+#   root_dir: '{{ manifest.application.terraplate.root_dir }}'
+#   app_name: '{{ manifest.application.terraplate.app_name }}'
+#   component_name: '{{ manifest.component.terraplate.name }}'
+# 
+# spec_b:
+#   terraplate:
+#     root_dir: '{{ spec_a.root_dir }}'
+#     app_dir: '{{ spec_a.root_dir }}/{{ spec_a.app_name }}'
+#     credentials_dir: '{{ manifest.application.terraplate.credentials_dir }}'
+#     component_dir: '{{ spec_a.root_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
+#     # rename all variable names to tfvars_*
+#     component_vars_dir: '{{ manifest.application.terraplate.external_vars_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
+#     # component_exports_dir: '{{ manifest.application.terraplate.exports_dir }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}'
+#     component_name: '{{ spec_a.component_name }}'
+#     monolithic_file_name: "{{ manifest.application.terraplate.monolithic_file_name | default('component') }}"
+#     debug_macros: []
+#   terragrunt:
+#     credentials_path: '{{ manifest.application.terragrunt.credentials_path }}'
+#     component_vars_path: '{{ manifest.application.terragrunt.external_vars_path }}/{{ spec_a.app_name }}/{{ spec_a.component_name }}/vars.tfvars'
+#     remote_state: '{{ manifest.application.terragrunt.remote_state }}'
+#   terraform:
+# 
+#   remote_states:
+#     required: '{{ manifest.component.terraform.remote_states | default([]) }}'
+#     available: '{{ manifest.application.terraform.remote_states | default({}) }}'
+#     default:
+#       bucket: '{{ manifest.application.terragrunt.remote_state.bucket }}'
+#       region: '{{ manifest.application.terragrunt.remote_state.region }}'
+#       key: '{{ spec_a.app_name }}'
+# 
+#   dependencies: '{{ manifest.component.terragrunt.dependencies | default([]) }}'
+#   external_vars: '{{ manifest.component.terragrunt.external_vars | default([]) }}'

@@ -1,0 +1,24 @@
+---
+{% set dbl = '{{' %}
+# Becuase fact collection is turned off:
+ansible_env:
+  HOME: /home/vagrant
+
+global_manifest:
+  terraplate:
+    root_dir: "{{ dbl }} inventory_dir.split('/')[0:-1] | join('/') }}/terraform"
+    vars_dir: "{{ dbl }} inventory_dir.split('/')[0:-1] | join('/') }}/terraform"
+    vars_path: '../..'
+    remote_state:
+      # Example of segmenting terraform remote state buckets by environment if preferred:
+      # bucket: '{{ dbl }} config.globals.remote_state_name }}-{{ dbl }} terraplate.env.tld }}'
+      bucket: {{ remote_state_bucket_name }}
+      dynamodb_table: {{ remote_state_bucket_name }}
+      region: {{ remote_state_bucket_region }}
+  data_sources:
+    - metadata:
+        type: terraform_remote_state
+      arguments:
+        config:
+          bucket: {{ remote_state_bucket_name }}
+          region: {{ remote_state_bucket_region }}

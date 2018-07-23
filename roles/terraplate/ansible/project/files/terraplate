@@ -1,0 +1,26 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Genreate or Destroy a component playbook
+  hosts: localhost
+  vars_prompt:
+    - name: action
+      prompt: 'Generate (g) or Destroy (d)'
+      default: g
+      private: no
+    - name: application_name
+      prompt: 'Application name (hello-world)'
+      default: hello-world
+      private: no
+    - name: namespace
+      prompt: 'Namespace (admin, app/backend)'
+      default: admin
+      private: no
+    - name: component_name
+      prompt: 'Component name (repos)'
+      default: repos
+      private: no
+    - name: template_name
+      prompt: 'Template to generate (github_repository)'
+      default: github_repository
+      private: no
+  roles: [terraplate/ansible/playbook]

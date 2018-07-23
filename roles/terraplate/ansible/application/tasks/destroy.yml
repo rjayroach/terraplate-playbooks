@@ -1,0 +1,22 @@
+---
+- name: Remote the playbook
+  file:
+    state: absent
+    path: '{{ spec.component.playbook_file }}'
+
+- name: Get a list of the existing components for this application
+  find:
+    paths: '{{ spec.application.dir }}'
+    recurse: yes
+    patterns: '*.yml'
+    excludes: 'all.yml'
+  register: component_list
+
+- name: Remove the application elements if this was the only playbook
+  file:
+    state: absent
+    path: '{{ item }}'
+  with_items:
+    - '{{ spec.application.dir }}'
+    - '{{ spec.component.vars_file }}'
+  when: component_list.files | length == 0

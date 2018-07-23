@@ -1,0 +1,26 @@
+---
+terraform_vars:
+  key_path: '{{ ansible_env.HOME }}/.ssh'
+
+config:
+  globals:
+    remote_state_name: com-openmarketinggroup-terraform-state
+    github_organization: rails-on-kubernetes
+      dns:
+        - metadata:
+            name: 'admin/dns2'
+          providers:
+            - metadata:
+                type: aws
+              variables:
+                profile: default
+            #
+            #   arguments:
+            #     alias: west
+            # - metadata:
+            #     type: aws
+            #   arguments:
+            #     alias: govcloud
+            #   variables:
+            #     access_key_id: the key
+            #     access_key_secret: the secret

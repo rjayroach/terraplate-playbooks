@@ -5,6 +5,8 @@
 A project is a user defined logical grouping of related cloudy resources, for example, everything needed to bring up an application in a K8s cluster on AWS.
 Projects are stand-alone entities that contain all the relevant user configuation to realize the infrastructure.
 
+[link-to-project](roles/terraplate/project/README.md)
+
 ### Applications
 
 A project consists of one or more applications. An Application is a logical subset of resources needed to realize the overall project

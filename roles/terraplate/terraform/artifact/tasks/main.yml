@@ -1,0 +1,59 @@
+---
+- debug:
+    var: provider_type
+- debug:
+    var: reference_artifact_path
+- debug:
+    var: reference_artifact_vars_file_path
+- debug:
+    var: template_data
+
+- name: 'BEGIN: {{ reference_artifact_path }} - Check if artifact vars_file exists'
+  stat:
+    path: '{{ reference_artifact_vars_file_path }}'
+  register: vars_file
+
+- name: Set template_content to null before loading artifact
+  set_fact:
+    template_content: null
+    loaded_artifact: null
+
+- name: Include reference_artifact vars file from file
+  include_vars:
+    file: '{{ reference_artifact_vars_file_path }}'
+    name: vars_loaded_artifact
+  when: vars_file.stat.exists
+
+- set_fact:
+    loaded_artifact: '{{ vars_loaded_artifact }}'
+  when: vars_file.stat.exists
+
+- name: Include role reference_artifact_path
+  include_role:
+    name: '{{ reference_artifact_path }}'
+  vars:
+    profile: '{{ user_artifact.metadata.profile }}'
+  when: not vars_file.stat.exists
+
+# TODO: make this a setting that can be set by the user so verbosity is not necessary
+- debug:
+    var: '{{ debug_item }}'
+    verbosity: 0
+  with_items: [reference_artifact, user_artifact, artifact, artifact_definition]
+  loop_control:
+    loop_var: debug_item
+
+- name: "Render the artifact tfvars for {{ template_data.artifact.full_name }}"
+  blockinfile:
+    create: yes
+    dest: '{{ spec.terraplate.component.variables.full_file_name }}'
+    marker: '# {mark} {{ template_data.artifact.full_name }}'
+    block: "{{ lookup('template', 'tfvars.j2') }}"
+  when: user_artifact.variables | length > 0
+
+- name: "Render the artifact template for {{ template_data.artifact.full_name }}"
+  blockinfile:
+    create: yes
+    dest: "{{ spec.terraplate.component.dir }}/{{ spec.terraplate.component.file_name }}"
+    marker: '# {mark} {{ template_data.artifact.full_name }}'
+    block: "{{ lookup('template', 'main.tf.j2') }}"

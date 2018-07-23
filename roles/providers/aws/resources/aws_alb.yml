@@ -1,0 +1,48 @@
+---
+metadata:
+  type: aws_alb
+
+parents: {}
+
+defaults:
+  arguments:
+    access_logs:
+      bucket: foo
+      prefix: bar
+    enable_deletion_protection: 'false'
+    internal: 'false'
+
+definition:
+  arguments:
+    access_logs:
+      description: description
+      type: map
+    enable_deletion_protection:
+      description: description
+    name:
+      description: description
+    internal:
+      description: description
+    tags:
+      type: map
+      description: description
+    security_groups:
+      description: List of Security Group IDs to attach to the ALB
+      type: list
+      reference_from:
+        aws_security_group: id
+    subnets:
+      description: List of subnet IDs to attach to the ALB
+      type: list
+      reference_from:
+        aws_subnet: id
+
+  attributes:
+    arn:
+      description: The ARN of the load balancer (matches id)
+    arn_suffix:
+      description: The ARN suffix for use with CloudWatch Metrics
+    dns_name:
+      description: The DNS name of the load balancer
+    zone_id:
+      description: The canonical hosted zone ID of the load balancer (to be used in a Route 53 Alias record)

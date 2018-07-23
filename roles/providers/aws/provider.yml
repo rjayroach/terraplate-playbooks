@@ -1,0 +1,41 @@
+---
+metadata:
+  name: provider
+  description: The Amazon Web Services (AWS) provider is used to interact with the many resources supported by AWS. The provider needs to be configured with the proper credentials before it can be used.
+
+parents: {}
+
+defaults:
+  arguments:
+    access_key: ${var.aws_provider_access_key}
+    secret_key: ${var.aws_provider_secret_key}
+    region: ${var.aws_provider_region}
+    profile: ${var.aws_provider_profile}
+
+definition:
+  variables:
+    access_key:
+      description: This is the AWS access key. It must be provided, but it can also be sourced from the AWS_ACCESS_KEY_ID environment variable, or via a shared credentials file if profile is specified.
+      required: no
+    secret_key:
+      description: This is the AWS secret key. It must be provided, but it can also be sourced from the AWS_SECRET_ACCESS_KEY environment variable, or via a shared credentials file if profile is specified.
+      required: no
+    region:
+      description: This is the AWS region. It must be provided, but it can also be sourced from the AWS_DEFAULT_REGION environment variables, or via a shared credentials file if profile is specified.
+      required: no
+    profile:
+      description: This is the AWS profile name as set in the shared credentials file.
+      required: no
+  arguments:
+    access_key:
+      description: This is the AWS access key. It must be provided, but it can also be sourced from the AWS_ACCESS_KEY_ID environment variable, or via a shared credentials file if profile is specified.
+      required: no
+    secret_key:
+      description: This is the AWS secret key. It must be provided, but it can also be sourced from the AWS_SECRET_ACCESS_KEY environment variable, or via a shared credentials file if profile is specified.
+      required: no
+    region:
+      description: This is the AWS region. It must be provided, but it can also be sourced from the AWS_DEFAULT_REGION environment variables, or via a shared credentials file if profile is specified.
+      required: no
+    profile:
+      description: This is the AWS profile name as set in the shared credentials file.
+      required: no

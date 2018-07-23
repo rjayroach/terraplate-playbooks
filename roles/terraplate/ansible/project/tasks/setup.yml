@@ -1,0 +1,55 @@
+---
+- debug:
+    var: spec
+
+- name: Install graphiz to make graphs of infrastructure
+  apt: 
+    name: '{{ item }}'
+  with_items:
+    - graphviz
+    - unzip
+  become: yes
+
+- name: Check if Terraform binary exists
+  stat:
+    path: '{{ spec.terraform.binary_path }}'
+  register: terraform_binary
+
+- name: 'Get terraform binary - {{ spec.terraform.binary_url_base }}/{{ spec.terraform.version }}/{{ spec.terraform.file }}.zip'
+  get_url:
+    url: '{{ spec.terraform.binary_url_base }}/{{ spec.terraform.version }}/{{ spec.terraform.file }}.zip'
+    dest: '{{ ansible_env.HOME }}/{{ spec.terraform.file }}.zip'
+  when: not terraform_binary.stat.exists
+  register: new_archive
+
+- name: Install Terraform
+  unarchive:
+    src: '{{ ansible_env.HOME }}/{{ spec.terraform.file }}.zip'
+    dest: '{{ spec.terraform.binary_home }}'
+    copy: no
+  when: new_archive is changed
+  become: yes
+
+- name: Remove Terraform zip
+  file:
+    path: '{{ ansible_env.HOME }}/{{ spec.terraform.file }}.zip'
+    state: absent
+
+- name: Check if Terragrunt binary exists
+  stat:
+    path: '{{ spec.terragrunt.binary_path }}'
+  register: terragrunt_binary
+
+- name: 'Get terragrunt binary - {{ spec.terragrunt.binary_url_base }}/v{{ spec.terragrunt.version }}/terragrunt_linux_amd64'
+  get_url:
+    url: '{{ spec.terragrunt.binary_url_base }}/v{{ spec.terragrunt.version }}/terragrunt_linux_amd64'
+    dest: '{{ spec.terragrunt.binary_path }}'
+  when: not terragrunt_binary.stat.exists
+  register: terragrunt_archive
+  become: yes
+
+- name: Set terragrunt permissions
+  file:
+    path: '{{ spec.terragrunt.binary_path }}'
+    mode: 0755
+  become: yes

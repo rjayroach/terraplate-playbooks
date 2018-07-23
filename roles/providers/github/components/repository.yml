@@ -1,0 +1,29 @@
+---
+terraplate:
+  debug_macros: ['doit_r']
+  component_name: repos
+  dependencies:
+    repos: [xyz]
+    frap: [pea]
+providers:
+  - metadata:
+      type: github
+    variables:
+      # TODO: Since this follows a naming convention the var can be moved to the role
+      # it should be in terraplate/component b/c the resources should not know where teh values come from
+      # token: '{{ terraplate_secrets.hello_world.repos.variables.github_token }}'
+    arguments:
+      organization: rails-on-kubernetes
+data_sources:
+  - metadata:
+      type: template_file
+      name: github_repository 
+      profile: test
+resources:
+  - metadata:
+      type: github_repository
+      name: terraplate_devops
+    arguments:
+      name: terraplate-devops
+      description: Terraplate Devops Repository
+      private: 'false'

@@ -1,0 +1,16 @@
+# NOTE: Provided as the base reference_artifact
+---
+metadata:
+  type: aws_iam_policy_document
+  description: Generates an IAM policy document in JSON format.
+  attribute_prefix: data.
+  
+parents: {}
+  
+defaults: {}
+
+definition:
+  attributes:
+    json:
+      description: The json representation of the policy document
+      required: yes

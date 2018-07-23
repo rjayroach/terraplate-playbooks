@@ -1,0 +1,59 @@
+---
+component_manifest:
+    resources:
+      - metadata:
+          type: aws_route53_zone
+          name: omg_com
+        arguments:
+          name: openmarketinggroup.com
+          comment: HostedZone created by Route53 Registrar and Managed by Terraform
+          tags:
+            Name: Primary Domain
+        resources:
+          - metadata:
+              type: aws_route53_record
+              name: demo
+              name_prefix: yes
+            arguments:
+              name: demo
+              type: A
+              records:
+                - 8.8.8.8
+              ttl: 3600
+          - metadata:
+              type: aws_route53_record
+              name: demo2
+              name_prefix: yes
+            arguments:
+              name: demo2 
+              type: A
+              records:
+                - 8.8.8.8
+              ttl: 3600
+          - metadata:
+              type: aws_route53_record
+              name: mail
+              name_prefix: yes
+            arguments:
+              name: ''
+              type: MX
+              ttl: 3600
+              records:
+                - 1 aspmx.l.google.com
+                - 5 alt1.aspmx.l.google.com
+                - 5 alt2.aspmx.l.google.com
+                - 10 alt3.aspmx.l.google.com
+                - 10 alt4.aspmx.l.google.com
+          - metadata:
+              type: aws_route53_record
+              name: dev_nameservers
+              name_prefix: yes
+              profile: subdomain
+              subdomain_metadata_name: dev_omg_com
+            arguments:
+              name: dev.openmarketinggroup.com
+      - metadata:
+          type: aws_route53_zone
+          name: dev_omg_com
+        arguments:
+          name: dev.openmarketinggroup.com

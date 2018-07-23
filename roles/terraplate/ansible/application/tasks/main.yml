@@ -1,0 +1,46 @@
+# [x] (application) create {{ inventory_dir }}/group_vars/hello-world.yml (namespace: terraplate_application) # the current application.yml
+# [ ] (application) add the host hello-world-repos
+# [ ] (application) add the group [hello-world] of which hello-world-repos is a part of
+# [ ] create a playbooks/<application> directory
+
+# Inventory Group + Host Vars:
+# [x] (project) create {{ inventory_dir }}/group_vars/all/terraplate.yml. (namespace: terraplate_all)
+---
+- name: Create the inventory and playbook directories
+  file:
+    name: '{{ item }}'
+    state: directory
+  with_items:
+    - '{{ spec.inventory_dir }}/group_vars/all'
+    - '{{ spec.inventory_dir }}/host_vars'
+    - '{{ spec.component.playbook_dir }}'
+
+- name: Template the application's group_vars
+  template:
+    src: group_vars.yml.j2
+    dest: '{{ spec.application.vars_file }}'
+
+- name: Template the playbook
+  template:
+    src: playbook.yml.j2
+    dest: '{{ spec.component.playbook_file }}'
+    mode: 0755
+
+- name: Get a list of the existing components for this application
+  find:
+    paths: '{{ spec.application.dir }}'
+    recurse: yes
+    patterns: '*.yml'
+    excludes: 'all.yml'
+  register: component_list
+
+- debug:
+    msg: "{{ item.path | replace(spec.playbook_dir, '') }}"
+  with_items:
+    - '{{ component_names.files }}'
+  when: false
+
+- name: Template the application's hosts file
+  template:
+    src: hosts.j2
+    dest: '{{ spec.application.inventory_file }}'

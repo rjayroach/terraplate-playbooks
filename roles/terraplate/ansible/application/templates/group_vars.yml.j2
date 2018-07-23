@@ -1,0 +1,29 @@
+#jinja2: lstrip_blocks: True
+---
+application_manifest:
+{{ spec.application }}
+  terraplate:
+{# }
+    application_name: {{ config.application.name }}
+{% key, values in config_defaults.iteritems() %}
+    {{ key }}:
+      {{ values }}
+{ #}
+      # repos: [dns]
+      # network depends on admin
+      # TODO: implement this
+      # network: [admin]
+  providers:
+    - metadata:
+        type: aws
+      arguments:
+        profile: default
+  data_sources:
+    - metadata:
+        type: terraform_remote_state
+        name: dns
+      arguments:
+        config:
+          bucket: com-openmarketinggroup-terraform-state
+          region: ap-southeast-1-app
+          key: admin/dns

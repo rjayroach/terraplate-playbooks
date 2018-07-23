@@ -1,0 +1,14 @@
+---
+component_manifest:
+  resources:
+    - metadata:
+        type: aws
+      resources:
+        - metadata:
+            type: aws_key_pair
+            name: rails_server_1_admin
+          variables:
+            public_key_name: rails_server_1_admin.pub
+          arguments:
+            key_name: rails_server_1_admin
+            public_key: ${file("${var.aws_key_pair_rails_server_1_admin_key_path}/${var.aws_key_pair_rails_server_1_admin_public_key_name}")}

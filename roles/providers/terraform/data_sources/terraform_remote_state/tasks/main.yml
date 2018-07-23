@@ -1,0 +1,29 @@
+---
+#- debug:
+#    var: component_metadata
+
+
+- set_fact:
+    loaded_artifact: '{{ base_artifact | combine(spec.terraplate.application.remote_state | default({}), recursive=True) }}'
+
+#
+# data "terraform_remote_state" "{{ provider }}" {
+#   backend = "s3"
+#   config {
+#     {{ render_key('bucket', pad_length) }} = "{{ spec.remote_states.available[provider].bucket | default(spec.remote_states.default.bucket) }}"
+#     {{ render_key('key', pad_length) }} = "{{ spec.remote_states.available[provider].key | default(spec.remote_states.default.key + '/' + provider) }}/terraform.tfstate"
+#     {{ render_key('region', pad_length) }} = "{{ spec.remote_states.available[provider].region | default(spec.remote_states.default.region) }}"
+#   }
+# }
+
+
+### Remote Data Sources
+# data "terraform_remote_state" "network" {
+#   backend = "s3"
+#   config {
+#     bucket               = "com-openmarketinggroup-terraform-state"
+#     key                  = "app/development/backend/network/terraform.tfstate"
+#     region               = "ap-southeast-1"
+#   }
+# }
+# 

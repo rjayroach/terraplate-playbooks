@@ -1,0 +1,52 @@
+# [ ] (component) create {{ inventory_dir }}/host_vars/hello-world-repos.yml (namespace: terraplate_component)  # the current manifest declaration
+
+# [ ] create a playbooks/hello-world/repos.yml playbook
+---
+- debug:
+    var: resource
+- name: Include the resource
+  set_fact:
+    provider_type: "{{ resource.metadata.type.split('_')[0] }}"
+    artifact_type: "{{ resource.metadata.type }}"
+- debug:
+    var: provider_type
+- debug:
+    var: artifact_type
+# Variables used in task and/or template
+- set_fact:
+    reference_artifact_path: "providers/{{ provider_type }}/{{ artifact_path }}/{{ artifact_type }}"
+- debug:
+    var: reference_artifact_path
+# Example: aws/resource/route53_record
+- set_fact:
+    reference_artifact_vars_file_path: "{{ role_path.split('/')[0:-3] | join('/') }}/{{ reference_artifact_path }}.yml"
+- debug:
+    var: reference_artifact_vars_file_path
+
+- include_vars:
+    file: '{{ reference_artifact_vars_file_path}}'
+    name: resource_manifest
+
+- debug:
+    msg: '{{ resource_manifest.definition.arguments  }}'
+
+- name: Simple Question
+  prompt:
+    msg:
+      say: "{{ item.value.description }}\n{{ item.key }}"
+      ask: '{{ item.key }}'
+  with_dict: '{{ resource_manifest.definition.arguments }}'
+
+- debug:
+    var: name
+
+- debug:
+    var: private
+
+# TODO: Collect these vars and write them to the TFVARS file (variables)
+# or to the generated host_vars file itself (arguments)
+- name: Template the component's host_vars
+  template:
+    src: host_vars.yml.j2
+    dest: '{{ spec.component.vars_file }}'
+  when: false
