@@ -1,0 +1,23 @@
+---
+metadata:
+  type: aws_subnet
+  description: provides details about a specific VPC subnet.
+  attribute_prefix: data.
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments:
+    default_for_az:
+      description: Boolean constraint for whether the desired subnet must be the default subnet for its associated availability zone.
+      required: no
+    availability_zone:
+      description: The availability zone where the subnet must reside.
+      required: no
+  
+  attributes:
+    id:
+      description: The id of the specific subnet to retrieve.
+      required: yes

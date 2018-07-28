@@ -1,0 +1,20 @@
+---
+metadata:
+  type: aws_vpc
+  description: provides details about a specific VPC.
+  attribute_prefix: data.
+
+parents: {}
+
+defaults: {}
+
+definition:
+  arguments:
+    default:
+      description: Boolean constraint on whether the desired VPC is the default VPC for the region.
+      required: no
+  
+  attributes:
+    id:
+      description: The id of the specific VPC to retrieve.
+      required: yes
