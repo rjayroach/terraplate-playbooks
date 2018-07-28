@@ -32,4 +32,4 @@ definition:
       required: no
     ssh_clone_url:
       description: URL that can be provided to git clone to clone the repository via SSH
-      required: no
+      required: yes

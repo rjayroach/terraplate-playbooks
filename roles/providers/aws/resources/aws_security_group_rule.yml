@@ -45,3 +45,4 @@ definition:
   attributes:
     id:
       description: The id of the created rule
+      required: yes

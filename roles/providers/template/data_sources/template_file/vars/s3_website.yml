@@ -32,14 +32,3 @@ definition:
           required: yes
           reference_from:
             aws_s3_bucket: region
-# # Needs to be set using:
-# #   export TF_VAR_s3_template_file_path=
-# env_vars:
-#   path:
-#     description: The path into which to write the credentials_file
-# 
-# external_vars:
-#   aws_access_key_id:
-#     description: description
-#   aws_secret_access_key:
-#     description: description

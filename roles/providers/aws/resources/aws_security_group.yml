@@ -19,6 +19,7 @@ definition:
       description: A mapping of tags to assign to the resource
       required: no
       type: map
+      arguments: {}
     vpc_id:
       description: The id of the vpc
       required: no
@@ -28,3 +29,4 @@ definition:
   attributes:
     id:
       description: The id of the created resoruce
+      required: yes

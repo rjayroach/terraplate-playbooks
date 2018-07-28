@@ -2,7 +2,7 @@
 base_artifact:
   metadata:
     type: terraform_remote_state
-    description: Renders a template from a file.
+    description: Retrieves state meta data from a remote backend
     attribute_prefix: data.
   
   parents: {}

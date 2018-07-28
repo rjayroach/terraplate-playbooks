@@ -17,7 +17,7 @@
       private: no
   tasks:
     - include_role:
-        name: terraplate/ansible/project
+        name: terraplate/project
       vars:
         manifest:
           terraform:

@@ -1,23 +1,23 @@
 ---
 metadata:
-  name: provider
+  type: github
   description: The GitHub provider is used to interact with GitHub organization resources.
 
 parents: {}
 
-defaults:
-  arguments:
-    token: ${var.github_provider_token}
+defaults: {}
 
 definition:
   variables:
     token:
       description: This is the GitHub personal access token. It must be provided, but it can also be sourced from the GITHUB_TOKEN environment variable.
-      required: no
+      required: yes
   arguments:
     token:
       description: This is the GitHub personal access token. It must be provided, but it can also be sourced from the GITHUB_TOKEN environment variable.
+      prompt: no
       required: yes
+      value_from_variable: token
     organization:
       description: This is the target GitHub organization to manage. The account corresponding to the token will need "owner" privileges for this organization. It must be provided, but it can also be sourced from the GITHUB_ORGANIZATION environment variable.
       required: yes

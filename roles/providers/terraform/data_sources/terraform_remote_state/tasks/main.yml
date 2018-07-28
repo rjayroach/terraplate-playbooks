@@ -1,6 +1,6 @@
 ---
-#- debug:
-#    var: component_metadata
+- debug:
+    var: spec # component_metadata
 
 
 - set_fact:

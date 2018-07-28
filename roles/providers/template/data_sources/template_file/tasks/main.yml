@@ -17,7 +17,7 @@
     src: '{{ loaded_artifact.metadata.template.file_name }}'
     dest: '{{ spec.terraplate.component_dir }}/{{ loaded_artifact.metadata.template.file_name }}'
 
-- name: Template the null resource file to the component directory
+- name: Add the null resource contents to component.tf
   blockinfile:
     create: yes
     dest: "{{ spec.terraplate.component_dir }}/{{ spec.terraplate.monolithic_file_name }}.tf"
