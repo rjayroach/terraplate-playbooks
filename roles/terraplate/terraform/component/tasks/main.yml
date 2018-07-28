@@ -4,12 +4,12 @@
     name: '{{ item }}'
     state: directory
   with_items:
-    - spec.terraplate.component.dir
-    - spec.terraplate.component.variables.dir
+    - '{{ spec.terraplate.component.dir }}'
+    - '{{ spec.terraplate.component.variables.dir }}'
 
 - name: Template the component terraform.tfvars file
   template:
-    src: terraform/tfvars.j2
+    src: tfvars.j2
     dest: '{{ spec.terraplate.component.dir }}/terraform.tfvars'
   vars:
     var_paths:
@@ -19,6 +19,12 @@
   file:
     path: '{{ spec.terraplate.component.dir }}/{{ spec.terraplate.component.file_name }}.tf'
     state: absent
+
+- name: Reset the component variables.tfvars file
+  file:
+    path: '{{ spec.terraplate.component.variables.full_file_name }}'
+    state: '{{ item }}'
+  with_items: ['absent', 'touch']
 
 - name: Render component file header contents
   blockinfile:
@@ -35,7 +41,6 @@
   include_tasks: render.yml
   vars:
     artifact_path: ''
-    artifact_name: provider
     artifact_type: provider
     provider_doc_path: ''
     c_template_data:
@@ -51,12 +56,11 @@
   include_tasks: render.yml
   vars:
     artifact_path: '/data_sources'
-    artifact_name: '{{ spec_artifact.metadata.name }}'
     artifact_type: '{{ spec_artifact.metadata.type }}'
     provider_doc_path: d
     c_template_data:
       doc_path: '/d/'
-      url_item: "{{ spec_artifact.metadata.type.split('_')[1:] }}"
+      url_item: "{{ spec_artifact.metadata.type.split('_')[1:] | join('_') }}"
     render_type: data
   with_items: '{{ spec.data_sources }}'
   loop_control:
@@ -67,7 +71,6 @@
   include_tasks: render.yml
   vars:
     artifact_path: '/resources'
-    artifact_name: '{{ spec_artifact.metadata.name }}'
     artifact_type: '{{ spec_artifact.metadata.type }}'
     provider_doc_path: r
     c_template_data:

@@ -1,12 +1,10 @@
 ---
 - debug:
-    var: provider_type
-- debug:
-    var: reference_artifact_path
-- debug:
-    var: reference_artifact_vars_file_path
-- debug:
-    var: template_data
+    var: '{{ debug_item }}'
+    verbosity: 0
+  with_items: [provider_type, reference_artifact_path, reference_artifact_vars_file_path]
+  loop_control:
+    loop_var: debug_item
 
 - name: 'BEGIN: {{ reference_artifact_path }} - Check if artifact vars_file exists'
   stat:
@@ -28,7 +26,7 @@
     loaded_artifact: '{{ vars_loaded_artifact }}'
   when: vars_file.stat.exists
 
-- name: Include role reference_artifact_path
+- name: 'Include role {{ reference_artifact_path }}'
   include_role:
     name: '{{ reference_artifact_path }}'
   vars:
@@ -39,7 +37,7 @@
 - debug:
     var: '{{ debug_item }}'
     verbosity: 0
-  with_items: [reference_artifact, user_artifact, artifact, artifact_definition]
+  with_items: [reference_artifact, user_artifact, parent_artifact, artifact, artifact_definition, template_data]
   loop_control:
     loop_var: debug_item
 

@@ -1,13 +1,14 @@
----
+#jinja2: lstrip_blocks: True
 {% set dbl = '{{' %}
+---
 # Becuase fact collection is turned off:
 ansible_env:
-  HOME: /home/vagrant
+  HOME: "{{ dbl }} lookup('env','HOME') }}"
 
-global_manifest:
+project_manifest:
   terraplate:
-    root_dir: "{{ dbl }} inventory_dir.split('/')[0:-1] | join('/') }}/terraform"
-    vars_dir: "{{ dbl }} inventory_dir.split('/')[0:-1] | join('/') }}/terraform"
+    root_dir: "{{ dbl }} inventory_dir.split('/')[0:-2] | join('/') }}/terraform"
+    vars_dir: "{{ dbl }} inventory_dir.split('/')[0:-2] | join('/') }}/terraform"
     vars_path: '../..'
     remote_state:
       # Example of segmenting terraform remote state buckets by environment if preferred:

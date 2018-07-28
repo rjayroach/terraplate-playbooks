@@ -1,7 +1,0 @@
-#jinja2: lstrip_blocks: True
----
-{# for definition in resource_manifest.definition #}
-{% for resource in resource_manifest.resources %}
-{{ resource.metadata.type }}
-{% endfor %}
-{# spec #}

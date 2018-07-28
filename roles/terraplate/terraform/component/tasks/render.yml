@@ -1,7 +1,7 @@
 ---
 - name: Render the primary artifact
   include_role:
-    name: terraplate/artifact
+    name: terraplate/terraform/artifact
   vars:
     user_primary_artifact:
       metadata: {}
@@ -13,7 +13,7 @@
 
 - name: Render any associated artifacts
   include_role:
-    name: terraplate/artifact
+    name: terraplate/terraform/artifact
   vars:
     user_primary_artifact:
       metadata: '{{ spec_artifact.metadata }}'

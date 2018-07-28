@@ -4,20 +4,20 @@
 #     msg: "'component' must be in format application_name/component_name"
 #   when: spec.application.name | length == 0
 
-# BEGIN: {{ reference_artifact_path }} - Check if artifact vars_file exists'
 - name: Debug the componet specification
   debug:
     var: spec 
     verbosity: 0
-    # when: false
+  when: false
 
 - name: Template the application files
   include_role:
     name: terraplate/ansible/application
-    tasks_from: "{{ 'main' if action == 'g' else 'destroy' }}"
-  when: false
+    tasks_from: "{{ 'destory' if template_action == 'd' else 'main' }}"
+    # when: false
 
 - name: Template the component files
   include_role:
     name: terraplate/ansible/component
-    tasks_from: "{{ 'main' if action == 'g' else 'destroy' }}"
+    tasks_from: "{{ 'destroy' if template_action == 'd' else 'main' }}"
+    # when: false

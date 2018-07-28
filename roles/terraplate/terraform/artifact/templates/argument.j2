@@ -22,11 +22,13 @@ artifact: { aws_access_key, bucket, ... }
 
 {% macro doit(name, definition, artifact, template_data) -%}
   {% if definition.type is defined and definition.type == 'map' %}
-    {% call h.key(name, template_data) %}{% endcall %} = {
-    {% for name, definition in definition.arguments.iteritems() %}
-      {% call doit(name, definition, (artifact[name] | default('')), template_data | combine({'indent': template_data.indent + 2})) %}{% endcall %}
-    {% endfor %}
+    {% if artifact | length > 0 %}
+      {% call h.key(name, template_data) %}{% endcall %} = {
+      {% for name, definition in definition.arguments.iteritems() %}
+        {% call doit(name, definition, (artifact[name] | default('')), template_data | combine({'indent': template_data.indent + 2})) %}{% endcall %}
+      {% endfor %}
 {{ ' ' * template_data.indent }}}
+    {% endif %}
   {% else %}
     {% call doit_r(name, definition, artifact, template_data) %}{% endcall %}{{ caller() }}
   {%- endif %}
@@ -38,12 +40,14 @@ artifact: { aws_access_key, bucket, ... }
     {% call h.debug('doit_r', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}
   {% endif %}
 
-  {%- if definition.reference_from is defined and artifact | length > 0 %}
+  {%- if definition.value_from_variable is defined and artifact | length == 0 %}
+    {% call h.key_value(name, '${var.' + template_data.artifact.full_name + '_' + definition.value_from_variable + '}', definition, template_data) %}{% endcall %}
+  {%- elif definition.reference_from is defined and artifact | length > 0 %}
     {% call reference_from(name, definition, artifact, template_data) %}{% endcall %}
   {% elif definition.required is not defined %}
-    {% call h.key_value(name, "ATTENTION (definition error): key 'required' not defined", template_data) %}{% endcall %}
+    {% call h.key_value(name, "ATTENTION (definition error): key 'required' not defined", definition, template_data) %}{% endcall %}
   {% elif definition.required == True and artifact | length == 0 %}
-    {% call h.key_value(name, 'ATTENTION (artifact error): argument required but not given', template_data) %}{% endcall %}
+    {% call h.key_value(name, 'ATTENTION (artifact error): argument required but not given', definition, template_data) %}{% endcall %}
   {% elif artifact | length > 0 %}
     {% if definition.multi is defined and definition.multi == True %}
     {# NOTE: Maybe multi needs to be a check in macro entry just like type = 'map' }
@@ -54,7 +58,7 @@ artifact: { aws_access_key, bucket, ... }
 {{ ' ' * pad }}{{ name }} = "{{ value }}"
     { #}
     {% else %}
-      {% call h.key(name, template_data) %}{% endcall %} = {% call h.value(artifact, template_data) %}{% endcall %}
+      {% call h.key(name, template_data) %}{% endcall %} = {% call h.value(artifact, definition, template_data) %}{% endcall %}
     {% endif %}
   {% endif %}{{ caller() }}
 {%- endmacro %}
@@ -66,14 +70,14 @@ artifact: { aws_access_key, bucket, ... }
   {% endif %}
 
   {%- if artifact.startswith('${') %}
-    {% call h.key_value(name, artifact, template_data) %}{% endcall %}
+    {% call h.key_value(name, artifact, definition, template_data) %}{% endcall %}
   {% elif '.' in artifact %}
     {% call resource_reference(name, definition, artifact, template_data) %}{% endcall %}
   {% elif ':' in artifact %}
     {% call data_reference(name, definition, artifact, template_data) %}{% endcall %}
   {# TODO elif lookup if there is a default reference_from #}
   {% else %}
-    {% call h.key_value(name, artifact, template_data) %}{% endcall %}
+    {% call h.key_value(name, artifact, definition, template_data) %}{% endcall %}
   {% endif %}{{ caller() }}
 {%- endmacro %}
 
@@ -87,7 +91,7 @@ artifact: { aws_access_key, bucket, ... }
   {% endif %}
 
   {%- if resource_id | length > 0 %}
-    {% call h.key(name, template_data) %}{% endcall %} = {% call h.value('${' + artifact + '.' + resource_id + '}', template_data) %}{% endcall %}
+    {% call h.key(name, template_data) %}{% endcall %} = {% call h.value('${' + artifact + '.' + resource_id + '}', definition, template_data) %}{% endcall %}
   {% else %}
     {% call h.key(name, template_data) %}{% endcall %} = "ATTENTION (reference lookup error): invalid key '{{ resource_type }}'. Valid keys are '{{ definition.reference_from.keys() | join(',') }}'"
   {% endif %}{{ caller() }}

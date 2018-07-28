@@ -1,10 +1,15 @@
 ---
+- name: Create the application directory tree
+  file:
+    name: '{{ spec.terraplate.application.root_dir }}'
+    state: directory
+
 - name: Template the application terraform.tfvars file
   template:
-    src: terraform/tfvars.j2
+    src: tfvars.j2
     dest: '{{ spec.terraplate.application.root_dir }}/terraform.tfvars'
 
 - name: Template .gitignore to the application directory
   template:
-    src: terraform/gitignore.j2
+    src: gitignore.j2
     dest: '{{ spec.terraplate.application.root_dir }}/.gitignore'

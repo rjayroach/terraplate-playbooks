@@ -1,14 +1,12 @@
 #jinja2: lstrip_blocks: True
 ---
 application_manifest:
-{{ spec.application }}
   terraplate:
+    application_name: {{ spec.application.name }}
 {# }
-    application_name: {{ config.application.name }}
 {% key, values in config_defaults.iteritems() %}
     {{ key }}:
       {{ values }}
-{ #}
       # repos: [dns]
       # network depends on admin
       # TODO: implement this
@@ -27,3 +25,4 @@ application_manifest:
           bucket: com-openmarketinggroup-terraform-state
           region: ap-southeast-1-app
           key: admin/dns
+{ #}

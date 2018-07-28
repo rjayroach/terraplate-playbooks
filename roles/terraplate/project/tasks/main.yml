@@ -19,18 +19,12 @@
 
 - name: Create project directory structure
   file:
-    path: '{{ project_dir }}/inventory/group_vars/all'
+    path: '{{ project_dir }}/{{ project_inventory_dir }}/group_vars/all'
     state: directory
-
-- name: Softlink to the roles directory
-  file:
-    src: ../../roles
-    path: '{{ project_dir }}/roles'
-    state: link
 
 - name: Copy the project base files
   copy:
-    src: files/
+    src: '{{ role_path }}/files/'
     dest: '{{ project_dir }}'
 
 - name: Copy the prompt action plugin
@@ -38,20 +32,26 @@
     src: files/action_plugins/
     dest: '{{ project_dir }}/action_plugins'
 
-- name: Template the project's global vars
+- name: Softlink to the roles directory
+  file:
+    src: ../../roles
+    path: '{{ project_dir }}/roles'
+    state: link
+
+- name: Template the project_manifest vars
   template:
     src: terraplate.yml.j2
-    dest: '{{ project_dir }}/inventory/group_vars/all/terraplate.yml'
+    dest: '{{ project_dir }}/{{ project_inventory_dir }}/group_vars/all/project_manifest.yml'
 
 - name: Set the project's terraplate playbook to executable
   file:
     path: '{{ project_dir }}/terraplate'
     mode: 0755
 
-- name: Generate an inventory hosts file
+- name: Generate an inventory file for localhost
   copy:
     content: "localhost ansible_connection=local\n"
-    dest: '{{ project_dir }}/inventory/hosts.localhost'
+    dest: '{{ project_dir }}/{{ project_inventory_dir }}/inventory'
 
 - name: Generate the project's vault password
   copy:
@@ -60,11 +60,11 @@
 
 - name: Generate base contents for the secrets file
   copy:
-    content: "---\nsecrets_manifest:"
-    dest: '{{ project_dir }}/inventory/group_vars/all/secrets.yml'
+    content: "---\n# provider_aws_secret_access_key: ABC123"
+    dest: '{{ project_dir }}/{{ project_inventory_dir }}/group_vars/all/variables.yml'
 
 - name: Encrypt the secrets file using the project's vault password
-  command: ansible-vault encrypt inventory/group_vars/all/secrets.yml
+  command: 'ansible-vault encrypt {{ project_inventory_dir }}/group_vars/all/variables.yml'
   args:
     chdir: '{{ project_dir }}'
 

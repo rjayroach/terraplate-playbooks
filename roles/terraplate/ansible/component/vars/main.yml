@@ -1,0 +1,2 @@
+---
+user_component: '{{ template_data | default({}) }}'

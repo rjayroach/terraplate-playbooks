@@ -1,5 +1,7 @@
 ---
 # BEGIN: {{ reference_artifact_path }} - Check if artifact vars_file exists'
+- set_fact:
+    spec: '{{ user_spec | combine(dspec, recursive=True) | combine(dspec2, recursive=True) }}'
 - name: Debug the componet specification
   debug:
     var: spec 

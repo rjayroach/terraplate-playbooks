@@ -1,0 +1,20 @@
+#jinja2: lstrip_blocks: True
+---
+component_variables:
+{% if user_component.providers is defined %}
+  providers:
+  {% for name, artifact in user_component.providers.iteritems() %}
+    {% if artifact.variables is defined %}
+    {{ name }}:
+      {% for var_name, var_value in artifact.variables.iteritems() %}
+      {{ var_name }}: {{ var_value }}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{# }
+{% for key, value in user_component.variables.iteritems() %}
+{{ (spec.component.inventory_name + '-' + key) | replace('-', '_') }} = "{{ value }}"
+{% endfor %}
+{ #}

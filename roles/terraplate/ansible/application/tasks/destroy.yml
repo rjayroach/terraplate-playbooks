@@ -20,3 +20,24 @@
     - '{{ spec.application.dir }}'
     - '{{ spec.component.vars_file }}'
   when: component_list.files | length == 0
+
+# NOTE: next task is to get a list of current apps and re-write the invenotry file
+- name: Get a list of the existing applications
+  find:
+    paths: '{{ spec.inventory_dir }}/group_vars'
+    recurse: no
+    file_type: directory
+    exclude: all
+  register: application_find
+  when: false
+
+- debug:
+    msg: '{{ item }}'
+  with_items: "{{ application_find.files | map(attribute='path') | list }}"
+  when: false
+
+- include_tasks: inventory.yml
+  with_items: "{{ application_find.files | map(attribute='path') | list }}"
+  loop_control:
+    loop_var: application_path
+  when: false

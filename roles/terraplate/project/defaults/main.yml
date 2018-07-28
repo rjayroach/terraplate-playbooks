@@ -1,5 +1,6 @@
 ---
 project_dir: 'projects/{{ project_name }}'
+project_inventory_dir: 'inventory/main'
 
 defaults:
   terraform:

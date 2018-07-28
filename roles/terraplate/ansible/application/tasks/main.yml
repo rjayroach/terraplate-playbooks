@@ -1,46 +1,29 @@
-# [x] (application) create {{ inventory_dir }}/group_vars/hello-world.yml (namespace: terraplate_application) # the current application.yml
-# [ ] (application) add the host hello-world-repos
-# [ ] (application) add the group [hello-world] of which hello-world-repos is a part of
-# [ ] create a playbooks/<application> directory
-
-# Inventory Group + Host Vars:
-# [x] (project) create {{ inventory_dir }}/group_vars/all/terraplate.yml. (namespace: terraplate_all)
 ---
-- name: Create the inventory and playbook directories
+- name: Create the appliction and component vars directories
   file:
     name: '{{ item }}'
     state: directory
   with_items:
-    - '{{ spec.inventory_dir }}/group_vars/all'
-    - '{{ spec.inventory_dir }}/host_vars/{{ spec.component.inventory_name }}'
-    - '{{ spec.component.playbook_dir }}'
+    - '{{ spec.application.inventory.dir }}'
+    # - '{{ spec.application.playbook.dir }}'
+    - '{{ spec.component.inventory.dir }}'
 
-- name: Template the application's group_vars
+- name: Template the application arguments file
   template:
-    src: group_vars.yml.j2
-    dest: '{{ spec.application.vars_file }}'
-
-- name: Template the playbook
-  template:
-    src: playbook.yml.j2
-    dest: '{{ spec.component.playbook_file }}'
-    mode: 0755
+    src: manifest.yml.j2
+    dest: '{{ spec.application.playbook.manifest_file }}'
 
 - name: Get a list of the existing components for this application
   find:
-    paths: '{{ spec.application.dir }}'
-    recurse: yes
-    patterns: '*.yml'
-    excludes: 'all.yml'
-  register: component_list
+    paths: '{{ spec.inventory_dir }}/host_vars'
+    recurse: no
+    file_type: directory
+    patterns: "{{ spec.application.name }}-*"
+  register: component_find
 
-- debug:
-    msg: "{{ item.path | replace(spec.playbook_dir, '') }}"
-  with_items:
-    - '{{ component_list.files }}'
-  when: false
-
-- name: Template the application's hosts file
-  template:
-    src: hosts.j2
-    dest: '{{ spec.application.inventory_file }}'
+- name: Template the application inventory file
+  blockinfile:
+    create: yes
+    dest: '{{ spec.application.inventory.file }}'
+    marker: "# {mark} application '{{ spec.application.inventory.name }}'"
+    block: "{{ lookup('template', 'inventory.j2') }}"

@@ -1,75 +1,94 @@
-# [ ] (component) create {{ inventory_dir }}/host_vars/hello-world-repos.yml (namespace: terraplate_component)  # the current manifest declaration
-
-# [ ] create a playbooks/hello-world/repos.yml playbook
 ---
-- debug:
-    var: artifact
+- name: '^^^^^ BEGIN {{ reference_artifact_path }} ^^^^^'
+  debug:
+    var: '{{ debug_item }}'
+  with_items: [provider_type, artifact_path, artifact_type, artifact_name, user_artifact_name, reference_artifact_vars_file_path, qa_path, component_artifact, user_component]
+  loop_control:
+    loop_var: debug_item
 
-- name: Include the artifact
+#- set_fact:
+#    user_artifact: "{{ user_component[qa_path][artifact_type + '_' + artifact_name] }}"
+
+
+# - debug:
+#     msg: "{{ user_component[qa_path][artifact_type + '_' + artifact_name] }}"
+#   when: false
+
+- name: '{{ reference_artifact_path }} - Check if artifact vars_file exists'
+  stat:
+    path: '{{ reference_artifact_vars_file_path }}'
+  register: vars_file
+
+- name: Set template_content to null before loading artifact
   set_fact:
-    provider_type: "{{ artifact.metadata.type.split('_')[0] }}"
-    artifact_type: "{{ artifact.metadata.type }}"
+    template_content: null
+    loaded_artifact: null
 
-- debug:
-    var: provider_type
-- debug:
-    var: artifact_type
+- name: Include reference_artifact vars file from file
+  include_vars:
+    file: '{{ reference_artifact_vars_file_path }}'
+    name: vars_loaded_artifact
+  when: vars_file.stat.exists
 
 - set_fact:
-    reference_artifact_path: "providers/{{ provider_type }}/{{ artifact_path }}/{{ artifact_type }}"
+    loaded_artifact: '{{ vars_loaded_artifact }}'
+  when: vars_file.stat.exists
 
-- debug:
-    var: reference_artifact_path
+- name: Include role reference_artifact_path
+  include_role:
+    name: '{{ reference_artifact_path }}'
+  vars:
+    profile: "{{ component_artifact.metadata.profile | default('') }}"
+    # profile: "{{ user_artifact.metadata.profile | default(reference_artifact.metadata.profile) | default('') }}"
+  when: not vars_file.stat.exists
 
-# Example: aws/resource/route53_record
 - set_fact:
-    reference_artifact_vars_file_path: "{{ role_path.split('/')[0:-3] | join('/') }}/{{ reference_artifact_path }}.yml"
-    qa: {}
+    reference_artifact: '{{ loaded_artifact }}'
 
-- debug:
-    var: reference_artifact_vars_file_path
+- name: 'Debug {{ reference_artifact_path }}'
+  debug:
+    var: '{{ debug_item }}'
+  with_items: [reference_artifact, user_artifact]
+  loop_control:
+    loop_var: debug_item
 
-- include_vars:
-    file: '{{ reference_artifact_vars_file_path}}'
-    name: artifact_manifest
+- set_fact:
+    variables:
+      user: '{{ user_artifact.variables | default({}) }}'
+      component: '{{ component_artifact.variables | default({}) }}'
+      reference: '{{ reference_artifact.defaults.variables | default({}) }}'
+    arguments:
+      user: '{{ user_artifact.arguments | default({}) }}'
+      component: '{{ component_artifact.arguments | default({}) }}'
+      reference: '{{ reference_artifact.defaults.arguments | default({}) }}'
 
-- debug:
-    msg: '{{ artifact_manifest.definition.arguments  }}'
+- name: 'Debug {{ reference_artifact_path }}'
+  debug:
+    var: '{{ debug_item }}'
+  with_items: [variables, arguments]
+  loop_control:
+    loop_var: debug_item
 
-- include_tasks: qa.yml
+- name: Set values on artifact variables
+  include_tasks: prompt.yml
   vars:
     question_type: variables
-  with_dict: '{{ artifact_manifest.definition.variables }}'
+    default: "{{ variables.user[question.key] | default(variables.component[question.key]) | default(variables.reference[question.key]) | default('') }}"
+  with_dict: '{{ reference_artifact.definition.variables }}'
   loop_control:
     loop_var: question
-  when: artifact_manifest.definition.variables | length > 0
+  when: reference_artifact.definition.variables is defined # and component_artifact[question_type][question.key] is not defined
 
-- debug:
-    var: qa
-
-- name: Template the component's tfvars
-  template:
-    src: host_tfvars.yml.j2
-    dest: '{{ spec.component.tfvars_file }}'
-  vars:
-    values: '{{ qa.variables }}'
-  when: qa.variables | length > 0
-
-- name: Encrypt the component's tfvars file using the project's vault password
-  command: 'ansible-vault encrypt {{ spec.component.tfvars_file }}'
-
-- include_tasks: qa.yml
+- name: Set values on artifact arguments
+  include_tasks: prompt.yml
   vars:
     question_type: arguments
-  with_dict: '{{ artifact_manifest.definition.arguments }}'
+    default: "{{ arguments.user[question.key] | default(arguments.component[question.key]) | default(arguments.reference[question.key]) | default('')}}"
+  with_dict: '{{ reference_artifact.definition.arguments }}'
   loop_control:
     loop_var: question
-  when: artifact_manifest.definition.arguments | length > 0
+  when: reference_artifact.definition.arguments is defined and reference_artifact.definition.arguments[question.key].prompt is not defined and reference_artifact.definition.arguments[question.key].type is not defined # and component_artifact[question_type][question.key] is not defined
 
-# or to the generated host_vars file itself (arguments)
-- name: Template the component's host_vars
-  template:
-    src: host_vars.yml.j2
-    dest: '{{ spec.component.vars_file }}'
-  when: false
-- fail:
+- name: '^^^^^ END {{ reference_artifact_path }} ^^^^^'
+  debug:
+    var: qa

@@ -13,7 +13,7 @@
 {%- if template_content %}
 {{ template_content }}
 {% else %}
-{{ render_type }} "{{ artifact.metadata.type }}"{% if render_type != 'provider' %} "{{ artifact_name }}"{% endif %} {
+{{ render_type }} "{{ artifact.metadata.type }}"{% if render_type != 'provider' %} "{{ artifact.metadata.name }}"{% endif %} {
   {% for name, definition in artifact_definition.arguments.iteritems() %}
 {{ argument.entry(name, definition, artifact.arguments[name] | default(''), template_data) }}
   {%- endfor %}

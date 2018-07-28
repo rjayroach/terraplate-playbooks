@@ -1,42 +1,57 @@
 # Combine manifest values in one place rather than scattered throughout the downstream templates
 # This also serves to segment the user manifest from the spec used internally by components and resources
+# template_type: "{{ 'ansible' if inventory_hostname == 'localhost' else 'terraform' }}"
 ---
-template_type: "{{ 'ansible' if inventory_hostname == 'localhost' else 'terraform' }}"
-
-d1:
+d0:
   playbook_dir: '{{ playbook_dir }}/playbooks'
   inventory_dir: '{{ inventory_dir }}'
   application:
     name: "{{ application_name | replace('_', '-') | replace('/', '-') }}"
     user_name: '{{ application_name }}'
-  component:
-    name: "{{ component_name | replace('_', '-') | replace('/', '-') }}"
-    user_name: "{{ component_name }}"
   namespace:
     name: "{{ namespace | replace('_', '-') | replace('/', '-') }}"
-    user_name: "{{ namespace }}"
+    user_name: '{{ namespace }}'
+  component:
+    name: "{{ component_name | replace('_', '-') | replace('/', '-') }}"
+    user_name: '{{ component_name }}'
+
+d1:
+  application:
+    inventory:
+      dir: '{{ d0.inventory_dir }}/group_vars/{{ d0.application.name }}'
+      file: '{{ d0.inventory_dir }}/inventory'
+      name: '{{ d0.application.name }}'
+    playbook:
+      dir: '{{ d0.playbook_dir }}/{{ d0.application.user_name }}'
+  namespace:
+    inventory:
+      name: '{{ d0.application.name }}-{{ d0.namespace.name }}'
+    playbook:
+      dir: '{{ d0.playbook_dir }}/{{ d0.application.user_name }}/{{ d0.namespace.user_name }}'
+  component:
+    inventory:
+      name: '{{ d0.application.name }}-{{ d0.namespace.name }}-{{ d0.component.name }}'
+    playbook:
+      dir: '{{ d0.playbook_dir }}/{{ d0.application.user_name }}/{{ d0.namespace.user_name }}/{{ d0.component.user_name }}'
 
 d2:
   application:
-    dir: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}'
-    inventory_name: '{{ d1.application.name }}'
-    inventory_file: '{{ d1.inventory_dir }}/hosts.{{ d1.application.name }}'
-    playbook_file: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/all.yml'
-    vars_file: '{{ d1.inventory_dir }}/group_vars/{{ d1.application.name }}.yml'
+    playbook:
+      file: '{{ d1.application.playbook.dir }}/all.yml'
+      manifest_file: '{{ d1.application.playbook.dir }}/application_manifest.yml'
+      variables_file: '{{ d1.application.playbook.dir }}/variables.yml'
   namespace:
-    # dir: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/{{ d1.namespace.user_name }}'
-    inventory_name: '{{ d1.application.name }}-{{ d1.namespace.name }}'
-    playbook_file: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/{{ d1.namespace.user_name }}/all.yml'
-    vars_file: '{{ d1.inventory_dir }}/group_vars/{{ d1.application.name }}-{{ d1.namespace.name }}.yml'
+    playbook:
+      file: '{{ d1.namespace.playbook.dir }}/all.yml'
   component:
-    inventory_name: '{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}'
-    playbook_dir: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/{{ d1.namespace.user_name }}'
-    playbook_file: '{{ d1.playbook_dir }}/{{ d1.application.user_name }}/{{ d1.namespace.user_name }}/{{ d1.component.user_name }}.yml'
-    vars_file: '{{ d1.inventory_dir }}/host_vars/{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}/arguments.yml'
-    tfvars_file: '{{ d1.inventory_dir }}/host_vars/{{ d1.application.name }}-{{ d1.namespace.name }}-{{ d1.component.name }}/variables.yml'
-    # {{ spec.component.inventory_name }}/tfvars.yml'
-  template:
-    name: '{{ template_name }}'
-    file: "{{ role_path.split('/')[0:-3] | join('/') }}/providers/{{ template_name.split('_')[0] }}/components/{{ template_name.split('_')[1:] | join('_') }}.yml"
+    inventory:
+      dir: '{{ d0.inventory_dir }}/host_vars/{{ d1.component.inventory.name }}'
+    playbook:
+      file: '{{ d1.component.playbook.dir }}/component.yml'
+      arguments_file: '{{ d1.component.playbook.dir }}/arguments.yml'
+      variables_file: '{{ d1.component.playbook.dir }}/variables.yml'
+    template:
+      name: '{{ template_name }}'
+      file: "{{ role_path.split('/')[0:-3] | join('/') }}/providers/{{ template_name.split('_')[0] }}/components/{{ template_name.split('_')[1:] | join('_') }}.yml"
 
-spec: '{{ d1 | combine(d2, recursive=True) }}'
+spec: '{{ d0 | combine(d1, recursive=True) | combine(d2, recursive=True) }}'

@@ -1,0 +1,9 @@
+#jinja2: lstrip_blocks: True
+{% for component_path in (component_find.files | map(attribute='path') | list) %}
+{{ component_path | replace(spec.inventory_dir + '/host_vars/', '') }} ansible_host=localhost ansible_connection=local
+{% endfor %}
+
+[{{ spec.application.name }}]
+{% for component_path in (component_find.files | map(attribute='path') | list) %}
+{{ component_path | replace(spec.inventory_dir + '/host_vars/', '') }}
+{% endfor %}

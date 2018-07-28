@@ -1,9 +1,9 @@
 ---
 provider_type: "{{ user_artifact.metadata.type.split('_')[0] }}"
 # Variables used in task and/or template
-reference_artifact_path: "{{ provider_type }}{{ artifact_path }}/{{ artifact_type }}"
+reference_artifact_path: "providers/{{ provider_type }}{{ artifact_path }}/{{ artifact_type }}"
 # Example: aws/resource/route53_record
-reference_artifact_vars_file_path: "{{ role_path.split('/')[0:-2] | join('/') }}/{{ reference_artifact_path }}.yml"
+reference_artifact_vars_file_path: "{{ role_path.split('/')[0:-3] | join('/') }}/{{ reference_artifact_path }}.yml"
 # Example: ansible/roles/terraplate/resource/../../aws/resource/route53_record.yml
 
 artifact_definition:
@@ -27,7 +27,7 @@ artifact: '{{ reference_artifact | combine(user_artifact, recursive=True) | comb
 
 parent_name_prefix: "{{ user_primary_artifact.metadata.name + '_' if artifact.metadata.name_prefix is defined and user_primary_artifact.metadata.name is defined else '' }}"
 # parent_name_prefix: ''
-artifact_name: "{{ parent_name_prefix + artifact.metadata.name }}"
+# artifact_name: "{{ parent_name_prefix + artifact.metadata.name }}"
 
 
 # TODO: have this as default to be combined with any user supplied values
@@ -45,5 +45,7 @@ template_data:
     type: "{{ user_primary_artifact.metadata.type | default('') }}"
     name: "{{ user_primary_artifact.metadata.name | default('') }}"
   artifact:
-    full_name: "{{ artifact.metadata.type + '_' + parent_name_prefix + artifact.metadata.name }}"
-    full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ artifact.metadata.type + '.' + parent_name_prefix + artifact.metadata.name }}"
+    # full_name: "{{ artifact.metadata.type + '_' + parent_name_prefix + artifact.metadata.name }}"
+    # full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ artifact.metadata.type + '.' + parent_name_prefix + artifact.metadata.name }}"
+    full_name: "{{ artifact.metadata.type + '_' + artifact.metadata.name }}"
+    full_name_dot: "{{ artifact.metadata.attribute_prefix | default('') }}{{ artifact.metadata.type + '.' + artifact.metadata.name }}"

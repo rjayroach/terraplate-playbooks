@@ -1,6 +1,0 @@
-#jinja2: lstrip_blocks: True
-#!/usr/bin/env ansible-playbook
----
-- name: Render Terraform code
-  hosts: {{ spec.component.inventory_name }}
-  roles: [terraplate]

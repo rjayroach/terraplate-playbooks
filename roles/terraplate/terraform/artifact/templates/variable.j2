@@ -5,7 +5,7 @@
 {% macro entry(name, definition, artifact, template_data) %}
   {% if definition.required or artifact | length > 0 %}
 variable "{{ template_data.artifact.full_name }}_{{ name }}" {
-    {% call h.key_value('description', definition.description, template_data) %}{% endcall %}
+    {% call h.key_value('description', definition.description, definition, template_data) %}{% endcall %}
 }
   {% endif %}
 {% endmacro %}

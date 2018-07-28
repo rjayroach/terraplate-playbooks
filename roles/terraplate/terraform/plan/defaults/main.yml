@@ -4,15 +4,15 @@
 template_type: "{{ 'ansible' if inventory_hostname == 'localhost' else 'terraform' }}"
 
 user_spec_terraplate:
-  '{{ global_manifest.terraplate | default({}) | combine(application_manifest.terraplate | default({}), recursive=True) | combine(component_manifest.terraplate | default({}), recursive=True) }}'
+  '{{ project_manifest.terraplate | default({}) | combine(application_manifest.terraplate | default({}), recursive=True) | combine(component_manifest.terraplate | default({}), recursive=True) }}'
 
 user_spec:
   providers:
-    '{{ global_manifest.providers | default([]) | union(application_manifest.providers | default([])) | union(component_manifest.providers | default([])) }}'
+    '{{ project_manifest.providers | default([]) | union(application_manifest.providers | default([])) | union(component_manifest.providers | default([])) }}'
   data_sources:
-    '{{ global_manifest.data_sources | default([]) | union(application_manifest.data_sources | default([])) | union(component_manifest.data_sources | default([])) }}'
+    '{{ project_manifest.data_sources | default([]) | union(application_manifest.data_sources | default([])) | union(component_manifest.data_sources | default([])) }}'
   resources:
-    '{{ global_manifest.resources | default([]) | union(application_manifest.resources | default([])) | union(component_manifest.resources | default([])) }}'
+    '{{ project_manifest.resources | default([]) | union(application_manifest.resources | default([])) | union(component_manifest.resources | default([])) }}'
 
 dspec:
   terraplate:
@@ -30,13 +30,13 @@ dspec:
     component:
       dir: '{{ user_spec_terraplate.root_dir }}/{{ user_spec_terraplate.application_name }}/{{ user_spec_terraplate.component_name }}'
       debug_macros: '{{ user_spec_terraplate.debug_macros | default([]) }}'
-      dependencies: '{{ user_spec_terraplate.dependencies }}'
+      dependencies: '{{ user_spec_terraplate.dependencies | default([]) }}'
       file_name: "{{ user_spec_terraplate.component_file_name | default('component') }}.tf"
       name: '{{ user_spec_terraplate.component_name }}'
       variables:
         dir: '{{ user_spec_terraplate.vars_dir }}/{{ user_spec_terraplate.application_name }}/{{ user_spec_terraplate.component_name }}'
         # TODO: allow user to override the file name
-        file_name: 'vars.tfvars'
+        file_name: 'variables.tfvars'
 
 dspec2:
   terraplate:
@@ -50,7 +50,6 @@ dspec2:
         path: '{{ user_spec_terraplate.vars_path }}/{{ dspec.terraplate.application.name }}/{{ dspec.terraplate.component.name }}/{{ dspec.terraplate.component.variables.file_name }}'
         full_file_name: '{{ dspec.terraplate.component.variables.dir }}/{{ dspec.terraplate.component.variables.file_name }}'
 
-spec: '{{ user_spec | combine(dspec, recursive=True) | combine(dspec2, recursive=True) }}'
 
 #
 # spec_a:

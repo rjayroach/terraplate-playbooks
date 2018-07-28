@@ -7,8 +7,8 @@
   {% set delimit_end = '}]' if definition.type is defined and definition.type == 'list' else '}' %}
   {% if definition.required or artifact | length > 0 %}
 output "{{ template_data.artifact.full_name }}_{{ name }}" {
-    {% call h.key_value('description', definition.description, template_data) %}{% endcall %}
-    {% call h.key_value('value', delimit_start + template_data.artifact.full_name_dot + '.' + (definition.name | default(name)) | replace('-', '_') + delimit_end, template_data) %}{% endcall %}
+    {% call h.key_value('description', definition.description, definition, template_data) %}{% endcall %}
+    {% call h.key_value('value', delimit_start + template_data.artifact.full_name_dot + '.' + (definition.name | default(name)) | replace('-', '_') + delimit_end, definition, template_data) %}{% endcall %}
 }
   {% endif %}
 {% endmacro %}
