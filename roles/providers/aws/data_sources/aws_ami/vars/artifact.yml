@@ -2,13 +2,6 @@
 metadata:
   type: aws_ami
   description: Use this data source to get the ID of a registered AMI for use in other resources.
-  attribute_prefix: data.
-
-parents: {}
-
-defaults:
-  arguments:
-    most_recent: 'true'
 
 definition:
   arguments:
@@ -49,3 +42,6 @@ definition:
       description: The ID of the AMI. Should be the same as the resource id.
     owner_id:
       description: The AWS account ID of the image owner.
+
+arguments:
+  most_recent: 'true'

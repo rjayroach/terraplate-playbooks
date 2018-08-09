@@ -4,24 +4,6 @@ metadata:
   description: Provides a Route53 record aliased to a resource.
   url: https://www.terraform.io/docs/providers/aws/r/route53_record.html#alias-record
 
-parents:
-  aws_elb:
-    arguments:
-      alias:
-        name: ${aws_elb._name_.dns_name}
-        zone_id: ${aws_elb._name_.zone_id}
-  aws_s3_bucket:
-    arguments:
-      alias:
-        name: ${aws_s3_bucket._name_.website_domain}
-        zone_id: ${aws_s3_bucket._name_.hosted_zone_id}
-
-defaults:
-  arguments:
-    alias:
-      evaluate_target_health: 'true'
-    type: 'A' 
-
 definition:
   arguments:
     alias:
@@ -52,3 +34,8 @@ definition:
     zone_id:
       description: The zone_id of the domain in which this hostname is created
       required: yes
+
+arguments:
+  alias:
+    evaluate_target_health: 'true'
+  type: 'A'

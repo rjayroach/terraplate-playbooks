@@ -3,18 +3,6 @@ metadata:
   type: aws_security_group_rule
   description: Create a security group rule
 
-parents:
-  aws_security_group:
-    arguments:
-      security_group_id: ${aws_security_group._name_.id}
-
-defaults:
-  arguments:
-    type: ingress
-    from_port: 0
-    to_port: 0
-    protocol: tcp
-
 definition:
   arguments:
     type:
@@ -46,3 +34,9 @@ definition:
     id:
       description: The id of the created rule
       required: yes
+
+arguments:
+  type: ingress
+  from_port: '0'
+  to_port: '0'
+  protocol: tcp

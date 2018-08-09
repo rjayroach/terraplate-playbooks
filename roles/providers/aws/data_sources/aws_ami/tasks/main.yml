@@ -4,11 +4,6 @@
     file: artifact.yml
     name: base_artifact
 
-#
-# - set_fact:
-#     loaded_artifact: '{{ base_artifact }}'
-#   when: profile is not defined
-
 - name: Load profile's artifact vars
   include_vars:
     file: '{{ profile }}.yml'
@@ -17,4 +12,3 @@
 
 - set_fact:
     loaded_artifact: '{{ base_artifact | combine(profile_artifact | default({}), recursive=True) }}'
-    # when: profile is defined

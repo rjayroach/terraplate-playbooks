@@ -1,0 +1,9 @@
+---
+- prompt:
+    msg:
+      say: Module name
+      ask: module_target_name
+      default: 'backend/compute'
+
+- name: Destroy a Terraplate Module
+  debug: msg='Not implemented'

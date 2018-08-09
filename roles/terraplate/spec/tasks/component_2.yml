@@ -1,0 +1,19 @@
+---
+- include_role:
+    name: terraplate/spec/component
+  vars:
+    parent_component: '{{ component_1 }}'
+    component: '{{ component_2 }}'
+
+- set_fact:
+    spec: "{{ spec | combine({'references': {component_0.key: {'components': {component_1.key: {'components': {component_2.key: loaded_artifact}}}}}}, recursive=True) }}"
+
+- set_fact:
+    spec: "{{ spec | combine({'user': {component_0.key: {'components': {component_1.key: {'components': {component_2.key: user_artifact}}}}}}, recursive=True) }}"
+  when: build_type == 'config'
+
+- include_tasks: component_3.yml
+  with_dict: '{{ component_2.value.components }}'
+  loop_control:
+    loop_var: component_3
+  when: component_2.value.components is defined

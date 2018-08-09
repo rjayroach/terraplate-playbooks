@@ -1,0 +1,15 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Generate or Destory a Terraplate Module, Config or Plan
+  hosts: terraplate
+  tasks:
+    - prompt:
+        msg:
+          say: Action (new, generate or destroy)
+          ask: module_action
+          default: generate
+      when: module_action is not defined
+
+    - include_role:
+        name: terraplate/runner
+        tasks_from: '{{ module_action }}'

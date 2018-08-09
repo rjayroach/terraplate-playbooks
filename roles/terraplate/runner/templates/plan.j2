@@ -1,0 +1,25 @@
+{% import 'helpers.j2' as h -%} 
+
+{%- macro render_header(render_type, spec) -%}
+# hello.tf
+# {{ render_type }}.tf
+{%- endmacro %}
+
+{%- macro render_arguments(key, component, parent_key) %}
+{% set dbl = '${' -%}
+
+
+{{ h.data_type(key) }} "{{ key.split('/')[1] }}"
+{%- if key.split('/') | first != 'providers' %} "{{ key.split('/') | last }}"{% endif %} {
+  {% if key.split('/') | first == 'modules' %}
+    {% for name, value in component.arguments.iteritems() %}
+  {{ name }} = {{ h.default_value(component.arguments[name] | default(''), {}) }}
+    {% endfor %}
+  {% elif component.definition.arguments is defined %}
+    {% for name, definition in component.definition.arguments.iteritems() %}
+  {{ name }} = {{ h.default_value(component.arguments[name] | default(''), definition) }}
+    {% endfor %}
+  {% endif %}
+}
+{{ caller() }}
+{%- endmacro %}

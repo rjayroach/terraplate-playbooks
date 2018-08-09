@@ -2,11 +2,6 @@
 metadata:
   type: aws_vpc
   description: provides details about a specific VPC.
-  attribute_prefix: data.
-
-parents: {}
-
-defaults: {}
 
 definition:
   arguments:

@@ -1,0 +1,49 @@
+#jinja2: lstrip_blocks: True
+{% if build_type == 'module' %}
+  {% import 'module.j2' as module -%}
+  {{ module.render_header(render_type, spec) }}
+{% elif build_type == 'config' %}
+  {% import 'config.j2' as config -%}
+  {{ config.render_header(render_type, spec) }}
+{% elif build_type == 'plan' %}
+  {% import 'plan.j2' as plan -%}
+  {{ plan.render_header(render_type, spec) }}
+{%- endif %}
+
+
+{%- macro entry(key, component) -%}
+  {% call doit(key, component, '') %}{% endcall %}
+{%- endmacro %}
+
+
+{%- macro doit(key, component, parent_key) -%}
+  {% if build_type == 'module' %}
+    {% if render_type == 'variables' %}
+      {% call module.render_variables(key, component, parent_key) %}{% endcall %}
+    {% elif render_type == 'arguments' %}
+      {% call module.render_arguments(key, component, parent_key) %}{% endcall %}
+    {% elif render_type == 'attributes' %}
+      {% call module.render_attributes(key, component, parent_key) %}{% endcall %}
+    {% endif %}
+  {% elif build_type == 'config' %}
+    {% if render_type == 'manifest' %}
+      {% call config.render_manifest(key, component, parent_key) %}{% endcall %}
+    {% elif render_type == 'variables' %}
+      {% call config.render_variables(key, component, parent_key) %}{% endcall %}
+    {% endif %}
+  {% elif build_type == 'plan' %}
+    {% if render_type == 'arguments' %}
+      {% call plan.render_arguments(key, component, parent_key) %}{% endcall %}
+    {% endif %}
+  {% endif %}
+  {% if component.components is defined %}
+    {% for child_key, component in component.components.iteritems() %}
+      {% call doit(child_key, component, key) %}{% endcall %}
+    {% endfor %}
+  {% endif %}{{ caller() }}
+{%- endmacro %}
+
+
+{% for key, component in render_components.iteritems() %}
+{{ entry(key, component) }}
+{%- endfor %}

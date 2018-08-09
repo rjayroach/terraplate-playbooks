@@ -1,0 +1,6 @@
+---
+reference_name: "{{ component.key.split('/')[0:2] | join('/') }}"
+provider: "{{ reference_name.split('/')[1].split('_')[0] }}"
+component_name: "{{ provider }}/{{ 'provider' if reference_name.startswith('providers') else reference_name }}"
+component_role: "providers/{{ provider if reference_name.startswith('providers') else component_name }}"
+vars_file_path: '{{ spec.terraplate.dirs.components_dir }}/{{ component_name }}.yml'

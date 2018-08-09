@@ -1,0 +1,53 @@
+---
+- debug: var=spec.terraplate
+- name: '^^^^^ BEGIN COMPONENT SPEC ^^^^^ {{ component_role }}'
+  debug:
+    var: '{{ debug_item }}'
+    verbosity: 0
+  with_items: [reference_name, provider, component_name, component_role, vars_file_path]
+  loop_control:
+    loop_var: debug_item
+  when: debug_vars is defined
+
+- name: '{{ component_role }}: Check if artifact vars_file exists'
+  stat:
+    path: '{{ vars_file_path }}'
+  register: vars_file
+
+- name: '{{ component_role }}: Set template_content to null before loading artifact'
+  set_fact:
+    template_content: null
+    loaded_artifact: {}
+    user_artifact: {}
+
+- name: '{{ component_role }}: Include reference_component vars file from file'
+  include_vars:
+    file: '{{ vars_file_path }}'
+    name: loaded_reference_component
+  when: vars_file.stat.exists and not reference_name.startswith('modules') 
+
+- set_fact:
+    loaded_artifact: '{{ loaded_reference_component }}'
+  when: vars_file.stat.exists and not reference_name.startswith('modules') 
+
+- name: '{{ component_role }}: Include role'
+  include_role:
+    name: '{{ component_role }}'
+  vars:
+    profile: '{{ component.value.metadata.profile }}'
+  when: not vars_file.stat.exists and not reference_name.startswith('modules') 
+
+- include_role:
+    name: terraplate/spec/component/config
+  vars:
+    reference_component: '{{ loaded_artifact }}'
+  when: false # build_type == 'config' and not reference_name.startswith('modules') 
+
+- name: '^^^^^ END COMPONENT SPEC ^^^^^ {{ component_role }}'
+  debug:
+    var: '{{ debug_item }}'
+    # with_items: [reference_artifact, user_artifact, parent_artifact, artifact, artifact_definition, template_data]
+  with_items: [loaded_artifact]
+  loop_control:
+    loop_var: debug_item
+  when: debug_vars is defined

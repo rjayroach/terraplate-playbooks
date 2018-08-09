@@ -1,0 +1,14 @@
+---
+- include_tasks: plan-prompt.yml
+
+- name: Include manifest vars files
+  include_tasks: plan-vars.yml
+  vars:
+    manifest_dir: "{{ plan_vars.source_dir.split('/')[0:index | int] | join('/') }}"
+  with_sequence: start=1 end="{{ plan_vars.source_dir.split('/') | length }}"
+  loop_control:
+    loop_var: index
+
+- set_fact:
+    spec: "{{ {'terraplate': {'dirs': m1, 'module': {}, 'plan': plan_vars}} | combine(module_spec) }}"
+    # spec: "{{ spec | default({}) | combine({'manifest': {'modules/default': module_spec}}) }}"

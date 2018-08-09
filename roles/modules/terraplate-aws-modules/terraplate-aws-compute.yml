@@ -1,0 +1,91 @@
+---
+metadata:
+  description: renders an EC2 into a VPC
+#   type: terraplate_aws_compute
+
+#
+# The rendered config could look like this:
+# external_components:
+#     variables:
+#       profile: default
+#   data/terraform_remote_state/network:
+#   modules/target/module/name
+#     variables:
+#       aws_security_group_rule_allow_ssh_in_source_security_group_id: whatup
+#       aws_vpc_main_id: data/terraform_remote_state/network
+#     arguments:
+#
+# components:
+
+# NOTE: only used by config to generate the config yaml
+# components:
+  # jproviders: # /aws/default:
+  # - aws
+  #   metadata:
+  #     config_prompt: no
+  #   variables:
+  #     profile: default
+  #   arguments: {}
+
+xmodules/terraplate-aws-modules/terraplate-aws-compute:
+  components:
+    data_sources/aws_vpc/main: # get the regions's default vpc id for the security group
+      arguments:
+        default: 'true'
+      definition:
+        arguments:
+          default:
+            prompt: no
+
+components:
+  data_sources/aws_vpc/main: # get the regions's default vpc id for the security group
+    arguments:
+      default: 'true'
+
+  data_sources/aws_subnet/main: # get the az's default subnet id in order to launch the instance
+    arguments:
+      default_for_az: 'true'
+    definition:
+      arguments:
+        availability_zone:
+          required: yes
+
+  data_sources/aws_ami/debian_stretch_latest:
+    metadata: 
+      profile: debian_stretch_latest
+
+  resources/aws_security_group/app_server:
+    arguments:
+      description: app-server-security-group
+      tags:
+        Name: app-server
+      vpc_id: data_sources/aws_vpc/main
+      # vpc_id: ${data.terraform_remote_state.network.aws_vpc_dink_id}
+    components:
+      resources/aws_security_group_rule/allow_ssh_in:
+        metadata:
+          prompt: no
+        arguments:
+          to_port: '22'
+          type: ingress
+          cidr_blocks: ['0.0.0.0/0']
+        definition:
+          arguments:
+            cidr_blocks:
+              required: true
+      resources/aws_security_group_rule/allow_all_out:
+        metadata: 
+          prompt: no
+        arguments:
+          protocol: '-1'
+          type: egress
+          cidr_blocks: ['0.0.0.0/0']
+
+  resources/aws_instance/rails_server_1:
+    arguments:
+      ami: data_sources/aws_ami/debian_stretch_latest
+      subnet_id: data_sources/aws_subnet/main
+      vpc_security_group_ids:
+        - resources/aws_security_group/app_server
+      tags: # Note: Tags can be associated to ansible roles for configuration after provisioning
+        Name: This great Instance

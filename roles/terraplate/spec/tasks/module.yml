@@ -1,0 +1,13 @@
+---
+- include_tasks: module-prompt.yml
+
+- name: Include requested module vars
+  include_vars:
+    file: '{{ module_vars.source_file }}'
+    name: module_spec
+
+- set_fact:
+    spec: "{{ {'terraplate': {'dirs': m1, 'module': module_vars, 'plan': {}}} | combine(module_spec) }}"
+    # spec: "{{ spec | default({}) | combine({'manifest': {'modules/' + module_source_type: module_spec}}) | combine(d0, recursive=True) | combine(d1, recursive=True) | combine(d2, recursive=True) }}"
+
+- debug: var=spec

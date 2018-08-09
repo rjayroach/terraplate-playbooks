@@ -3,16 +3,6 @@ metadata:
   type: aws_route53_record
   description: Provides a Route53 record resource.
 
-parents:
-  aws_route53_zone:
-    arguments:
-      zone_id: ${aws_route53_zone._name_.zone_id}
-
-defaults:
-  arguments:
-    ttl: 300
-    type: 'A' 
-
 definition:
   arguments:
     name:
@@ -33,3 +23,7 @@ definition:
       required: yes
       reference_from:
         aws_route53_zone: zone_id
+
+arguments:
+  ttl: 300
+  type: 'A'

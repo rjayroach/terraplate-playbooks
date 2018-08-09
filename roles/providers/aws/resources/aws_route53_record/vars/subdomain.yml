@@ -3,12 +3,11 @@ metadata:
   type: aws_route53_record
   description: Provides a Route53 record resource.
 
-defaults:
-  arguments:
-    type: 'NS' 
-    # ttl: 172800
-    records:
-      - "${aws_route53_zone.{{ user_artifact.metadata.subdomain_metadata_name }}.name_servers.0}"
-      - "${aws_route53_zone.{{ user_artifact.metadata.subdomain_metadata_name }}.name_servers.1}"
-      - "${aws_route53_zone.{{ user_artifact.metadata.subdomain_metadata_name }}.name_servers.2}"
-      - "${aws_route53_zone.{{ user_artifact.metadata.subdomain_metadata_name }}.name_servers.3}"
+arguments:
+  type: 'NS'
+  # ttl: 172800
+  records:
+    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.0}"
+    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.1}"
+    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.2}"
+    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.3}"

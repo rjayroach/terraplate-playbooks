@@ -1,0 +1,31 @@
+{% import 'helpers.j2' as h -%}
+
+{%- macro render_header(render_type, spec) -%}
+---
+  {% if render_type == 'manifest' %}
+components:
+  modules/{{ spec.terraplate.module.provider_name }}/{{ spec.terraplate.module.name }}:
+    arguments:
+      source: {{ '../' * (spec.terraplate.plan.target_dir.split('/') | length | int) }}{{ spec.terraplate.module.target_dir }}
+  {%- endif %}
+{%- endmacro %}
+
+
+{%- macro render_manifest(key, component, parent_key) %}
+  {% if component.arguments | length > 0 %}
+    {% for akey, value in component.arguments.iteritems() %}
+      {{ h.variable_name(key, akey) }}: {{ h.default_value_p(value, component.definition.arguments[akey]) }}
+    {% endfor %}
+  {% endif %}
+{{ caller() }}
+{%- endmacro %}
+
+
+{%- macro render_variables(key, component, parent_key) -%}
+  {% if component.variables is defined and component.variables | length > 0 %}
+    {% for vkey, value in component.variables.iteritems() %}
+{{ h.variable_name(key, vkey) }}: {{ h.default_value_p(value, component.definition.arguments[vkey]) }}
+    {% endfor %}
+  {% endif %}
+{{ caller() }}
+{%- endmacro %}

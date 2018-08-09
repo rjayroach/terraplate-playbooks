@@ -1,0 +1,14 @@
+---
+- name: Provide the plan directory
+  prompt:
+    msg:
+      say: Plan name
+      ask: plan_name
+      default: "{{ plan | default('admin/dns') }}"
+
+- name: Environment
+  prompt:
+    msg:
+      say: Environment
+      ask: plan_environment
+      default: "{{ env | default('') }}"

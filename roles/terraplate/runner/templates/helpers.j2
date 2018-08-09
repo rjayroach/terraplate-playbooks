@@ -1,0 +1,122 @@
+{# helpers.j2 #}
+
+{%- macro default_value_p(value, definition) %}
+  {% call default_value_s(value, definition) %}{% endcall %}
+{%- endmacro %}
+
+{%- macro default_value_s(value, definition) %}
+  {%- if value is mapping %}
+    {% for name, value in value.iteritems() %}
+
+        {{ name }}: {% call default_value_r(value, definition) %}{% endcall %}
+    {% endfor %}
+  {%- elif value is iterable and value is not string %}
+
+{% for item in value %}
+        - {% call default_value_s(item, definition) %}{% endcall %}{% endfor %}
+  {% elif value.startswith('data') or value.startswith('resource') %}
+'{{ value.split('/')[1] }}.{{ value.split('/')[2] }}.{{ definition.reference_from[value.split('/')[1]] }}'
+  {%- else %}
+'{{ value }}'
+  {%- endif %}{{ caller() }}
+{%- endmacro %}
+
+{# END used in config.j2 #}
+
+
+{# used in module.j2 #}
+{% macro variable_name(key, name, type = 'variable') %}
+  {% set name_separator = '_' %}
+  {% set join_with = '_' %}
+  {% if type == 'argument' or type == 'attribute' %}
+    {% set name_separator = '.' %}
+    {% set join_with = '.' %}
+  {% endif %}
+{{ var_prefix(key, name_separator) }}{{ key.split('/')[1:] | join(join_with) }}{{ name_separator }}{{ name }}
+{%- endmacro %}
+
+
+{% macro var_prefix(key, name_separator) %}
+  {% if key.startswith('data_sources') %}data{{ name_separator }}{% endif %}
+{%- endmacro %}
+
+
+{% macro data_type(key) %}
+  {% if key.startswith('data_sources') %}data
+  {%- elif key.startswith('modules') %}module
+  {%- elif key.startswith('providers') %}provider
+  {%- elif key.startswith('resources') %}resource
+  {%- endif %}
+{%- endmacro %}
+
+
+{%- macro default_value(value, definition) %}
+  {% call default_value_r(value, definition) %}{% endcall %}
+{%- endmacro %}
+
+
+{%- macro default_value_r(value, definition) %}
+  {% set dbl = '${' -%}
+  {%- if value is mapping %}
+{
+    {% for name, value in value.iteritems() %}
+    {{ name }} = {% call default_value_r(value, definition) %}{% endcall %}
+    {% endfor %}
+  }
+  {%- elif value is iterable and value is not string %}
+[{% for item in value %}{% call default_value_r(item, definition) %}{% endcall %},{% endfor %}]
+  {% elif value.startswith('data') or value.startswith('resource') %}
+"{{ dbl }}{{ value.split('/')[1] }}.{{ value.split('/')[2] }}.{{ definition.reference_from[value.split('/')[1]] }}}"
+  {%- else %}
+"{{ value }}"
+  {%- endif %}{{ caller() }}
+{%- endmacro %}
+
+
+{# END used in module.tf.j2 #}
+
+{% macro key_value(name, rstring, definition, template_data) %}
+  {% call key(name, template_data) %}{% endcall %} = {% call value(rstring, definition, template_data) %}{% endcall %}{{ caller() }}
+{%- endmacro %}
+
+{% macro key(key, template_data) -%}
+{{ ' ' * template_data.indent }}{{ key }}{{ ' ' * (template_data.key_pad - (key | length)) }}{{ caller() }}
+{%- endmacro %}
+
+{% macro value(rstring, definition, template_data) %}
+  {% if definition.type is defined %}
+    {% if definition.type == 'list' %}
+["{{ rstring | replace('_name_', template_data.parent.name) }}"]
+    {% elif definition.type == 'map' %}
+"{ {{ rstring | replace('_name_', template_data.parent.name) }}}"
+    {% endif %}
+{# }
+    {% if definition.type == 'list' %}[
+      {%- for list_item in rstring -%}
+"{{ list_item | replace('_name_', template_data.parent.name) }}",
+      {%- endfor %}]
+    {% elif definition.type == 'map' %}{
+      MAP! "{{ rstring | replace('_name_', template_data.parent.name) }}"
+}   {% endif %}
+{ #}
+  {% else %}
+"{{ rstring | replace('_name_', template_data.parent.name) }}"
+  {% endif %}
+{{ caller() }}
+{%- endmacro %}
+
+{% macro debug(macro_name, vars) %}
+# {{ '-' * 20 }} {{ macro_name }}
+  {% for label, value in vars.iteritems() %}
+    {% if value is mapping %}
+# {{ label }}:
+      {% for label, value in value.iteritems() %}
+#   {{ label }}: {{ value }}
+      {% endfor %}
+    {% else %}
+# {{ label }}: {{ value }}
+    {% endif %}
+  {% endfor %}
+# {{ '-' * 20 }}
+{{ caller() }}
+{%- endmacro %}

@@ -1,0 +1,27 @@
+#jinja2: lstrip_blocks: True
+terragrunt = {
+  terraform {
+    # NOTE: This is used to source provider secrets, e.g. GitHub token
+    extra_arguments "variables" {
+      commands  = ["${get_terraform_commands_that_need_locking()}"]
+      arguments = [
+        "-var-file=${get_tfvars_dir()}/{{ spec.terraplate.component.variables.file_name }}",
+{# for var_path in var_paths %}
+        "-var-file=${get_tfvars_dir()}/{{ spec.terraplate.component.relative_root_path }}{{ var_path }}",
+{% endfor #}
+      ]
+    }
+  }
+  include = {
+    path = "${find_in_parent_folders()}"
+  }
+{% if spec.terraplate.component.dependencies | length > 0 %}
+  dependencies {
+    paths = [
+  {% for dependency in spec.terraplate.component.dependencies %}
+      "{{ dependency }}",
+  {% endfor %}
+    ]
+  }
+{% endif %}
+}

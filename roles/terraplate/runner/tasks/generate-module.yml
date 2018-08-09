@@ -1,0 +1,28 @@
+---
+- name: Create the target module directory tree
+  file:
+    name: '{{ spec.terraplate.module.target_dir }}'
+    state: directory
+
+- debug: var=render_components
+
+- name: 'Template the module variables to {{ spec.terraplate.module.target_dir }}/variables.tf'
+  template:
+    src: main.j2
+    dest: '{{ spec.terraplate.module.target_dir }}/variables.tf'
+  vars:
+    render_type: variables
+
+- name: 'Template the module arguments to {{ spec.terraplate.module.target_dir }}/main.tf'
+  template:
+    src: main.j2
+    dest: '{{ spec.terraplate.module.target_dir }}/main.tf'
+  vars:
+    render_type: arguments
+
+- name: 'Template the module attributes to {{ spec.terraplate.module.target_dir }}/outputs.tf'
+  template:
+    src: main.j2
+    dest: '{{ spec.terraplate.module.target_dir }}/outputs.tf'
+  vars:
+    render_type: attributes

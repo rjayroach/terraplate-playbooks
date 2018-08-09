@@ -1,0 +1,9 @@
+---
+user_component:
+  variables: '{{ component.value.variables | default({}) }}'
+  arguments: '{{ component.value.arguments | default({}) }}'
+  metadata: '{{ component.value.metadata | default({}) }}'
+
+reference_component_q:
+  variables: '{{ reference_component.variables | default({}) }}'
+  arguments: '{{ reference_component.arguments | default({}) }}'

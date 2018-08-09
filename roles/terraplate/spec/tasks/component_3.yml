@@ -1,0 +1,13 @@
+---
+- include_role:
+    name: terraplate/spec/component
+  vars:
+    parent_component: '{{ component_2 }}'
+    component: '{{ component_3 }}'
+
+# TODO: For now do not recurse beyond 3 levels
+# - include_tasks: component_4.yml
+#   with_dict: '{{ component_3.value.components }}'
+#   loop_control:
+#     loop_var: component_4
+#   when: component_3.value.components is defined

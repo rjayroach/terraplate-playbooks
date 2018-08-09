@@ -1,0 +1,6 @@
+---
+- prompt:
+    msg:
+      say: Module name
+      ask: module_name
+      default: "{{ module | default('terraplate-aws-compute') }}"

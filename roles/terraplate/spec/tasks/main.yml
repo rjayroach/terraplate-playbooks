@@ -1,0 +1,9 @@
+---
+- name: 'Load the {{ build_type }} spec'
+  include_tasks: '{{ build_type }}.yml'
+
+- name: Load each component definition
+  include_tasks: component_0.yml
+  with_dict: '{{ spec.components }}'
+  loop_control:
+    loop_var: component_0

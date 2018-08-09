@@ -1,0 +1,14 @@
+---
+- include_tasks: module-prompt.yml
+
+- include_tasks: plan-prompt.yml
+  vars:
+    plan: backend/compute/server
+
+- name: Include requested module vars
+  include_vars:
+    file: '{{ module_vars.source_file }}'
+    name: module_spec
+
+- set_fact:
+    spec: "{{ {'terraplate': {'dirs': m1, 'module': module_vars, 'plan': plan_vars}} | combine(module_spec) }}"

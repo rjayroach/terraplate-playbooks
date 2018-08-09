@@ -19,54 +19,50 @@
 
 - name: Create project directory structure
   file:
-    path: '{{ project_dir }}/{{ project_inventory_dir }}/group_vars/all'
+    path: '{{ item }}'
     state: directory
+  with_items:
+    - '{{ project_dir }}/inventory/host_vars'
+    - '{{ project_dir }}/action_plugins'
 
 - name: Copy the project base files
   copy:
     src: '{{ role_path }}/files/'
     dest: '{{ project_dir }}'
 
-- name: Copy the prompt action plugin
+- name: Copy common files to the project
   copy:
-    src: files/action_plugins/
-    dest: '{{ project_dir }}/action_plugins'
-
-- name: Softlink to the roles directory
-  file:
-    src: ../../roles
-    path: '{{ project_dir }}/roles'
-    state: link
-
-- name: Template the project_manifest vars
-  template:
-    src: terraplate.yml.j2
-    dest: '{{ project_dir }}/{{ project_inventory_dir }}/group_vars/all/project_manifest.yml'
+    src: "{{ role_path.split('/')[0:-3] | join('/') }}/{{ item }}"
+    dest: '{{ project_dir }}/{{ item }}'
+  with_items:
+    - terraplate.yml
+    - action_plugins/prompt.py
 
 - name: Set the project's terraplate playbook to executable
   file:
-    path: '{{ project_dir }}/terraplate'
+    path: '{{ project_dir }}/terraplate.yml'
     mode: 0755
 
 - name: Generate an inventory file for localhost
   copy:
-    content: "localhost ansible_connection=local\n"
-    dest: '{{ project_dir }}/{{ project_inventory_dir }}/inventory'
+    content: "terraplate ansible_connection=local\n"
+    dest: '{{ project_dir }}/inventory/hosts'
+
+- name: Template host_vars/terraplate.yml
+  template:
+    src: terraplate.yml.j2
+    dest: '{{ project_dir }}/inventory/host_vars/terraplate.yml'
 
 - name: Generate the project's vault password
   copy:
     content: "{{ 999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N')) | to_uuid }}"
     dest: '{{ project_dir }}/.vault-password.txt'
 
-- name: Generate base contents for the secrets file
-  copy:
-    content: "---\n# provider_aws_secret_access_key: ABC123"
-    dest: '{{ project_dir }}/{{ project_inventory_dir }}/group_vars/all/variables.yml'
-
-- name: Encrypt the secrets file using the project's vault password
-  command: 'ansible-vault encrypt {{ project_inventory_dir }}/group_vars/all/variables.yml'
-  args:
-    chdir: '{{ project_dir }}'
+- name: Softlink to the roles directory
+  file:
+    src: ../../roles
+    path: '{{ project_dir }}/roles'
+    state: link
 
 - name: Initialize the project's git repository
   command: '{{ item }}'
