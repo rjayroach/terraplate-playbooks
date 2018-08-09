@@ -9,9 +9,10 @@ terraplate:
   debug_vars: no
   encrypt_plan_vars: yes
 
-  root_dir: "{{ dbl }} inventory_dir }}/terraform"
-  vars_dir: "{{ dbl }} inventory_dir }}/terraform"
+  root_dir: '{{ dbl }} inventory_dir }}/terraform'
+  vars_dir: '{{ dbl }} inventory_dir }}/terraform'
   vars_path: '../..'
+  tfvars_file: '{{ dbl }} tfvars_pattern }}'
 
   remote_state:
     # Example of segmenting terraform remote state buckets by environment if preferred:
