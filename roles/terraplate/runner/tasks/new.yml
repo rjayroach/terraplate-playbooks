@@ -1,42 +1,37 @@
 ---
-- name: Is current directory a terraplate project
+- name: Check the current directory for terraplate project artifacts
   lineinfile: 
     dest: ansible.cfg
     line: '# terraplate-project'
   check_mode: yes
   register: presence
 
-- set_fact:
-    is_terraplate_project: '{{ not presence.changed }}'
-
-- name: Stop if the current directory is alredy an existing project
+- name: Stop if the current directory contains an existing terraplate project
   fail:
-    msg: 'Cannot create a new project in an already existing project'
-  when: is_terraplate_project
+    msg: 'Cannot create a new terraplate project inside an existing project'
+  when: not presence.changed
 
-- prompt:
+- name: Name of the new project
+  prompt:
     msg:
-      say: 'Project name'
+      say: Project name
       ask: project_name
-      default: captain
+      default: '{{ project_name }}'
+  when: project_name is defined
 
-- prompt:
+- name: Name of the new project
+  prompt:
     msg:
-      say: 'Remote State Bucket Name'
-      ask: remote_state_bucket_name
-      default: com-openmarketinggroup-terraform-state
-
-- prompt:
-    msg:
-      say: 'Remote State Bucket Region'
-      ask: remote_state_bucket_region
-      default: ap-southeast-1
+      say: Project name
+      ask: project_name
+  when: project_name is not defined
 
 - include_role:
     name: terraplate/project
-  vars:
-    manifest:
-      terraform:
-        version: 1.0
-      terragrunt:
-        version: 1.0
+
+# TODO: Implement the check inside the setup task
+- name: Install dependencies
+  include_role:
+    name: terraplate/project
+    tasks_from: setup
+  when: false

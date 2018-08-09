@@ -1,0 +1,6 @@
+[terraplate-group]
+terraplate ansible_connection=local
+
+[terraplate-group:vars]
+module_action=new
+remote_state_bucket_region=ap-southeast-1

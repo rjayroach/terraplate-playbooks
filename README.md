@@ -6,6 +6,7 @@ A project is a user defined logical grouping of related cloudy resources, for ex
 Projects are stand-alone entities that contain all the relevant user configuation to realize the infrastructure.
 
 [link-to-project](roles/terraplate/project/README.md)
+[link-to-project](roles/terraplate/project)
 
 ### Applications
 

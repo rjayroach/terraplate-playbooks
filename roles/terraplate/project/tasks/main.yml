@@ -1,28 +1,32 @@
 ---
-- include_tasks: setup.yml
-  when: false
-
-- name: Ensure a valid project name
-  fail:
-    msg: Project name must be set
-  when: project_name | length == 0
-
-- name: Check if a project alredy exists
+- name: Check if the project alredy exists
   stat:
     path: '{{ project_dir }}'
   register: project_status
 
-- name: Quit if a project already exists
+- name: Quit if the project already exists
   fail:
-    msg: Project already exists
+    msg: 'The {{ project_dir }} already exists'
   when: project_status.stat.exists
+
+- prompt:
+    msg:
+      say: 'Remote State Bucket Name'
+      ask: remote_state_bucket_name
+      default: 'com-{{ project_name }}-terraform-state'
+
+- prompt:
+    msg:
+      say: 'Remote State Bucket Region'
+      ask: remote_state_bucket_region
+      default: "{{ remote_state_bucket_region | default('us-east-1') }}"
 
 - name: Create project directory structure
   file:
     path: '{{ item }}'
     state: directory
   with_items:
-    - '{{ project_dir }}/inventory/host_vars'
+    - '{{ project_dir }}/host_vars'
     - '{{ project_dir }}/action_plugins'
 
 - name: Copy the project base files
@@ -43,15 +47,15 @@
     path: '{{ project_dir }}/terraplate.yml'
     mode: 0755
 
-- name: Generate an inventory file for localhost
-  copy:
-    content: "terraplate ansible_connection=local\n"
-    dest: '{{ project_dir }}/inventory/hosts'
-
 - name: Template host_vars/terraplate.yml
   template:
     src: terraplate.yml.j2
-    dest: '{{ project_dir }}/inventory/host_vars/terraplate.yml'
+    dest: '{{ project_dir }}/host_vars/terraplate.yml'
+
+- name: Template README.md
+  template:
+    src: README.md
+    dest: '{{ project_dir }}/README.md'
 
 - name: Generate the project's vault password
   copy:

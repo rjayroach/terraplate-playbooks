@@ -1,6 +1,13 @@
 ---
 - debug:
     var: spec
+#
+#   vars:
+#     manifest:
+#       terraform:
+#         version: 1.0
+#       terragrunt:
+#         version: 1.0
 
 - name: Install graphiz to make graphs of infrastructure
   apt: 

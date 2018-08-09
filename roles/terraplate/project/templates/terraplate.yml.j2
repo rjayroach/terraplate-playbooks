@@ -5,15 +5,14 @@
 ansible_env:
   HOME: "{{ dbl }} lookup('env','HOME') }}"
 
-module_action: generate
-build_type: config
 terraplate:
   debug_vars: no
   encrypt_plan_vars: yes
 
-  root_dir: "{{ dbl }} inventory_dir.split('/')[0:-2] | join('/') }}/terraform"
-  vars_dir: "{{ dbl }} inventory_dir.split('/')[0:-2] | join('/') }}/terraform"
+  root_dir: "{{ dbl }} inventory_dir }}/terraform"
+  vars_dir: "{{ dbl }} inventory_dir }}/terraform"
   vars_path: '../..'
+
   remote_state:
     # Example of segmenting terraform remote state buckets by environment if preferred:
     # bucket: '{{ dbl }} config.globals.remote_state_name }}-{{ dbl }} terraplate.env.tld }}'

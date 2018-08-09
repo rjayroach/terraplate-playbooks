@@ -1,0 +1,6 @@
+[terraplate-group]
+terraplate ansible_connection=local
+
+[terraplate-group:vars]
+module_action=generate
+build_type=config
