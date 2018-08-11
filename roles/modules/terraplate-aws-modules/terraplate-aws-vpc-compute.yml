@@ -1,0 +1,158 @@
+---
+providers:
+  - metadata:
+      type: aws
+      name: main
+
+data_sources:
+  - metadata: # get the default vpc id for the security group
+      type: aws_vpc
+      name: default
+  - metadata: # get the default subnet id in order to launch the instance
+      type: aws_subnet
+      name: default
+  - metadata:
+      type: aws_ami
+      name: debian_stretch_latest
+      profile: debian_stretch_latest
+
+resources:
+  - metadata:
+      type: aws_security_group
+      name: app_server
+    arguments:
+      description: app-server-security-group
+      tags:
+        Name: app-server
+        # vpc_id: network:aws_vpc:dink
+      vpc_id: aws_vpc:default
+          # vpc_id: aws_vpc:dink
+          # vpc_id: ${data.terraform_remote_state.network.aws_vpc_dink_id}
+          # resources:
+  - metadata:
+      type: aws_security_group_rule
+      name: allow_ssh_in
+    arguments:
+      to_port: 22
+      type: ingress
+      cidr_blocks: ['0.0.0.0/0']
+      security_group_id: aws_security_group.app_server
+  - metadata:
+      type: aws_security_group_rule
+      name: allow_all_out
+    arguments:
+      protocol: -1
+      type: egress
+      cidr_blocks: ['0.0.0.0/0']
+      security_group_id: aws_security_group.app_server
+  - metadata:
+      type: aws_instance
+      name: rails_server_1
+    arguments:
+      ami: aws_ami:debian_stretch_latest
+      subnet_id: aws_subnet:default
+      vpc_security_group_ids:
+        - ${aws_security_group.app_server.id}
+        # - security:aws_security_group:app_server_id
+        # availability_zone: ap-southeast-1a
+      tags: # Note: Tags can be associated to ansible roles for configuration after provisioning
+        Name: This great Instance
+        # Environment: '{{ env.terraplate.tld }}'
+        Role-rails-server: 'yes'
+      key_name: rjayroach # '{{ config.playbooks.admin.compute.key_pairs[0].resources[0].arguments.key_name }}'
+      root_block_device:
+        volume_size: '12'
+
+
+xresources:
+  - metadata:
+      type: aws_instance
+      name: rails_server_1
+    arguments:
+      ami: aws_ami:debian_stretch_latest
+      subnet_id: network:aws_subnet:dink_public_1
+      vpc_security_group_ids:
+        - ${data.terraform_remote_state.security.aws_security_group_app_server_id}
+        # - security:aws_security_group:app_server_id
+      availability_zone: ap-southeast-1a
+      tags: # Note: Tags can be associated to ansible roles for configuration after provisioning
+        Name: This great Instance
+        Environment: '{{ env.terraplate.tld }}'
+        Role-rails-server: 'yes'
+      key_name: '{{ config.playbooks.admin.compute.key_pairs[0].resources[0].arguments.key_name }}'
+      root_block_device:
+        volume_size: '12'
+
+zdata_sources:
+  - metadata:
+      type: aws_ami
+      name: ubuntu_trusty_latest
+    arguments:
+      filter:
+        - name: name
+          values: ['ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*']
+        - name: virtualization-type
+          values: ['hvm']
+      owners: ['099720109477']
+
+xresources:
+  - metadata:
+      type: aws_instance
+      name: rails_server_0
+    variables:
+      amis: '{{ global_vars.amis.debian_stretch }}'
+    arguments:
+      ami: ${lookup(var.aws_instance_rails_server_0_amis, "ap-southeast-1")}
+
+bresources:
+  - metadata:
+      type: aws_instance
+      name: rails_server_1
+    arguments:
+      ami: aws_ami:debian_stretch_latest
+      subnet_id: network:aws_subnet:dink_public_1
+      vpc_security_group_ids:
+        - ${data.terraform_remote_state.security.aws_security_group_app_server_id}
+        # - security:aws_security_group:app_server_id
+      availability_zone: ap-southeast-1a
+      tags: # Note: Tags can be associated to ansible roles for configuration after provisioning
+        Name: This great Instance
+        Environment: '{{ env.terraplate.tld }}'
+        Role-rails-server: 'yes'
+      key_name: '{{ config.playbooks.admin.compute.key_pairs[0].resources[0].arguments.key_name }}'
+      root_block_device:
+        volume_size: '12'
+    resources:
+      - metadata:
+          type: aws_eip
+          name: main
+        arguments:
+          vpc: 'true'
+  
+  - metadata:
+      type: aws_route53_record
+      name: server_1
+    arguments:
+      name: 'server1-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns[0].resources[1].arguments.name }}'
+      zone_id: "${data.terraform_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns[0].resources[1].metadata.name }}_zone_id}"
+      type: 'A'
+      records: ['${aws_eip.rails_server_1_eip.public_ip}']
+
+  - metadata:
+      type: aws_elb
+      name: main
+    arguments:
+      var: value
+    resources:
+      - metadata:
+          type: aws_route53_record
+          name: www
+        arguments:
+          name: 'www-{{ env.terraplate.tld }}.{{ config.playbooks.admin.dns[0].resources[0].arguments.name }}'
+          zone_id: "${data.terraplate_remote_state.dns.domain.aws_route53_zone_{{ config.playbooks.admin.dns[0].resources[0].metadata.name }}_zone_id}"
+          type: 'A'
+      - metadata:
+          type: aws_elb_attachment
+          name: main
+        arguments:
+          instance: aws_instance.rails_server_1

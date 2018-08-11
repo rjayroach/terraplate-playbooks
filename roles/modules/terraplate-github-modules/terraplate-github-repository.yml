@@ -1,0 +1,18 @@
+---
+metadata:
+  description: Create a repository and add a git remote origin
+  dependencies: []
+
+components:
+  providers/github/default:
+    variables:
+      name:
+
+  resources/github_repository/repo:
+    variables:
+      name:
+
+  resources/null_resource/repository:
+    provisioners:
+      local-exec:
+        command: git remote add origin ${github_repository.ssh_url}
