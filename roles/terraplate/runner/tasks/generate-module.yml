@@ -1,10 +1,8 @@
 ---
-- name: Create the target module directory tree
+- name: 'Create the target module directory tree: {{ spec.terraplate.module.target_dir }}'
   file:
     name: '{{ spec.terraplate.module.target_dir }}'
     state: directory
-
-- debug: var=render_components
 
 - name: 'Template the module variables to {{ spec.terraplate.module.target_dir }}/variables.tf'
   template:

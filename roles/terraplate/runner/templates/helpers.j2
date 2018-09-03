@@ -36,7 +36,7 @@
 {%- endmacro %}
 
 
-{% macro var_prefix(key, name_separator) %}
+{% macro var_prefix(key, name_separator = '.') %}
   {% if key.startswith('data_sources') %}data{{ name_separator }}{% endif %}
 {%- endmacro %}
 
@@ -59,14 +59,22 @@
   {% set dbl = '${' -%}
   {%- if value is mapping %}
 {
-    {% for name, value in value.iteritems() %}
-    {{ name }} = {% call default_value_r(value, definition) %}{% endcall %}
+    {% for nname, nvalue in value.iteritems() %}
+    {# TODO: There is a bug here: #}
+    {{ nname }} = {% call default_value_r(nvalue, definition) %}{% endcall %}
     {% endfor %}
+
   }
   {%- elif value is iterable and value is not string %}
 [{% for item in value %}{% call default_value_r(item, definition) %}{% endcall %},{% endfor %}]
   {% elif value.startswith('data') or value.startswith('resource') %}
-"{{ dbl }}{{ value.split('/')[1] }}.{{ value.split('/')[2] }}.{{ definition.reference_from[value.split('/')[1]] }}}"
+    {% if definition.reference_from is defined %}
+"{{ dbl }}{{ var_prefix(value.split('/')[0]) }}{{ value.split('/')[1] }}.{{ value.split('/')[2] }}.{{ definition.reference_from[value.split('/')[1]] }}}"
+    {% else %} 
+    # This is an error
+    {{ definition }}
+    {{ value }}
+    {% endif %} 
   {%- else %}
 "{{ value }}"
   {%- endif %}{{ caller() }}

@@ -1,14 +1,14 @@
 ---
-- name: Provide the plan directory
+- name: Directory of the plan's manifest.yml
   prompt:
     msg:
-      say: Plan name
+      say: Plan directory (plan)
       ask: plan_name
-      default: "{{ plan | default('admin/dns') }}"
+      default: "{{ plan | default('') }}"
 
 - name: Environment
   prompt:
     msg:
-      say: Environment
+      say: Environment (env)
       ask: plan_environment
       default: "{{ env | default('') }}"

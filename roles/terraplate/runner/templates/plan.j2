@@ -1,25 +1,40 @@
 {% import 'helpers.j2' as h -%} 
+{% import 'module.j2' as m -%} 
 
 {%- macro render_header(render_type, spec) -%}
-# hello.tf
 # {{ render_type }}.tf
+  {% if render_type == 'arguments' %}
+terraform {
+  backend "s3" {}
+}
+  {% endif %}
 {%- endmacro %}
 
-{%- macro render_arguments(key, component, parent_key) %}
-{% set dbl = '${' -%}
 
-
-{{ h.data_type(key) }} "{{ key.split('/')[1] }}"
-{%- if key.split('/') | first != 'providers' %} "{{ key.split('/') | last }}"{% endif %} {
-  {% if key.split('/') | first == 'modules' %}
-    {% for name, value in component.arguments.iteritems() %}
-  {{ name }} = {{ h.default_value(component.arguments[name] | default(''), {}) }}
-    {% endfor %}
-  {% elif component.definition.arguments is defined %}
-    {% for name, definition in component.definition.arguments.iteritems() %}
-  {{ name }} = {{ h.default_value(component.arguments[name] | default(''), definition) }}
-    {% endfor %}
+{%- macro render_main(key, component, parent_key, template_data) %}
+  {% if key.split('/') | first != 'modules' %}
+    {% call m.render_variables(key, component, parent_key, template_data) %}{% endcall %}
   {% endif %}
-}
+  {% call m.render_arguments(key, component, parent_key, template_data) %}{% endcall %}
+  {% if key.split('/') | first != 'modules' %}
+    {% call m.render_attributes(key, component, parent_key, template_data) %}{% endcall %}
+  {% endif %}
+{{ caller() }}
+{%- endmacro %}
+
+
+{%- macro render_tfvars(key, component, parent_key, template_data) -%}
+  {% if key.split('/') | first != 'modules' %}
+    {% if component._definition.arguments is defined %}
+      {% for name, definition in component._definition.arguments.iteritems() %}
+        {% call m.render_variables_r(key, component, parent_key, name, definition, template_data) %}{% endcall %}
+      {% endfor %}
+    {% endif %}
+    {% if component._definition.variables is defined %}
+      {% for name, definition in component._definition.variables.iteritems() %}
+        {% call m.var_render(key, name, definition, component, template_data) %}{% endcall %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
 {{ caller() }}
 {%- endmacro %}

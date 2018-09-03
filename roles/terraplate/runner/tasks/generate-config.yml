@@ -1,25 +1,23 @@
 ---
-- name: Create the source plan directory tree
+- name: 'Create the source plan directory tree: {{ spec.terraplate.plan.source_dir }}'
   file:
     name: '{{ spec.terraplate.plan.source_dir }}'
     state: directory
 
-- debug: var=render_components
-
-- name: Template the component playbook
+- name: 'Template the plan manifest.yml to {{ spec.terraplate.plan.source_dir }}/manifest.yml'
   template:
     src: main.j2
     dest: '{{ spec.terraplate.plan.source_dir }}/manifest.yml'
   vars:
     render_type: manifest
 
-- name: Template the component variables to a vars file
+- name: 'Template the plan variables.yml to {{ spec.terraplate.plan.source_dir }}/variables.yml'
   template:
     src: main.j2
     dest: '{{ spec.terraplate.plan.source_dir }}/variables.yml'
   vars:
     render_type: variables
 
-- name: Encrypt the component variables vars file with the project's vault password
+- name: Encrypt the plan variables.yml file with the project's vault password
   command: 'ansible-vault encrypt {{ spec.terraplate.plan.source_dir }}/variables.yml'
   when: encrypt_plan_vars is defined and encrypt_plan_vars

@@ -11,39 +11,44 @@
 {%- endif %}
 
 
-{%- macro entry(key, component) -%}
-  {% call doit(key, component, '') %}{% endcall %}
-{%- endmacro %}
-
-
-{%- macro doit(key, component, parent_key) -%}
+{%- macro doit(key, component, parent_key, template_data) -%}
   {% if build_type == 'module' %}
     {% if render_type == 'variables' %}
-      {% call module.render_variables(key, component, parent_key) %}{% endcall %}
+      {% call module.render_variables(key, component, parent_key, template_data) %}{% endcall %}
     {% elif render_type == 'arguments' %}
-      {% call module.render_arguments(key, component, parent_key) %}{% endcall %}
+      {% call module.render_arguments(key, component, parent_key, template_data) %}{% endcall %}
     {% elif render_type == 'attributes' %}
-      {% call module.render_attributes(key, component, parent_key) %}{% endcall %}
+      {% call module.render_attributes(key, component, parent_key, template_data) %}{% endcall %}
     {% endif %}
   {% elif build_type == 'config' %}
     {% if render_type == 'manifest' %}
-      {% call config.render_manifest(key, component, parent_key) %}{% endcall %}
+      {% call config.render_manifest(key, component, parent_key, template_data) %}{% endcall %}
     {% elif render_type == 'variables' %}
-      {% call config.render_variables(key, component, parent_key) %}{% endcall %}
+      {% call config.render_variables(key, component, parent_key, template_data) %}{% endcall %}
     {% endif %}
   {% elif build_type == 'plan' %}
     {% if render_type == 'arguments' %}
-      {% call plan.render_arguments(key, component, parent_key) %}{% endcall %}
+      {% call plan.render_main(key, component, parent_key, template_data) %}{% endcall %}
+    {% elif render_type == 'variables' %}
+      {% call plan.render_tfvars(key, component, parent_key, template_data) %}{% endcall %}
     {% endif %}
   {% endif %}
   {% if component.components is defined %}
     {% for child_key, component in component.components.iteritems() %}
-      {% call doit(child_key, component, key) %}{% endcall %}
+      {% call doit(child_key, component, key, template_data) %}{% endcall %}
     {% endfor %}
   {% endif %}{{ caller() }}
 {%- endmacro %}
 
 
+{%- macro entry(key, component, template_data) -%}
+  {% call doit(key, component, '', template_data) %}{% endcall %}
+{%- endmacro %}
+
+
+{% set template_data = {'terraplate': spec.terraplate, 'build_type': build_type, 'render_type': render_type} %}
 {% for key, component in render_components.iteritems() %}
-{{ entry(key, component) }}
+{% if component._metadata is defined and component._metadata.skip_render is defined %}{% else %}
+{{ entry(key, component, template_data) }}
+{% endif %}
 {%- endfor %}

@@ -10,5 +10,5 @@
     loop_var: index
 
 - set_fact:
-    spec: "{{ {'terraplate': {'dirs': m1, 'module': {}, 'plan': plan_vars}} | combine(module_spec) }}"
+    spec: "{{ {'terraplate': {'dirs': m1, 'module': {}, 'plan': plan_vars}} | combine({'components': module_spec}) }}"
     # spec: "{{ spec | default({}) | combine({'manifest': {'modules/default': module_spec}}) }}"

@@ -1,15 +1,5 @@
 ---
 - stat:
-    path: '{{ manifest_dir }}/manifest.yml'
-  register: manifest_file
-
-- name: 'Load {{ manifest_dir }}/manifest.yml vars if it exists'
-  include_vars:
-    file: '{{ manifest_dir }}/manifest.yml'
-    name: manifest_main
-  when: manifest_file.stat.exists
-
-- stat:
     path: '{{ manifest_dir }}/{{ env }}.yml'
   register: manifest_env_file
   when: env is defined
@@ -20,8 +10,28 @@
     name: manifest_env
   when: env is defined and manifest_env_file.stat.exists
 
+- stat:
+    path: '{{ manifest_dir }}/variables.yml'
+  register: manifest_vars_file
+
+- name: 'Load {{ manifest_dir }}/variables.yml vars if it exists'
+  include_vars:
+    file: '{{ manifest_dir }}/variables.yml'
+    name: manifest_vars
+  when: manifest_vars_file.stat.exists
+
+- stat:
+    path: '{{ manifest_dir }}/manifest.yml'
+  register: manifest_file
+
+- name: 'Load {{ manifest_dir }}/manifest.yml vars if it exists'
+  include_vars:
+    file: '{{ manifest_dir }}/manifest.yml'
+    name: manifest_main
+  when: manifest_file.stat.exists
+
 - set_fact:
-    module_spec: '{{ module_spec | default({}) | combine(manifest_main | default({}), recursive=True) | combine(manifest_env | default({}), recursive=True) }}'
+    module_spec: '{{ module_spec | default({}) | combine(manifest_main | default({}), recursive=True) | combine(manifest_vars | default({}), recursive=True) | combine(manifest_env | default({}), recursive=True) }}'
 
 #
 # - debug:

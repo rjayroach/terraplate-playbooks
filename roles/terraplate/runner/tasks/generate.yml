@@ -18,6 +18,7 @@
 - set_fact:
     render_components: '{{ spec.references | combine(spec.components, recursive=True) | combine(spec.user | default({}), recursive=True) }}'
 
+
 # - set_fact:
 #     spec: "{{ spec | combine({'render': render}, recursive=True) }}"
 
@@ -26,7 +27,10 @@
 
 - debug:
     var: spec
-  when: debug_vars is defined
+  when: spec.terraplate.user.debug_vars is defined
+
+- debug: var=render_components
+  when: spec.terraplate.user.debug_vars is defined
 
 - name: 'Generate the {{ build_type }}'
   include_tasks: '{{ module_action }}-{{ build_type }}.yml'

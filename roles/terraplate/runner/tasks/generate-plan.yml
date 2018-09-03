@@ -1,18 +1,15 @@
 ---
-- debug: var=render_components
-
-- name: Create the target plan directory tree
+- name: 'Create the target plan directory tree: {{ spec.terraplate.plan.target_dir }}'
   file:
     name: '{{ spec.terraplate.plan.target_dir }}'
     state: directory
 
-- name: Template the tfvars file
+- name: 'Template the main.auto.tfvars file to {{ spec.terraplate.plan.target_dir }}/main.auto.tfvars'
   template:
     src: main.j2
-    dest: '{{ spec.terraplate.plan.target_dir }}/terraform.tfvars'
+    dest: '{{ spec.terraplate.plan.target_dir }}/main.auto.tfvars'
   vars:
-    render_type: tfvars
-  when: false
+    render_type: variables
 
 - name: 'Template the plan to {{ spec.terraplate.plan.target_dir }}/main.tf'
   template:
@@ -20,3 +17,8 @@
     dest: '{{ spec.terraplate.plan.target_dir }}/main.tf'
   vars:
     render_type: arguments
+
+- name: 'Template the terraform.tfvars file to {{ spec.terraplate.plan.target_dir }}/terraform.tfvars'
+  template:
+    src: plan-terraform.tfvars.j2
+    dest: '{{ spec.terraplate.plan.target_dir }}/terraform.tfvars'

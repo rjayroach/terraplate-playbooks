@@ -2,6 +2,13 @@
 - name: 'Load the {{ build_type }} spec'
   include_tasks: '{{ build_type }}.yml'
 
+- set_fact:
+    spec: "{{ spec | combine({'terraplate': {'user': terraplate_vars}, 'metadata': metadata_vars}, recursive=True) }}"
+
+- include_tasks: debug.yml
+  vars:
+    debug_items: [spec]
+
 - name: Load each component definition
   include_tasks: component_0.yml
   with_dict: '{{ spec.components }}'

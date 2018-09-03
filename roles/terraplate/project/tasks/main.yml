@@ -34,7 +34,7 @@
   with_items:
     - '{{ project_dir }}/host_vars'
     - '{{ project_dir }}/action_plugins'
-    - '{{ project_dir }}/terraform'
+    - '{{ project_dir }}/terraform/plans'
 
 - name: Copy the project base files
   copy:
@@ -44,7 +44,7 @@
 - name: Template the project terraform.tfvars file
   template:
     src: terraform/tfvars.j2
-    dest: '{{ project_dir }}/terraform/terraform.tfvars'
+    dest: '{{ project_dir }}/terraform/plans/terraform.tfvars'
 
 - name: Template .gitignore to the project's terraform directory
   template:

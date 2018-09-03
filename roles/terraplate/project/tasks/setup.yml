@@ -60,3 +60,8 @@
     path: '{{ spec.terragrunt.binary_path }}'
     mode: 0755
   become: yes
+
+name: Generate a terraformrc file in the home directory
+  copy:
+    content: "plugin_cache_dir = \"$HOME/.terraform.d/plugin-cache\"\n"
+    dest: '{{ ansible_env.HOME }}/.terraformrc'

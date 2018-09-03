@@ -1,18 +1,32 @@
 ---
+t0:
+  debug_vars: no
+  debug_templates: no
+  encrypt_plan_vars: yes
+
+terraplate_vars: '{{ t0 | combine(terraplate | default({}), recursive=True) }}'
+
+metadata_vars:
+  dependencies: []
+
 m1:
   components_dir: "{{ role_path.split('/')[0:-2] | join('/') }}/providers"
 
 m0:
-  module_source_dir: "{{ role_path.split('/')[0:-2] | join('/') }}/modules"
+  # module_source_dir: "{{ role_path.split('/')[0:-2] | join('/') }}/modules"
   module_target_dir: 'terraform/modules'
   module_provider: "{{ module_name.split('-')[0:2] | join('-') }}-modules"
 
 module_vars:
   name: '{{ module_name }}'
   provider_name: '{{ m0.module_provider }}'
-  source_dir: '{{ m0.module_source_dir }}/{{ m0.module_provider }}'
-  source_file: '{{ m0.module_source_dir }}/{{ m0.module_provider }}/{{ module_name }}.yml'
+  source_dir: '{{ module_source_dir }}/{{ m0.module_provider }}'
+  source_file: '{{ module_source_dir }}/{{ m0.module_provider }}/{{ module_name }}.yml'
   target_dir: '{{ m0.module_target_dir }}/{{ m0.module_provider }}/{{ module_name }}'
+
+module_sources:
+  - "{{ role_path.split('/')[0:-2] | join('/') }}/modules/{{ m0.module_provider }}/{{ module_name }}.yml"
+  - "{{ playbook_dir }}/modules/{{ m0.module_provider }}/{{ module_name }}.yml"
 
 p0:
   plan_source_dir: 'plans'

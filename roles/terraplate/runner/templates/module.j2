@@ -2,78 +2,151 @@
 
 {%- macro render_header(render_type, spec) -%}
 # {{ render_type }}.tf
-# {{ spec.metadata.description }}
 {%- endmacro %}
 
 
-{%- macro render_variables(key, component, parent_key) -%}
-  {% if component.definition.arguments is defined %}
-    {% for name, definition in component.definition.arguments.iteritems() %}
-      {% if not definition.required %}
-        {# do nothing #}
-      {% elif definition.reference_from is defined and parent_key.split('/') | length > 1 and definition.reference_from[parent_key.split('/')[1]] %}
-        {# do nothing #}
-      {% elif component.arguments[name] is not defined %}
-        {% call var_render(key, name, definition, component) %}{% endcall %}
-      {% elif component.arguments[name] is string and (component.arguments[name].startswith('data_sources') or component.arguments[name].startswith('resources')) %}
-        {# do nothing #}
-      {% elif component.arguments[name][0].startswith('data_sources') or component.arguments[name][0].startswith('resources') %}
-        {# do nothing #}
-      {% else %}
-        {% call var_render(key, name, definition, component) %}{% endcall %}
-      {% endif %}
+{%- macro render_variables(key, component, parent_key, template_data) -%}
+  {% if component._definition.arguments is defined %}
+    {% for name, definition in component._definition.arguments.iteritems() %}
+      {% call render_variables_r(key, component, parent_key, name, definition, template_data) %}{% endcall %}
     {% endfor %}
-  {% endif %}{{ caller() }}
+  {% endif %}
+  {% if component._definition.variables is defined %}
+    {% for name, definition in component._definition.variables.iteritems() %}
+      {% call var_render(key, name, definition, component, template_data) %}{% endcall %}
+    {% endfor %}
+  {% endif %}
+{{ caller() }}
 {%- endmacro %}
 
 
-{% macro var_render(key, name, definition, component) %}
+{%- macro render_variables_r(key, component, parent_key, name, definition, template_data) -%}
+  {%- if definition.arguments is defined %}
+    {% for sub_name, definition in definition.arguments.iteritems() %}
+      {% call render_variables_r(key + '_' + name, component[name] | default({}), parent_key, sub_name, definition, template_data) %}{% endcall %}
+    {% endfor %}
+  {% else %}
+    {% set definition = {'type': 'string', 'required': False, 'description': 'not found', 'reference_from': {}} | combine(definition, recursive=True) %}
+    {% if component[name] is not defined %}
+      {% if definition.reference_from | length > 0 and parent_key.split('/') | length > 1 and definition.reference_from[parent_key.split('/')[1]] %}
+        {# do nothing #}
+      {% elif definition.required or (definition.variable is defined and definition.variable) %}
+        {% call var_render(key, name, definition, component, template_data) %}{% endcall %}
+      {% endif %}
+    {% else %}{#- elif value is iterable and value is not string #}
+      {% if component[name] is string and (component[name].startswith('resource') or component[name].startswith('data_source')) %}
+        {# do nothing #}
+      {% elif definition.variable is defined and definition.variable %}
+        {% call var_render(key, name, definition, component, template_data) %}{% endcall %}
+      {% elif component[name] == '_key_' %}
+        {% call var_render(key, name, definition, component, template_data) %}{% endcall %}
+      {% else %}
+        {# do nothing #}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{{ caller() }}
+{%- endmacro %}
+
+
+{% macro var_render(key, name, definition, component, template_data) %}
+{% if template_data.build_type == 'module' or (template_data.build_type == 'plan' and template_data.render_type == 'arguments' and component[name] != '_key_') %}
 
 variable "{{ h.variable_name(key, name) }}" {
   description = "{{ definition.description }}"
-  {% if component.arguments[name] is defined %}
-  default = {{ h.default_value(component.arguments[name], definition) }}
+  {% if component[name] is defined and template_data.build_type == 'module' %}
+    {% if component[name] == '_key_' %}
+  default = {{ h.default_value(key.split('/') | last, definition) }}
+    {% else %}
+  default = {{ h.default_value(component[name], definition) }}
+    {% endif %}
   {% endif %}
-}{{ caller() }}
+}
+{% elif template_data.build_type == 'plan' and template_data.render_type == 'variables' and component[name] != '_key_' %}
+{{ h.variable_name(key, name) }} = {{ h.default_value(component[name], definition) }}
+{% endif %}
+{{ caller() }}
 {% endmacro %}
 
 
-{%- macro render_arguments(key, component, parent_key) %}
-{% set dbl = '${' -%}
+{%- macro render_arguments(key, component, parent_key, template_data) %}
 
-{{ h.data_type(key) }} "{{ key.split('/')[1] }}" "{{ key.split('/') | last }}" {
-  {% if component.definition.arguments is defined %}
-    {% for name, definition in component.definition.arguments.iteritems() %}
-      {% if definition.reference_from is defined and parent_key.split('/') | length > 1 and definition.reference_from[parent_key.split('/')[1]] %}
-  {{ name }} = "{{ dbl }}{{ h.variable_name(parent_key, definition.reference_from[parent_key.split('/')[1]], 'argument') }}}"
-      {% elif definition.required and component.arguments[name] is not defined %}
-  {{ name }} = "${var.{{ h.variable_name(key, name) }}}"
-      {% elif component.arguments[name] is defined %}
-        {% if component.arguments[name] is mapping %}
-  {{ name }} = {{ h.default_value(component.arguments[name], definition) }}
-        {% elif component.arguments[name] is string %}
-          {% if (component.arguments[name].startswith('data_sources') or component.arguments[name].startswith('resources')) and definition.reference_from[component.arguments[name].split('/')[1]] %}
-  {{ name }} = "{{ dbl }}{{ h.variable_name(component.arguments[name], definition.reference_from[component.arguments[name].split('/')[1]], 'argument') }}}"
-          {% else %}
-  {{ name }} = {{ h.default_value(component.arguments[name], definition) }}
-          {% endif %}
-        {% elif component.arguments[name][0] is not mapping and (component.arguments[name][0].startswith('data_sources') or component.arguments[name][0].startswith('resources')) %}
-  {{ name }} = ["{{ dbl }}{{ h.variable_name(component.arguments[name][0], definition.reference_from[component.arguments[name][0].split('/')[1]], 'argument') }}}"]
-        {% else %}
-  {{ name }} = {{ h.default_value(component.arguments[name], definition) }}
-        {% endif %}
+{{ h.data_type(key) }} "{{ key.split('/')[1] }}"
+  {%- if key.split('/') | first != 'providers' %} "{{ key.split('/') | last }}"{% endif %} {
+  {# Handle rendering module vars when generating the plan; TODO: if value is a reference then load the resource to get the reference_from value #}
+  {% if key.split('/') | first == 'modules' %}
+    {% for name, value in component.iteritems() %}
+      {% if name == 'source' %}
+  source = "{{ '../' * ((template_data.terraplate.plan.target_dir.split('/') | length | int) -1) }}{{ value }}"
+      {% else %}
+  {{ name }} = {{ h.default_value(value, {}) }}
       {% endif %}
     {% endfor %}
+  {% else %}
+  {% for name, definition in (component._definition.arguments | default({})).iteritems() %}
+    {% call render_arguments_r(key, component, parent_key, name, definition, template_data) %}{% endcall %}
+  {% endfor %}
+  {% for key, value in (component.provisioners | default({})).iteritems() %}
+  provisioner "{{ key }}" {
+    {% for key, value in value.iteritems() %}
+    {{ key }} = "{{ value }}"
+    {% endfor %}
+  }
+  {% endfor %}
   {% endif %}
 }
 {{ caller() }}
 {%- endmacro %}
 
 
-{%- macro render_attributes(key, component, parent_key) -%}
-{% set dbl = '${' -%}
-  {% if component.definition.attributes is defined %}
-    {% for name, definition in component.definition.attributes.iteritems() %}
+{%- macro render_arguments_r(key, component, parent_key, name, definition, template_data) %}
+  {% set dbl = '${' %}
+  {%- if definition.arguments is defined %}
+    {% if definition.type is defined and definition.type == 'list_to_map' %}
+      {% for item in component[name] %}
+  {{ name }} = {{ h.default_value(item, definition) }}
+      {% endfor %}
+    {% else %}
+  {{ name }} = {
+      {% for sub_name, definition in definition.arguments.iteritems() %}
+        {% call render_arguments_r(key + '_' + name, component[name] | default({}), parent_key, sub_name, definition, template_data) %}{% endcall %}
+      {% endfor %}
+  }
+    {% endif %}
+  {% else %}
+    {% set definition = {'type': 'string', 'required': False, 'description': 'not found', 'reference_from': {}} | combine(definition, recursive=True) %}
+    {% if component[name] is not defined %}
+      {% if definition.reference_from | length > 0 and parent_key.split('/') | length > 1 and definition.reference_from[parent_key.split('/')[1]] %}
+  {{ name }} = "{{ dbl }}{{ h.variable_name(parent_key, definition.reference_from[parent_key.split('/')[1]], 'argument') }}}"
+      {% elif definition.required or (definition.variable is defined and definition.variable) %}
+  {{ name }} = "${var.{{ h.variable_name(key, name) }}}"
+      {% endif %}
+    {% else %}
+      {% if component[name] is string and (component[name].startswith('resource') or component[name].startswith('data_source')) %}
+  {{ name }} = {{ h.default_value(component[name], definition) }}
+      {% elif definition.variable is defined and definition.variable %}
+  {{ name }} = "${var.{{ h.variable_name(key, name) }}}"
+      {% elif component[name] == '_key_' %}
+        {% if template_data.build_type == 'module' %}
+  {{ name }} = "${var.{{ h.variable_name(key, name) }}}"
+        {% elif template_data.build_type == 'plan' %}
+  {{ name }} = "{{ key.split('/') | last }}"
+        {% endif %}
+      {% else %}
+  {{ name }} = {{ h.default_value(component[name], definition) }}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{{ caller() }}
+{%- endmacro %}
+
+
+{%- macro render_attributes(key, component, parent_key, template_data) -%}
+  {% set default_definition = {'required': False, 'description': 'not found', 'variable': False, 'reference_from': {}} %}
+  {% set dbl = '${' -%}
+  {% if component._definition.attributes is defined %}
+    {% for name, definition in component._definition.attributes.iteritems() %}
+      {% set definition = default_definition | combine(definition, recursive=True) %}
       {% if definition.required %}
 
 output "{{ h.variable_name(key, name) }}" {

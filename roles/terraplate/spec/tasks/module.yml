@@ -7,7 +7,4 @@
     name: module_spec
 
 - set_fact:
-    spec: "{{ {'terraplate': {'dirs': m1, 'module': module_vars, 'plan': {}}} | combine(module_spec) }}"
-    # spec: "{{ spec | default({}) | combine({'manifest': {'modules/' + module_source_type: module_spec}}) | combine(d0, recursive=True) | combine(d1, recursive=True) | combine(d2, recursive=True) }}"
-
-- debug: var=spec
+    spec: "{{ {'terraplate': {'dirs': m1, 'module': module_vars, 'plan': {}}} | combine({'components': module_spec}) }}"

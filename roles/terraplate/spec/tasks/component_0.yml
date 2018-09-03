@@ -1,5 +1,6 @@
 ---
-- include_role:
+- name: component_0 including spec/component
+  include_role:
     name: terraplate/spec/component
   vars:
     component: '{{ component_0 }}'
@@ -11,7 +12,8 @@
     spec: "{{ spec | combine({'user': {component_0.key: user_artifact}}, recursive=True) }}"
   when: build_type == 'config'
 
-- include_tasks: component_1.yml
+- name: component_0 including component_1
+  include_tasks: component_1.yml
   with_dict: '{{ component_0.value.components }}'
   loop_control:
     loop_var: component_1

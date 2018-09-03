@@ -1,6 +1,18 @@
 ---
 - prompt:
     msg:
-      say: Module name
+      say: Module name (module_name)
       ask: module_name
-      default: "{{ module | default('terraplate-aws-compute') }}"
+      default: '{{ module_name }}'
+
+- include_tasks: debug.yml
+  vars:
+    debug_items: [module_sources]
+
+- name: show first existing file
+  set_fact:
+    module_source_dir: "{{ lookup('first_found', module_sources).split('/')[0:-2] | join('/') }}"
+
+- include_tasks: debug.yml
+  vars:
+    debug_items: [module_source_dir, module_vars]

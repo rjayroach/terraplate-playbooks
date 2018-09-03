@@ -1,0 +1,10 @@
+---
+- name: 'debug vars'
+  debug:
+    var: '{{ debug_item }}'
+    verbosity: 0
+  with_items: '{{ debug_items }}'
+  loop_control:
+    loop_var: debug_item
+  when: terraplate is defined and terraplate.debug_vars is defined
+  # when: spec.terraplate.user.debug_vars is defined

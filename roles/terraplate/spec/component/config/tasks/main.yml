@@ -2,35 +2,25 @@
 - set_fact:
     user_artifact: {}
 
-- name: '{{ component_role }}: ^^^^^ BEGIN USER COMPONENT ^^^^^'
-  debug:
-    var: '{{ debug_item }}'
-  with_items: [component, reference_component, user_component, reference_component_q]
-  loop_control:
-    loop_var: debug_item
-  when: debug_vars is defined
+- name: '^^^^^ BEGIN USER PROMPT ^^^^^ {{ component_role }}'
+  include_role:
+    name: terraplate/spec
+    tasks_from: debug
+  vars:
+    debug_items: [component, reference_component]
 
-- name: Set values on component variables
+- name: Set values on component elements that are either required or variables
   include_tasks: prompt.yml
   vars:
-    question_type: variables
-    default: "{{ user_component.variables[question.key] | default(reference_component_q.variables[question.key]) | default('') }}"
-  with_dict: '{{ reference_component.definition.variables | default({}) }}'
+    default: "{{ component.value[question.key] | default('') }}"
+  with_dict: '{{ reference_component._definition.arguments | default({}) }}'
   loop_control:
     loop_var: question
-  when: user_component.metadata.prompt is not defined or user_component.metadata.prompt
+  when: question.value.required is defined or question.value.variable is defined
 
-- name: Set values on component arguments
-  include_tasks: prompt.yml
+- name: '^^^^^ END USER PROMPT ^^^^^ {{ component_role }}'
+  include_role:
+    name: terraplate/spec
+    tasks_from: debug
   vars:
-    question_type: variables
-    default: "{{ user_component.arguments[question.key] | default(reference_component_q.arguments[question.key]) | default('') }}"
-  with_dict: '{{ reference_component.definition.arguments | default({}) }}'
-  loop_control:
-    loop_var: question
-  when: module_component_x.metadata.prompt is not defined or module_component_x.metadata.prompt
-
-- name: '{{ component_role }} ^^^^^ END USER COMPONENT ^^^^^'
-  debug:
-    msg: '{{ user_artifact }}'
-  when: debug_vars is defined
+    debug_items: [user_artifact]
