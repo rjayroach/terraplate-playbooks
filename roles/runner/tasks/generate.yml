@@ -1,0 +1,43 @@
+---
+- set_fact:
+    build_type: '{{ arg_2 }}'
+  when: arg_2 is defined
+
+# - name: Fail unless the component name is properly formatted
+#   fail:
+#     msg: "'component' must be in format application_name/component_name"
+#   when: spec.application.name | length == 0
+
+- name: Prompt for the build_type if it has not been supplied
+  prompt:
+    msg:
+      say: Build Type (module, config or plan)
+      ask: build_type
+      default: "{{ role_spec.build_type | default('') }}"
+  when: build_type is not defined
+
+- include_role:
+    name: terraplate/spec
+
+- debug: var=role_spec
+- debug: var=spec
+# - meta: end_play
+
+- set_fact:
+    render_components: '{{ spec.references | combine(spec.components, recursive=True) | combine(spec.user | default({}), recursive=True) }}'
+
+# - set_fact:
+#     spec: "{{ spec | combine({'render': render}, recursive=True) }}"
+
+# - set_fact:
+#     spec: "{{ spec | combine({'render': (spec.references | combine(spec.components, recursive=True))}, recursive=True) }}"
+
+- debug:
+    var: spec
+  when: spec.terraplate.user.debug_vars is defined
+
+- debug: var=render_components
+  when: spec.terraplate.user.debug_vars is defined
+
+- name: 'Generate the {{ build_type }}'
+  include_tasks: '{{ module_action }}-{{ build_type }}.yml'

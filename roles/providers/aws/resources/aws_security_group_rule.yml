@@ -1,9 +1,5 @@
 ---
-metadata:
-  type: aws_security_group_rule
-  description: Create a security group rule
-
-definition:
+_definition:
   arguments:
     type:
       description: Ingress or Egress rule
@@ -19,11 +15,9 @@ definition:
       required: yes
     cidr_blocks:
       description: The CIDR block
-      required: no
       type: list
     source_security_group_id:
       description: The Security Group
-      required: no
     security_group_id:
       description: The id of the security group
       required: yes
@@ -35,8 +29,7 @@ definition:
       description: The id of the created rule
       required: yes
 
-arguments:
-  type: ingress
-  from_port: '0'
-  to_port: '0'
-  protocol: tcp
+type: ingress
+from_port: '0'
+to_port: '0'
+protocol: tcp

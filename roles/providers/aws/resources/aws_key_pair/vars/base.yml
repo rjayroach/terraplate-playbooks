@@ -1,28 +1,17 @@
 ---
-metadata:
-  type: aws_key_pair
-  description: This resource creates an existing user-supplied key pair
-
-parents: {}
-
-defaults:
-  arguments:
-    public_key: ${file("${var.key_path}/${var.public_key_name}")}
-  variables:
-    public_key_name:
-    key_path:
-
-definition:
+_definition:
   arguments:
     key_name:
-      description: The name of the key pair to create
+      description: The name for the key pair
       required: no
     public_key:
       description: The public key material
       required: yes
 
   variables:
-    public_key_name:
-      description: The name of the key pair to create
     key_path:
       description: The path to the public key contents
+      required: yes
+
+key_name: "{{ component.value.key_name | default(component.key.split('/')[2]) }}" #_key_
+public_key: '${file("${var.aws_key_pair_{{ component.key.split("/")[2] }}_key_path}/{{ component.value.key_name | default(component.key.split("/")[2]) }}.pub")}'

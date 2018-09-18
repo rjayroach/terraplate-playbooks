@@ -1,0 +1,14 @@
+---
+- set_fact:
+    module_action: '{{ arg_1 }}'
+  when: arg_1 is defined
+
+- prompt:
+    msg:
+      say: Action (new, generate or destroy)
+      ask: module_action
+      default: '{{ role_spec.module_action }}'
+  when: module_action is not defined
+
+- name: "Run the '{{ module_action }}' tasks"
+  include_tasks: '{{ module_action }}.yml'

@@ -1,34 +1,39 @@
 ---
-metadata:
+_metadata:
   description: Create an ENV file used be ember-cli-deploy
-  template:
-    file_name: bucket_env
-    description: Create an ENV file used be ember-cli-deploy
+  template: vars-to-env
 
-definition:
+_definition:
   arguments:
     vars:
       arguments:
         api_url:
-          description: "The remote url that serves the application's backend API"
+          description: The remote url that serves the application's backend API
           required: yes
+          variable: no
         aws_access_key_id:
           description: The access key description
           required: yes
+          variable: no
           reference_from:
             aws_iam_access_key: id
         aws_secret_access_key:
           description: SECRET KEY description
           required: yes
+          variable: no
           reference_from:
             aws_iam_access_key: secret
         bucket:
           description: The name of the S3 bucket to which the application will be deployed
           required: yes
+          variable: no
           reference_from:
             aws_s3_bucket: id
         region:
           description: description
           required: yes
+          variable: no
           reference_from:
             aws_s3_bucket: region
+
+template: ${file("${path.module}/vars-to-env")}

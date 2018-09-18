@@ -1,9 +1,5 @@
 ---
-metadata:
-  type: aws_ami
-  description: Use this data source to get the ID of a registered AMI for use in other resources.
-
-definition:
+_definition:
   arguments:
     most_recent:
       description: "If more than one result is returned, use the most recent AMI."
@@ -14,9 +10,8 @@ definition:
       required: no
     filter:
       description: "One or more name/value pairs to filter off of. There are several valid keys, for a full reference, check out describe-images in the AWS CLI reference."
-      multi: yes
       required: no
-      type: map
+      type: list_to_map
       arguments:
         name:
           description: name of filter type
@@ -24,7 +19,6 @@ definition:
         values:
           description: value of filter type
           required: no
-          type: list
     owners:
       description: "Limit search to specific AMI owners. Valid items are the numeric account ID, amazon, or self."
       type: list
@@ -33,7 +27,7 @@ definition:
       description: "A regex string to apply to the AMI list returned by AWS. This allows more advanced filtering not supported from the AWS API. This filtering is done locally on what AWS returns, and could have a performance impact if the result is large. It is recommended to combine this with other options to narrow down the list AWS returns."
       required: no
   
-  x_attributes:
+  attributes:
     architecture:
       description: "The OS architecture of the AMI (ie: i386 or x86_64)."
     id:
@@ -42,6 +36,3 @@ definition:
       description: The ID of the AMI. Should be the same as the resource id.
     owner_id:
       description: The AWS account ID of the image owner.
-
-arguments:
-  most_recent: 'true'

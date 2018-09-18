@@ -1,0 +1,18 @@
+---
+_definition:
+  arguments:
+    name:
+      description: The FQDN of the host
+      required: yes
+      value_from: _key_
+    type:
+      description: 'The type of DNS record: A, CNAME, etc'
+      required: yes
+    zone_id:
+      description: The zone_id of the domain in which this record is created
+      required: yes
+      reference_from:
+        aws_route53_zone: zone_id
+        terraform_remote_state: "aws_route53_zone_{{ component.value.zone_id.split('/') | last if component.value.zone_id is defined else '' }}_zone_id"
+
+type: 'A'

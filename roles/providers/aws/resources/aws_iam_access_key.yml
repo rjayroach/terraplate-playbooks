@@ -1,16 +1,9 @@
 ---
-metadata:
+_metadata:
   type: aws_iam_access_key
   description: Provides an IAM access key. This is a set of credentials that allow API requests to be made as an IAM user
 
-parents:
-  aws_iam_user:
-    arguments:
-      user: ${aws_iam_user._name_.name}
-
-defaults: {}
-
-definition:
+_definition:
   arguments:
     user:
       description: The IAM user to associate with this access key

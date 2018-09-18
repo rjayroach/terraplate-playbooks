@@ -1,18 +1,21 @@
 ---
-metadata:
-  description: Create a repository and add a git remote origin
-  dependencies: []
+resources/github_repository/repo:
+  _definition:
+    arguments:
+      description:
+        variable: yes
+      private:
+        variable: yes
+  description: 'none'
+  private: 'false'
 
-components:
-  providers/github/default:
+resources/null_resource/repository:
+  _definition:
     variables:
-      name:
-
-  resources/github_repository/repo:
-    variables:
-      name:
-
-  resources/null_resource/repository:
-    provisioners:
-      local-exec:
-        command: git remote add origin ${github_repository.ssh_url}
+      path:
+        description: The directory of the github repository to add the remote to
+  triggers:
+    repository_id: "${github_repository.repo.id}"
+  provisioners:
+    local-exec:
+      command: 'cd ${var.null_resource_repository_path} && git remote add origin ${github_repository.repo.ssh_clone_url}'

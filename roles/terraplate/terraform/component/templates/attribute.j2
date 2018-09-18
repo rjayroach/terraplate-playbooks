@@ -12,3 +12,7 @@ output "{{ template_data.artifact.full_name }}_{{ name }}" {
 }
   {% endif %}
 {% endmacro %}
+
+{% for name, definition in artifact_definition.attributes.iteritems() %}
+{{ entry(name, definition, artifact.attributes[name] | default(''), template_data) }}
+{% endfor %}

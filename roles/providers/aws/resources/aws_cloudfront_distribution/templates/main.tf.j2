@@ -1,62 +1,59 @@
-# Creates a cloudfront distribution
-
-
-resource "aws_cloudfront_distribution" "s3_distribution" {
+resource "aws_cloudfront_distribution" "{{ component.key.split('/')[2] }}" {
+  // origin is where CloudFront gets its content from.
   origin {
-    domain_name = "${aws_s3_bucket.b.bucket_domain_name}"
-    origin_id   = "myS3Origin"
-
-    s3_origin_config {
-      origin_access_identity = "origin-access-identity/cloudfront/ABCDEFG1234567"
+    // We need to set up a "custom" origin because otherwise CloudFront won't
+    // redirect traffic from the root domain to the www domain, that is from
+    // runatlantis.io to www.runatlantis.io.
+    custom_origin_config {
+      // These are all the defaults.
+      http_port              = "80"
+      https_port             = "443"
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
     }
+
+    // Here we're using our S3 bucket's URL!
+    domain_name = "${aws_s3_bucket.www.website_endpoint}"
+    // This can be any name to identify this origin.
+    origin_id   = "${var.www_domain_name}"
   }
 
   enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Some comment"
   default_root_object = "index.html"
 
-  logging_config {
-    include_cookies = false
-    bucket          = "mylogs.s3.amazonaws.com"
-    prefix          = "myprefix"
-  }
-
-  aliases = ["mysite.example.com", "yoursite.example.com"]
-
+  // All values are defaults from the AWS console.
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "myS3Origin"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    // This needs to match the rigin_idabove.
+    target_origin_id       = "${var.www_domain_name}"
+    min_ttl                = 0
+    default_ttl            = 86400
+    max_ttl                = 31536000
 
     forwarded_values {
       query_string = false
-
       cookies {
         forward = "none"
       }
     }
-
-    viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
   }
 
-  price_class = "PriceClass_200"
+  // Here we're ensuring we can hit this distribution using www.runatlantis.io
+  // rather than the domain name CloudFront gives us.
+  aliases = ["${var.www_domain_name}"]
 
   restrictions {
     geo_restriction {
-      restriction_type = "whitelist"
-      locations        = ["US", "CA", "GB", "DE"]
+      restriction_type = "none"
     }
   }
 
-  tags {
-    Environment = "production"
-  }
-
+  // Here's where our certificate is loaded in!
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = "${aws_acm_certificate.certificate.arn}"
+    ssl_support_method  = "sni-only"
   }
 }

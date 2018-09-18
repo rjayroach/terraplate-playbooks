@@ -1,0 +1,16 @@
+---
+_definition:
+  arguments:
+    region:
+      description: The region that the Floating IP is reserved to.
+      required: yes
+      reference_from:
+        digitalocean_droplet: region
+    droplet_id:
+      description: The ID of Droplet that the Floating IP will be assigned to.
+      reference_from:
+        digitalocean_droplet: id
+  attributes:
+    ip_address:
+      description: The IP Address of the resource
+      required: yes

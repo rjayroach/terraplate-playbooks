@@ -1,9 +1,5 @@
 ---
-metadata:
-  type: aws_vpc
-  description: provides details about a specific VPC.
-
-definition:
+_definition:
   arguments:
     default:
       description: Boolean constraint on whether the desired VPC is the default VPC for the region.

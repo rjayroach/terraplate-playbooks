@@ -3,34 +3,32 @@ metadata:
   type: aws_elb
   description: 'Provides an Elastic Load Balancer resource, also known as a "Classic Load Balancer"'
 
-parents: {}
+arguments:
+  health_check:
+    target: 'TCP:3000'
+    # description: The protocol:port instances respond to keep alive traffic from the ELB
+    healthy_threshold: 10
+    # description: The number of keep-alives the instance must respond to to be considered healthy
+    unhealthy_threshold: 2
+    # description: The number of keep-alives the instance must fail to respond to to be considered unhealthy
+    timeout: 
+    # description: The number of seconds the instance has to respond to keep-alives to be considered healthy
+    interval: 30
+    # description: The duration in seconds the instance is sent keep-alives
+  listener:
+    instance_port: 3000
+    # description: The port instances listen for traffic from the ELB
+    instance_protocol: http
+    # description: The protocol instances listen for traffic from the ELB
+    lb_port: 443
+    # description: The port the ELB listens for traffic from the originator
+    lb_protocol: https
+    # description: The protocol the ELB listens for traffic from the originator
+    ssl_certificate_id: ${var.listener_ssl_certificate_id}
+    # description: The IAM certificate arn
 
-defaults:
-  arguments:
-    health_check:
-      target: 'TCP:3000'
-      # description: The protocol:port instances respond to keep alive traffic from the ELB
-      healthy_threshold: 10
-      # description: The number of keep-alives the instance must respond to to be considered healthy
-      unhealthy_threshold: 2
-      # description: The number of keep-alives the instance must fail to respond to to be considered unhealthy
-      timeout: 
-      # description: The number of seconds the instance has to respond to keep-alives to be considered healthy
-      interval: 30
-      # description: The duration in seconds the instance is sent keep-alives
-    listener:
-      instance_port: 3000
-      # description: The port instances listen for traffic from the ELB
-      instance_protocol: http
-      # description: The protocol instances listen for traffic from the ELB
-      lb_port: 443
-      # description: The port the ELB listens for traffic from the originator
-      lb_protocol: https
-      # description: The protocol the ELB listens for traffic from the originator
-      ssl_certificate_id: ${var.listener_ssl_certificate_id}
-      # description: The IAM certificate arn
-  variables:
-    listener_ssl_certificate_id:
+variables:
+  listener_ssl_certificate_id:
 
 definition:
   arguments:
@@ -80,10 +78,14 @@ definition:
       required: no
     security_groups:
       description: List of Security Group IDs to attach to the ELB
+      reference_from:
+        aws_security_group: id
       required: no
       type: list
     subnets:
       description: List of subnet IDs to attach to the ELB
+      reference_from:
+        aws_subnet: id
       required: no
       type: list
   

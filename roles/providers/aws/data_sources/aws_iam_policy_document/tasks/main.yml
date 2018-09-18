@@ -1,14 +1,19 @@
 ---
 - include_vars:
-    file: main_artifact.yml
-    name: main_artifact
+    file: base.yml
+    name: base_vars
 
 - include_vars:
-    file: '{{ profile }}.yml'
-    name: profile_artifact
+    file: '{{ metadata.profile }}.yml'
+    name: profile_vars
 
 - set_fact:
-    loaded_artifact: '{{ main_artifact | combine(profile_artifact, recursive=True) }}'
+    loaded_artifact: '{{ base_vars | combine(profile_vars, recursive=True) }}'
 
-- set_fact:
-    template_content: "{{ lookup('template', profile + '.tf.j2') }}"
+- file:
+    path: '{{ spec.terraplate[build_type].target_dir }}'
+    state: directory
+
+- template:
+    src: "{{ metadata.profile }}.tf.j2"
+    dest: '{{ spec.terraplate[build_type].target_dir }}/{{ metadata.profile.split("/") | last }}.tf' 

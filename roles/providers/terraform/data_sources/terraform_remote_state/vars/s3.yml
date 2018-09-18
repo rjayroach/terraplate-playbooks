@@ -1,0 +1,16 @@
+---
+_definition:
+  arguments:
+    config:
+      bucket:
+        description: description
+        required: yes
+      key:
+        description: description
+        required: yes
+      region:
+        description: description
+        required: yes
+
+backend: s3
+config: "{{ terraplate.remote_state | combine({'key': component.key.split('/') | last | replace('_', '/') + '/terraform.tfstate'}) }}"

@@ -1,29 +1,14 @@
 ---
-metadata:
-  type: aws_route53_record
-  description: Provides a Route53 record resource.
-
-definition:
+_definition:
   arguments:
-    name:
-      description: The FQDN of the host
-      required: yes
     records:
       description: The resource records
       required: yes
       type: list
+      reference_from:
+        aws_eip: public_ip
     ttl:
       description: The TTL of the DNS record cache
       required: yes
-    type:
-      description: 'The type of DNS record: A, CNAME, etc'
-      required: yes
-    zone_id:
-      description: The zone_id of the domain in which this record is created
-      required: yes
-      reference_from:
-        aws_route53_zone: zone_id
 
-arguments:
-  ttl: 300
-  type: 'A'
+ttl: '300'

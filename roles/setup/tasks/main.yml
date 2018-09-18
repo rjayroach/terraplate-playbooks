@@ -1,0 +1,41 @@
+---
+- include_role:
+    name: prepd-cli/prompt
+  vars:
+    role_config:
+      remote_state_bucket: ''
+      dynamodb_table: ''
+      aws_region: ''
+    label: terraplate
+
+# - debug: var=spec
+# - debug: var=role_spec
+
+- include_tasks: '{{ ansible_os_family | lower }}.yml'
+
+- name: Generate a terraformrc file in the home directory
+  copy:
+    content: "plugin_cache_dir = \"$HOME/.terraform.d/plugin-cache\"\n"
+    dest: '{{ ansible_env.HOME }}/.terraformrc'
+
+- name: 'Template config to {{ cli_vars_dir }}/terraplate.yml'
+  template:
+    src: cli.yml.j2
+    dest: '{{ cli_vars_dir }}/terraplate.yml'
+
+- name: Create project directory structure
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - '{{ playbook_dir }}/terraform/plans'
+
+- name: "Template .gitignore to the project's terraform directory"
+  template:
+    src: terraform/gitignore.j2
+    dest: '{{ playbook_dir }}/terraform/.gitignore'
+
+- name: Template the project terraform.tfvars file
+  template:
+    src: terraform/tfvars.j2
+    dest: '{{ playbook_dir }}/terraform/plans/terraform.tfvars'

@@ -1,13 +1,5 @@
 ---
-metadata:
-  type: aws_acm_certificate
-  description: The ACM certificate resource allows requesting and management of certificates from the Amazon Certificate Manager.
-
-parents: {}
-
-defaults: {}
-
-definition:
+_definition:
   arguments:
     domain_name:
       description: A domain name for which the certificate should be issued
@@ -22,6 +14,7 @@ definition:
     tags:
       description: A mapping of tags to assign to the resource.
       required: no
+      type: map
  
   attributes:
     arn:

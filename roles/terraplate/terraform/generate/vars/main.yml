@@ -1,0 +1,5 @@
+---
+spec:
+  terraplate:
+    module:
+      dir: 'terraform/x-modules/{{ namespace }}-{{ module_name }}'

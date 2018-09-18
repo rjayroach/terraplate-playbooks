@@ -1,17 +1,14 @@
 ---
-metadata:
+_metadata:
   type: aws_iam_user
   description: Provides an IAM user
 
-parents: {}
-
-defaults: {}
-
-definition:
+_definition:
   arguments:
     name:
       description: 'The users name. The name must consist of upper and lowercase alphanumeric characters with no spaces. You can also include any of the following characters: =,.@-_.. User names are not distinguished by case. For example, you cannot create users named both "TESTUSER" and "testuser".'
       required: yes
+      value_from: _key_
     path:
       description: '(default "/") Path in which to create the user.'
       required: no

@@ -1,0 +1,16 @@
+---
+- include_vars:
+    file: base.yml
+    name: base_vars
+
+# - include_vars:
+#     file: '{{ metadata.profile }}.yml'
+#     name: profile_vars
+
+- set_fact:
+    # loaded_artifact: '{{ base_vars | combine(profile_vars | default({}), recursive=True) }}'
+    loaded_artifact: '{{ base_vars }}'
+
+# - template:
+#     src: "{{ metadata.profile }}.json.j2"
+#     dest: '{{ spec.terraplate[build_type].target_dir }}/{{ metadata.profile.split("/") | last }}.json' 

@@ -1,28 +1,12 @@
 ---
-metadata:
-  type: template_file
-  description: Renders a template from a file.
-  attribute_prefix: data.
-
-parents: {}
-
-defaults:
-  arguments:
-    template: ${file("{{ profile_artifact.metadata.template.file_name }}")}
-
-definition:
+_definition:
   arguments:
     template:
       description: The contents of the template. These can be loaded from a file on disk using the file() interpolation function.
       required: yes
+      variable: no
     vars:
       description: Variables for interpolation within the template. Note that variables must all be primitives. Direct references to lists or maps will cause a validation error.
       required: yes
+      variable: no
       type: map
-  variables:
-    path:
-      required: yes
-      description: path to the target file on the local file system
-    name:
-      required: yes
-      description: name of the target file to which the template contents are written

@@ -1,13 +1,9 @@
 ---
-metadata:
-  type: aws_instance
-  description: Provides an EC2 instance resource. This allows instances to be created, updated, and deleted. Instances also support provisioning.
-
-arguments:
+# arguments:
   # ami: ${lookup(var.amis, var.region)}
   # associate_public_ip_address: 'true'
   # ebs_optimized: 'false'
-  instance_type: t2.micro
+instance_type: t2.micro
   # monitoring: 'false'
   # root_block_device:
   #   volume_type: gp2
@@ -19,13 +15,13 @@ arguments:
   # private_ips:
   # public_ip:
 
-definition:
-  variables:
-    amis:
-      description: Hash of amis per region
-      required: no
-      type: map
-      arguments: {}
+_definition:
+  # variables:
+  #   amis:
+  #     description: Hash of amis per region
+  #     required: no
+  #     type: map
+  #     arguments: {}
 
   arguments:
     ami:

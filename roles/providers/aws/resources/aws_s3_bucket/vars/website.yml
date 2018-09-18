@@ -1,27 +1,32 @@
 ---
-defaults:
-  arguments:
-    acl: public-read
-    force_destroy: 'true'
-    website:
-      index_document: index.html
-      error_document: index.html
+acl: public-read
+force_destroy: 'true'
 
-definition:
+_definition:
   arguments:
+    force_destroy:
+      variable: yes
     website:
+      description: test
       type: map
       required: yes
       arguments:
         index_document:
-          required: yes
+          description: (Required, unless using redirect_all_requests_to) Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders.
+          required: no
+          # variable: yes
         error_document:
-          required: yes
+          description: An absolute path to the document to return in case of a 4XX error.
+          required: no
+          # variable: yes
+        redirect_all_requests_to:
+          description: A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (http:// or https://) to use when redirecting requests. The default is the protocol that is used in the original request.
+          required: no
 
   attributes:
     website_domain:
       description: The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string. This is used to create Route 53 alias records.
-      required: yes
+      # required: yes
     website_endpoint:
       description: The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
-      required: yes
+      # required: yes

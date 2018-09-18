@@ -1,24 +1,16 @@
 ---
-metadata:
-  type: aws_security_group
-  description: Create a Security Group for a VPC
-
-definition:
+_definition:
   arguments:
     description:
       description: "The security group description. Defaults to 'Managed by Terraform'"
-      required: no
     name:
       description: The name of the security group. If omitted, Terraform will assign a random, unique name
-      required: no
     tags:
       description: A mapping of tags to assign to the resource
-      required: no
       type: map
       arguments: {}
     vpc_id:
       description: The id of the vpc
-      required: no
       reference_from:
         aws_vpc: id
 

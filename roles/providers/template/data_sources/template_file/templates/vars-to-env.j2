@@ -1,0 +1,9 @@
+#jinja2: lstrip_blocks: True
+{% set dbl = '${' %}
+{% for key, definition in loaded_artifact._definition.arguments.vars.arguments.iteritems() %}
+  {% if component.value.vars[key] is not defined %}
+# ERROR on {{ key }}
+  {% else %}
+{{ key | upper }}={{ dbl }}{{ key }}}
+  {% endif %}
+{% endfor %}

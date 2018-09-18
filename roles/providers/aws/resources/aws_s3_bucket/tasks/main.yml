@@ -1,11 +1,11 @@
 ---
 - include_vars:
     file: main_artifact.yml
-    name: main_artifact
+    name: base_vars
 
 - include_vars:
-    file: '{{ profile }}.yml'
-    name: profile_artifact
+    file: '{{ metadata.profile }}.yml'
+    name: profile_vars
 
 - set_fact:
-    loaded_artifact: '{{ main_artifact | combine(profile_artifact, recursive=True) }}'
+    loaded_artifact: '{{ base_vars | combine(profile_vars, recursive=True) }}'

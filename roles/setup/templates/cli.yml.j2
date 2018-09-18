@@ -1,0 +1,27 @@
+#jinja2: lstrip_blocks: True
+{% set dbl = '{{' %}
+---
+commands:
+  terraplate: terraplate
+
+config:
+  terraplate:
+    module_action: generate
+    build_type: plan
+
+    debug_vars: yes
+    debug_templates: no
+    encrypt_plan_vars: yes
+  
+    # TOOD: confirm if these vars are still used in roles
+    # root_dir: '{{ dbl }} inventory_dir }}/terraform'
+    # vars_dir: '{{ dbl }} inventory_dir }}/terraform'
+    # vars_path: '../..'
+    # tfvars_file: '.variables.tfvars'
+  
+    remote_state:
+      # Example of segmenting terraform remote state buckets by environment if preferred:
+      # bucket: '{{ dbl }} config.globals.remote_state_name }}-{{ dbl }} terraplate.env.tld }}'
+      bucket: {{ role_spec.remote_state_bucket }}
+      dynamodb_table: {{ role_spec.dynamodb_table }}
+      region: {{ role_spec.aws_region }}

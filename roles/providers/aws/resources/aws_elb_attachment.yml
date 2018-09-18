@@ -3,25 +3,15 @@ metadata:
   type: aws_elb_attachment
   description: Provides an Elastic Load Balancer Attachment resource.
 
-parents:
-  aws_elb:
-    arguments:
-      elb: ${aws_elb._name_.id}
-  aws_instance:
-    arguments:
-      instance: ${aws_instance._name_.id}
-
-defaults: {}
-
 definition:
   arguments:
     elb:
       description: The name of the ELB.
-      required: yes
       reference_from:
         aws_elb: id
+      required: yes
     instance:
       description: Instance ID to place in the ELB pool.
-      required: yes
       reference_from:
         aws_instance: id
+      required: yes

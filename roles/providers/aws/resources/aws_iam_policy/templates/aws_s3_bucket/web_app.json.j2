@@ -1,0 +1,36 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:PutObjectACL"
+      ],
+      "Effect": "Allow",
+      "Sid": "Stmt1EmberCLIS3DeployPolicy",
+      "Resource": ["arn:aws:s3:::{{ component.value._metadata.aws_s3_bucket_name }}/*"],
+      "Principal": { "AWS": ["{{ component.value._metadata.aws_iam_user_arn }}"] }
+    }
+
+{% if component.value._metadata.cidr_blocks != "0.0.0.0/0" %}
+    ,{
+      "Effect": "Deny",
+      "Sid": "IPDeny",
+      "Action": ["s3:*"],
+      "Resource": ["arn:aws:s3:::{{ component.value._metadata.aws_s3_bucket_name }}/*"],
+      "Principal": { "AWS": ["*"] },
+      "Condition": {
+        "Test": "IpAddress",
+        "Variable": "aws:SourceIp",
+        "Value": ["0.0.0.0/0"]
+      },
+      "Condition": {
+        "Test": "NotIpAddress",
+        "Variable": "aws:SourceIp",
+        "Value": ["{{ component.value._metadata.cidr_blocks }}"]
+      }
+    }
+{% endif %}
+  ]
+}

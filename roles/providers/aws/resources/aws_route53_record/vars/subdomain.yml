@@ -1,13 +1,20 @@
 ---
-metadata:
-  type: aws_route53_record
-  description: Provides a Route53 record resource.
+_definition:
+  arguments:
+    records:
+      description: The resource records
+      required: yes
+      type: list
+      reference_from:
+        aws_eip: public_ip
+    ttl:
+      description: The TTL of the DNS record cache
+      required: yes
 
-arguments:
-  type: 'NS'
-  # ttl: 172800
-  records:
-    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.0}"
-    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.1}"
-    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.2}"
-    - "${aws_route53_zone.{{ component.value.metadata.subdomain_metadata_name }}.name_servers.3}"
+type: 'NS'
+ttl: '300' # '172800'
+records:
+  - "${aws_route53_zone.{{ component.value.subdomain.split('/') | last }}.name_servers.0}"
+  - "${aws_route53_zone.{{ component.value.subdomain.split('/') | last }}.name_servers.1}"
+  - "${aws_route53_zone.{{ component.value.subdomain.split('/') | last }}.name_servers.2}"
+  - "${aws_route53_zone.{{ component.value.subdomain.split('/') | last }}.name_servers.3}"

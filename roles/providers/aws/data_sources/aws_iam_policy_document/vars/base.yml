@@ -1,15 +1,48 @@
-# NOTE: Provided as the base reference_artifact
 ---
-metadata:
-  type: aws_iam_policy_document
-  description: Generates an IAM policy document in JSON format.
-  attribute_prefix: data.
-  
-parents: {}
-  
-defaults: {}
+_metadata:
+  skip_render: yes
 
-definition:
+_definition:
+  arguments:
+    policy_id:
+      description: An ID for the policy document.
+      required: no
+    source_json:
+      description: An IAM policy document to import as a base for the current policy document. Statements with non-blank sids in the current policy document will overwrite statements with the same sid in the source json. Statements without an sid cannot be overwritten.
+      required: no
+    override_json:
+      description: An IAM policy document to import and override the current policy document. Statements with non-blank sids in the override document will overwrite statements with the same sid in the current document. Statements without an sid cannot be overwritten.
+      required: no
+    statement:
+      description: A nested configuration block (described below) configuring one statement to be included in the policy document.
+      required: no
+      arguments:
+        actions:
+          description: A list of actions that this statement either allows or denies.
+          required: no
+          type: list
+        condition:
+          description: A nested configuration block (described below) that defines a further, possibly-service-specific condition that constrains whether this statement applies.
+          required: no
+          type: map
+        effect:
+          description: 'Either "Allow" or "Deny", to specify whether this statement allows or denies the given actions. The default is "Allow".'
+          required: no
+        not_actions:
+          description: A list of actions that this statement does not apply to. Used to apply a policy statement to all actions except those listed.
+          required: no
+          type: list
+        principals:
+          description: A nested configuration block (described below) specifying a resource (or resource pattern) to which this statement applies.
+          required: no
+          type: map
+        resources:
+          description: A list of resource ARNs that this statement applies to. This is required by AWS if used for an IAM policy.
+          required: no
+          type: list
+        sid:
+          description: An ID for the policy statement.
+          required: no
   attributes:
     json:
       description: The json representation of the policy document

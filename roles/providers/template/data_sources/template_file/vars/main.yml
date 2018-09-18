@@ -1,0 +1,2 @@
+---
+template_base: '{{ component.value._metadata.template | default(loaded_artifact._metadata.template) }}'

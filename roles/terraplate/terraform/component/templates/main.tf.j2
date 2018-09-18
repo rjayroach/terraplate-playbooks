@@ -1,13 +1,15 @@
 #jinja2: lstrip_blocks: True
-{% import 'variable.j2' as variable %}
-{% import 'argument.j2' as argument %}
-{% import 'attribute.j2' as attribute %}
 
 # {{ artifact.metadata.description }}
 # See: {{ artifact.metadata.url | default(template_data.default_url) }}
 
+{% if taction == 'use' %}
+{% import 'variable.j2' as variable %}
+{% import 'argument.j2' as argument %}
+{% import 'attribute.j2' as attribute %}
+
 {% for name, definition in artifact_definition.variables.iteritems() %}
-{{ variable.entry(name, definition, artifact.variables[name] | default(''), template_data) }}
+{{ variable.use(name, definition, artifact.variables[name] | default(''), template_data) }}
 {% endfor %}
 
 {%- if template_content %}
@@ -23,3 +25,17 @@
 {% for name, definition in artifact_definition.attributes.iteritems() %}
 {{ attribute.entry(name, definition, artifact.attributes[name] | default(''), template_data) }}
 {% endfor %}
+
+{% elif taction == 'generate' %}
+{% import 'argument.j2' as argument %}
+
+{% if template_content %}
+{{ template_content }}
+{% else %}
+{{ render_type }} "{{ artifact.metadata.type }}"{% if render_type != 'provider' %} "{{ artifact.metadata.name }}"{% endif %} {
+  {% for name, definition in artifact_definition.arguments.iteritems() %}
+{{ argument.entry(name, definition, artifact.arguments[name] | default(''), template_data) }}
+  {%- endfor %}
+}
+{% endif %}
+{% endif %}

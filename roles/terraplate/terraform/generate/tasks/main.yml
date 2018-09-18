@@ -1,0 +1,47 @@
+# TODO: accumulate all the values into a var much like qa collects the users answers
+# Then render everything in one template (as opposed to blockinfile) so there are not BEGIN/END blocks
+---
+- name: include vars
+  include_vars:
+    file: "{{ role_path }}/../../../modules/{{ template_name.split('_')[0] }}/{{ template_name.split('_')[1:] | join('_') }}.yml"
+    name: component_manifest
+
+- debug:
+    var: component_manifest
+
+- name: Create the module output directory tree
+  # terraform/modules/terraplate-aws-compute
+  file:
+    name: '{{ spec.terraplate.module.dir }}'
+    state: '{{ item }}'
+  with_items: ['absent', 'directory']
+
+- name: Include render tasks for Data Sources artifacts
+  include_tasks: render.yml
+  vars:
+    artifact_path: '/data_sources'
+    artifact_type: '{{ spec_artifact.metadata.type }}'
+    provider_doc_path: d
+    c_template_data:
+      doc_path: '/d/'
+      url_item: "{{ spec_artifact.metadata.type.split('_')[1:] | join('_') }}"
+    render_type: data
+  with_items: '{{ spec.data_sources }}'
+  loop_control:
+    loop_var: spec_artifact
+  when: false # spec.data_sources is defined
+
+- name: Include render tasks for Resources artifacts
+  include_tasks: render.yml
+  vars:
+    artifact_path: '/resources'
+    artifact_type: '{{ spec_artifact.metadata.type }}'
+    provider_doc_path: r
+    c_template_data:
+      doc_path: '/r/'
+      url_item: "{{ spec_artifact.metadata.type.split('_')[1:] | join('_') }}"
+    render_type: resource
+  with_items: '{{ spec.resources }}'
+  loop_control:
+    loop_var: spec_artifact
+  when: false # spec.resources is defined

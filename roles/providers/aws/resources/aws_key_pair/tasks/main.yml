@@ -1,0 +1,15 @@
+---
+- name: Load artifact vars
+  include_vars:
+    file: base.yml
+    name: base_vars
+
+- set_fact:
+    loaded_artifact: '{{ base_vars }}'
+
+- name: Generate the key pair
+  include_role:
+    name: terraplate/utils
+    tasks_from: ssh-key-gen
+  vars:
+    private_key_path: "{{ component.value.key_path }}/{{ base_vars.key_name }}"

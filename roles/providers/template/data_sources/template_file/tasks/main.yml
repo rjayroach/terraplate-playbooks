@@ -1,31 +1,29 @@
 ---
-- name: Load artifact vars
-  include_vars:
-    file: '{{ profile }}.yml'
-    name: profile_artifact
+# - debug: var=component
 
-- name: Load artifact vars
+- name: Load base vars
   include_vars:
-    file: base_artifact.yml
-    name: base_artifact
+    file: base.yml
+    name: base_vars
+
+- name: Load profile vars if defined
+  include_vars:
+    file: '{{ metadata.profile }}.yml'
+    name: profile_vars
+  when: metadata.profile is defined
 
 - set_fact:
-    loaded_artifact: '{{ base_artifact | combine(profile_artifact | default({}), recursive=True) }}'
+    loaded_artifact: '{{ base_vars | combine(profile_vars | default({}), recursive=True) }}'
 
-- name: Copy the template file to the component directory
-  copy:
-    src: '{{ loaded_artifact.metadata.template.file_name }}'
-    dest: '{{ spec.terraplate.component_dir }}/{{ loaded_artifact.metadata.template.file_name }}'
+# - debug: var=loaded_artifact
+# - debug: msg='{{ component.value._metadata.template | default(loaded_artifact._metadata.template) }}'
 
-- name: Add the null resource contents to component.tf
-  blockinfile:
-    create: yes
-    dest: "{{ spec.terraplate.component_dir }}/{{ spec.terraplate.monolithic_file_name }}.tf"
-    marker: "# {mark} {{ template_data.artifact.full_name | replace('template_file', 'null_resource') }}"
-    block: "{{ lookup('template', 'null_resource.tf.j2') }}" 
+- name: 'Create the {{ build_type }} directory: {{ spec.terraplate[build_type].target_dir }}'
+  file:
+    path: '{{ spec.terraplate[build_type].target_dir }}'
+    state: directory
 
-- name: Ensure the target file exists
-  copy:
-    dest: '{{ user_artifact.variables.path }}/{{ user_artifact.variables.name }}'
-    force: no
-    content: ''
+- name: 'Template the template file to {{ spec.terraplate[build_type].target_dir }}/{{ template_base }}'
+  template:
+    src: '{{ template_base }}.j2'
+    dest: '{{ spec.terraplate[build_type].target_dir }}/{{ template_base }}'

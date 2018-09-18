@@ -1,38 +1,16 @@
 ---
-base_artifact:
-  metadata:
-    type: terraform_remote_state
-    description: Retrieves state meta data from a remote backend
-    attribute_prefix: data.
-  
-  parents: {}
-  
-  defaults:
-    arguments:
-      backend: s3
-  
-  definition:
-    arguments:
-      backend:
-        description: The remote backend to use.
-        required: yes
-      config:
-        description: The configuration of the remote backend.
-        required: no
-        type: map
-        arguments:
-          bucket:
-            description: description
-            required: yes
-          key:
-            description: description
-            required: yes
-          region:
-            description: description
-            required: yes
-      environment:
-        description: The Terraform environment to use.
-        required: no
-      defaults:
-        description: The Terraform environment to use.
-        required: no
+_definition:
+  arguments:
+    backend:
+      description: The remote backend to use.
+      required: yes
+    config:
+      description: The configuration of the remote backend.
+      required: no
+      type: map
+    environment:
+      description: The Terraform environment to use.
+      required: no
+    defaults:
+      description: The Terraform environment to use.
+      required: no

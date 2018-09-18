@@ -1,18 +1,51 @@
 # NOTE: These values have no impact on the rendered template because a custom template is generated
 # They are here as a reference for when building a playbook so the user knows what the required arguments are
 ---
-defaults:
-  arguments:
-    cidr_blocks: 0.0.0.0/0
+# cidr_blocks: 0.0.0.0/0
+# source_json: '${file("${path.module}/{{ metadata.profile.split("/") | last }}.json")}'
+# 
+# _definition:
+#   arguments:
+#     cidr_blocks:
+#       description: 'The IP address that may access the bucket'
+#       required: yes
+#     aws_s3_bucket_name:
+#       description: 'The metadata name of the S3 bucket to which the application will be deployed'
+#       required: yes
+#     aws_iam_user_name:
+#       description: 'The metadata name of the IAM user which can read/write to the application bucket'
+#       required: yes
 
-definition:
-  arguments:
-    cidr_blocks:
-      description: 'The IP address that may access the bucket'
-      required: yes
-    aws_s3_bucket_name:
-      description: 'The metadata name of the S3 bucket to which the application will be deployed'
-      required: yes
-    aws_iam_user_name:
-      description: 'The metadata name of the IAM user which can read/write to the application bucket'
-      required: yes
+#
+# statement:
+#   effect: Allow
+#   sid: Stmt1EmberCLIS3DeployPolicy
+#   actions:
+#     - "s3:GetObject",
+#     - "s3:PutObject",
+#     - "s3:PutObjectACL",
+#   resources:
+#     - "arn:aws:s3:::${aws_s3_bucket.web_app.arn}/*",
+#   principals:
+#     type: "AWS"
+#     identifiers:
+#       - "${aws_iam_user.web_app_deployer.arn}"
+
+#
+# statement:
+#   effect: Deny
+#   sid: IPDeny
+#   actions: ["s3:*"]
+#   resources: ["arn:aws:s3:::${aws_s3_bucket.web_app.arn}/*"]
+#   principals:
+#     type: AWS
+#     identifiers: ["*"]
+#   condition:
+#     test: "IpAddress"
+#     variable: "aws:SourceIp"
+#     values: ["0.0.0.0/0"]
+#   condition:
+#     test: NotIpAddress
+#     variable: aws:SourceIp
+#     values:
+#       - "{{ user_artifact.arguments.cidr_blocks }}"

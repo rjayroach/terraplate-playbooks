@@ -1,35 +1,25 @@
+# The load vars is responsible to merge the values from component + manifest_component
+# and ensuring that all the five top level keys have a default dict with appropriate defaults
+# e.g. each argument definition default hash is { required: no, variable: no, description: none, refernece_from:{}}
+# arguments, attributes and variables are merged into a compoent.metadata so their values dont' stop on actual values
+# Tvalues and provisioners get merged directly into the component. So the result component is:
 ---
-metadata:
-  type: github_repository
-  description: Creates a GitHub repository
-
-parents: {}
-
-defaults:
-  arguments:
-    private:
-      default: 'true'
-
-definition:
+_definition:
   arguments:
     name:
       description: 'The name of the repository'
       required: yes
     description:
       description: 'A description of the repository'
-      required: no
     private:
-      default: 'true'
       description: 'Set to true to create a private repository. Repositories are created as public (e.g. open source) by default'
-      required: no
-
+  
   attributes:
     full_name:
       description: "A string of the form 'orgname/reponame'"
-      required: no
     git_clone_url:
       description: URL that can be provided to git clone to clone the repository anonymously via the git protocol
-      required: no
     ssh_clone_url:
       description: URL that can be provided to git clone to clone the repository via SSH
-      required: yes
+
+name: _key_

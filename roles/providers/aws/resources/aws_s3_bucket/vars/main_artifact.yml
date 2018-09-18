@@ -1,16 +1,12 @@
 ---
-metadata:
-  type: aws_s3_bucket
-  description: Creates an S3 Bucket for a website
+# _metadata:
+#   type: aws_s3_bucket
+#   description: Creates an S3 Bucket for a website
   
-parents: {}
-  
-defaults: {}
-
-definition:
+_definition:
   arguments:
     acl:
-      description: 'The canned ACL to apply. Defaults to "private".'
+      description: "The canned ACL to apply. Defaults to 'private'."
       required: no
     bucket:
       description: (Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name.
@@ -26,17 +22,19 @@ definition:
       required: no
       reference_from:
         aws_iam_policy_document: json
+        aws_iam_policy: policy
+        aws_s3_bucket_policy: policy
 
   attributes:
     arn:
       description: The ARN of the bucket. Will be of format arn:aws:s3:::bucketname.
-      required: yes
+      # required: yes
     hosted_zone_id:
       description: The Route 53 Hosted Zone ID for this bucket's region.
-      required: yes
+      # required: yes
     id:
       description: The name of the bucket.
-      required: yes
+      # required: yes
     region:
       description: The AWS region this bucket resides in.
-      required: yes
+      # required: yes

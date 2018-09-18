@@ -1,0 +1,11 @@
+---
+_definition:
+  arguments:
+    triggers:
+      description: 'The value that triggers this resource'
+      required: yes
+      variable: no
+      type: map
+  attributes:
+    id:
+      description: 'The id of the null resource'

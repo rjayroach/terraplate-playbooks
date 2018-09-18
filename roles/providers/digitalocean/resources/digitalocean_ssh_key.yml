@@ -1,0 +1,17 @@
+---
+_definition:
+  arguments:
+    name:
+      description: The name of the SSH key for identification
+      required: yes
+    public_key:
+      description: The public key. If this is a file, it can be read using the file interpolation function
+      required: yes
+
+  variables:
+    key_path:
+      description: The path to the public key contents
+      required: yes
+
+name: "{{ component.value.name | default(component.key.split('/')[2]) }}" #_key_
+public_key: '${file("${var.digitalocean_ssh_key_{{ component.key.split("/")[2] }}_key_path}/{{ component.value.name | default(component.key.split("/")[2]) }}.pub")}'

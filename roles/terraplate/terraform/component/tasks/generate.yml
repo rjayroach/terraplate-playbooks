@@ -1,0 +1,21 @@
+---
+- name: 'Render the artifact variables template for {{ template_data.artifact.full_name }}'
+  blockinfile:
+    create: yes
+    dest: '{{ spec.terraplate.component.dir }}/variables.tf'
+    marker: '# {mark} {{ template_data.artifact.full_name }}'
+    block: "{{ lookup('template', 'variable.j2') }}"
+
+- name: 'Render the artifact arguments template for {{ template_data.artifact.full_name }}'
+  blockinfile:
+    create: yes
+    dest: '{{ spec.terraplate.component.dir }}/main.tf'
+    marker: '# {mark} {{ template_data.artifact.full_name }}'
+    block: "{{ lookup('template', 'main.tf.j2') }}"
+
+- name: 'Render the artifact attributes template for {{ template_data.artifact.full_name }}'
+  blockinfile:
+    create: yes
+    dest: '{{ spec.terraplate.component.dir }}/outputs.tf'
+    marker: '# {mark} {{ template_data.artifact.full_name }}'
+    block: "{{ lookup('template', 'attribute.j2') }}"

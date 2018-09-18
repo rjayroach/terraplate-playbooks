@@ -16,7 +16,7 @@ artifact: { aws_access_key, bucket, ... }
 
 {% macro entry(name, definition, artifact, template_data) %}
   {% if 'entry' in template_data.debug_macros %}{% call h.debug('entry', {'name': name, 'definition': definition, 'artifact': artifact}) %}{% endcall %}{% endif %}
-  {% call doit(name, definition, artifact, template_data) %}{% endcall %}
+  {% call doit_r(name, definition, artifact, template_data) %}{% endcall %}
 {% endmacro %}{# NOTE: absence of '-' before endmacro is intended #}
 
 
@@ -58,7 +58,7 @@ artifact: { aws_access_key, bucket, ... }
 {{ ' ' * pad }}{{ name }} = "{{ value }}"
     { #}
     {% else %}
-      {% call h.key(name, template_data) %}{% endcall %} = {% call h.value(artifact, definition, template_data) %}{% endcall %}
+      {% call h.key(name, template_data) %}{% endcall %} = {% call h.value('${var.' + template_data.artifact.full_name_dot + '.' + name + '}', definition, template_data) %}{% endcall %}
     {% endif %}
   {% endif %}{{ caller() }}
 {%- endmacro %}

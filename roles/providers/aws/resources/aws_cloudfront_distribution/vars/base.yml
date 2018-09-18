@@ -1,36 +1,124 @@
 ---
-metadata:
-  type: aws_cloudfront_distribution
+origin:
+  custom_origin_config:
+    http_port: '80'
+    https_port: '443'
+    origin_protocol_policy: http-only
+    origin_ssl_protocols: ["TLSv1", "TLSv1.1", "TLSv1.2"]
 
-parents: {}
+enabled: 'true'
+default_root_object: index.html
 
-defaults: {}
+default_cache_behavior:
+  viewer_protocol_policy: redirect-to-https
+  compress: 'true'
+  allowed_methods: ["GET", "HEAD"]
+  cached_methods: ["GET", "HEAD"]
+  # target_origin_id: "${var.root_domain_name}"
+  min_ttl: '0'
+  default_ttl: '86400'
+  max_ttl: '31536000'
+  forwarded_values:
+    query_string: 'false'
+    cookies:
+      forward: 'none'
 
-definition:
-  arguments::
+viewer_certificate:
+  ssl_support_method: sni-only
+
+restrictions:
+  geo_restriction:
+    restriction_type: "none"
+
+_definition:
+  arguments:
+    restrictions:
+      arguments:
+        geo_restriction:
+          arguments:
+            restriction_type:
+              required: yes
     origin:
       description: description
-      type: map
-      domain_name: value
-      origin_id: value
-      s3_origin_config:
-        origin_access_identity: value
+      required: yes
+      arguments:
+        custom_origin_config:
+          arguments:
+            http_port:
+              description: description
+            https_port:
+              description: description
+            origin_protocol_policy:
+              description: description
+            origin_ssl_protocols:
+              description: description
+        domain_name:
+          reference_from:
+            aws_s3_bucket: website_endpoint
+          required: yes
+        origin_id:
+          required: yes
+      # s3_origin_config:
+      #   origin_access_identity:
+    viewer_certificate:
+      required: yes
+      arguments:
+        acm_certificate_arn:
+          required: yes
+          reference_from:
+            aws_acm_certificate: arn
+            terraform_remote_state: "aws_acm_certificate_{{ component.value.viewer_certificate.acm_certificate_arn.split('/') | last }}_arn"
+        ssl_support_method:
+          required: yes
+
+    default_cache_behavior:
+      required: yes
+      arguments:
+        target_origin_id:
+          required: yes
+        viewer_protocol_policy:
+          required: yes
+        compress:
+          required: yes
+        allowed_methods:
+          required: yes
+          type: list
+        cached_methods:
+          required: yes
+          type: list
+        min_ttl:
+          required: yes
+        default_ttl:
+          required: yes
+        max_ttl:
+          required: yes
+        forwarded_values:
+          required: yes
+          arguments:
+            query_string:
+              required: yes
+            cookies:
+              arguments:
+                forward:
+                  required: yes
+
+
     enabled:
       description: description
-      default: 'true'
-    is_ipv6_enabled:
+    default_root_object:
       description: description
-      default: 'false'
-    comment:
-      description: description
+    # is_ipv6_enabled:
+    #   description: description
+    # comment:
+    #   description: description
     aliases:
-      description: description
+      required:  yes
       type: list
-    logging_config:
-      type: map
-      include_cookies:
-        description: description
-      bucket:
-        description: description
-      prefix:
-        description: description
+    # logging_config:
+    #   arguments:
+    #     include_cookies:
+    #       description: description
+    #     bucket:
+    #       description: description
+    #     prefix:
+    #       description: description

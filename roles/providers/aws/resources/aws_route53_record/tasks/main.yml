@@ -1,25 +1,26 @@
 ---
+- name: Load base vars
+  include_vars:
+    file: base.yml
+    name: base_vars
+
 - name: Load records vars
   include_vars:
     file: records.yml
-    name: role_loaded_artifact
-  when: component.value.arguments.records is defined or component.value.metadata.profile is defined
+    name: profile_vars
+  when: component.value.records is defined
 
 - name: Load alias vars
   include_vars:
     file: alias.yml
-    name: role_loaded_artifact
-  when: component.value.arguments.alias is defined or (component.value.arguments.records is not defined and component.value.metadata.profile is not defined)
+    name: profile_vars
+  when: component.value.alias is defined
 
-- set_fact:
-    loaded_artifact: '{{ role_loaded_artifact }}'
-
-- name: Load profile_artifact vars
+- name: Load subdomain vars
   include_vars:
-    file: '{{ component.value.metadata.profile }}.yml'
-    name: profile_artifact
-  when: component.value.metadata is defined and component.value.metadata.profile is defined
+    file: subdomain.yml
+    name: profile_vars
+  when: component.value.subdomain is defined
 
 - set_fact:
-    loaded_artifact: '{{ role_loaded_artifact | combine(profile_artifact, recursive=True) }}'
-  when: component.value.metadata is defined and component.value.metadata.profile is defined
+    loaded_artifact: '{{ base_vars | combine(profile_vars | default({}), recursive=True) }}'

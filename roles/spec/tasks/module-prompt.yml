@@ -1,0 +1,21 @@
+---
+- debug: var=role_spec
+- debug: var=spec
+- debug: var=module_name
+- prompt:
+    msg:
+      say: Module name (module_name)
+      ask: module_name
+      default: '{{ role_spec.module_name }}'
+
+- include_tasks: debug.yml
+  vars:
+    debug_items: [module_sources]
+
+- name: show first existing file
+  set_fact:
+    module_source_dir: "{{ lookup('first_found', module_sources).split('/')[0:-2] | join('/') }}"
+
+- include_tasks: debug.yml
+  vars:
+    debug_items: [module_source_dir, module_vars]

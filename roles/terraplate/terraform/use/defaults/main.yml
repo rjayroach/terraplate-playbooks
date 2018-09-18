@@ -28,10 +28,11 @@ dspec:
         dynamodb_table: "{{ user_spec_terraplate.remote_state.dynamodb_table | default('my-terraform-state') }}"
 
     component:
-      dir: '{{ user_spec_terraplate.root_dir }}/{{ user_spec_terraplate.application_name }}/{{ user_spec_terraplate.component_name }}'
+      dir: '{{ user_spec_terraplate.root_dir }}/modules/terraplate-{{ user_spec_terraplate.component_name }}'
       debug_macros: '{{ user_spec_terraplate.debug_macros | default([]) }}'
       dependencies: '{{ user_spec_terraplate.dependencies | default([]) }}'
-      file_name: "{{ user_spec_terraplate.component_file_name | default('component') }}.tf"
+      # file_name: "{{ user_spec_terraplate.component_file_name | default('component') }}.tf"
+      file_name: main.tf
       name: '{{ user_spec_terraplate.component_name }}'
       variables:
         dir: '{{ user_spec_terraplate.vars_dir }}/{{ user_spec_terraplate.application_name }}/{{ user_spec_terraplate.component_name }}'

@@ -1,16 +1,5 @@
 ---
-metadata:
-  type: aws_eip
-  description: Provides an Elastic IP resource.
-
-parents:
-  aws_instance:
-    arguments:
-      instance: ${aws_instance._name_.id}
-
-defaults: {}
-
-definition:
+_definition:
   arguments:
     vpc:
       description: Boolean if the EIP is in a VPC or not

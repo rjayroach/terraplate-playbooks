@@ -6,12 +6,14 @@
   debug:
     var: spec 
     verbosity: 0
-  when: false
+ # when: false
 
 - name: Template the application files
   include_role:
     name: terraplate/terraform/application
+  when: false
 
 - name: Template the component files
   include_role:
     name: terraplate/terraform/component
+  when: false

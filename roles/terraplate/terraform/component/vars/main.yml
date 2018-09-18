@@ -35,7 +35,7 @@ parent_name_prefix: "{{ user_primary_artifact.metadata.name + '_' if artifact.me
 template_data:
   # TODO: Update for provider URL; This becomes just aws/index.html
   default_url: "https://www.terraform.io/docs/providers/{{ artifact.metadata.type.split('_')[0] }}{{ c_template_data.doc_path }}{{ c_template_data.url_item }}.html"
-  debug_macros: '{{ spec.terraplate.component.debug_macros }}'
+  debug_macros: '{{ spec.terraplate.module.debug_macros }}'
   # debug_macros: ['entry', 'doit_r', 'reference_from', 'resource_reference', 'data_reference']
   # debug_macros: ['reference_from', 'resource_reference', 'data_reference']
   # debug_macros: ['all']

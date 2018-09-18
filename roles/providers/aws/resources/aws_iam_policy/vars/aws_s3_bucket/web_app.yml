@@ -1,0 +1,4 @@
+# NOTE: These values have no impact on the rendered template because a custom template is generated
+# They are here as a reference for when building a playbook so the user knows what the required arguments are
+---
+policy: '${file("${path.module}/{{ metadata.profile.split("/") | last }}.json")}'

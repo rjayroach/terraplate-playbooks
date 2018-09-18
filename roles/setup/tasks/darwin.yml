@@ -1,0 +1,6 @@
+---
+- name: Brew install terraform and terragrunt
+  homebrew:
+    name: '{{ item }}'
+    state: present
+  with_items: [terraform, terragrunt]

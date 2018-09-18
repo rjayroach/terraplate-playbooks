@@ -10,6 +10,12 @@
 
 {% macro value(rstring, definition, template_data) %}
   {% if definition.type is defined %}
+    {% if definition.type == 'list' %}
+["{{ rstring | replace('_name_', template_data.parent.name) }}"]
+    {% elif definition.type == 'map' %}
+"{ {{ rstring | replace('_name_', template_data.parent.name) }}}"
+    {% endif %}
+{# }
     {% if definition.type == 'list' %}[
       {%- for list_item in rstring -%}
 "{{ list_item | replace('_name_', template_data.parent.name) }}",
@@ -17,6 +23,7 @@
     {% elif definition.type == 'map' %}{
       MAP! "{{ rstring | replace('_name_', template_data.parent.name) }}"
 }   {% endif %}
+{ #}
   {% else %}
 "{{ rstring | replace('_name_', template_data.parent.name) }}"
   {% endif %}

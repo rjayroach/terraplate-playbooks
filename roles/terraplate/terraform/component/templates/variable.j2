@@ -2,13 +2,29 @@
 
 {% import 'helpers.j2' as h %}
 
-{% macro entry(name, definition, artifact, template_data) %}
+{% macro generate(name, definition, artifact, template_data) %}
+  {% if definition.required or artifact | length > 0 %}
+variable "{{ template_data.artifact.full_name }}_{{ name }}" {
+    {% call h.key_value('description', definition.description, definition, template_data) %}{% endcall %}
+    {% call h.key_value('default', artifact, definition, template_data) %}{% endcall %}
+}
+  {% endif %}
+{% endmacro %}
+
+
+{% macro use(name, definition, artifact, template_data) %}
   {% if definition.required or artifact | length > 0 %}
 variable "{{ template_data.artifact.full_name }}_{{ name }}" {
     {% call h.key_value('description', definition.description, definition, template_data) %}{% endcall %}
 }
   {% endif %}
 {% endmacro %}
+
+{% if module_action == 'generate' %}
+  {% for name, definition in artifact_definition.arguments.iteritems() %}
+{{ generate(name, definition, artifact.arguments[name] | default(''), template_data) }}
+  {% endfor %}
+{% endif %}
 
     {# The purpose of variables is to have user supplied, so since all user supplied vars come from tfvars, don't write the default }
     {# NOTE: Also a HUGE security risk to write values such as GH token, AWS creds, etc to the terraform code 

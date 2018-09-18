@@ -3,18 +3,18 @@ metadata:
   type: aws_eip_association
   description: Provides an AWS EIP Association as a top level resource, to associate and disassociate Elastic IPs from AWS Instances and Network Interfaces.
 
-parents:
-  aws_instance:
-    arguments:
-      instance_id: ${aws_instance._name_.id}
-  aws_eip:
-    arguments:
-      allocation_id: ${aws_instance._name_.id}
-
-defaults: {}
-
 definition:
   arguments:
+    allocation_id:
+      description: The allocation ID. This is required for EC2-VPC.
+      reference_from:
+        aws_eip: id
+      required: no
+    instance_id:
+      description: The ID of the instance. This is required for EC2-Classic. For EC2-VPC, you can specify either the instance ID or the network interface ID, but not both
+      reference_from:
+        aws_instance: id
+      required: no
     private_ip_address:
       description: "The primary or secondary private IP address to associate with the Elastic IP address. If no private IP address is specified, the Elastic IP address is associated with the primary private IP address."
       required: no
